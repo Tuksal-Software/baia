@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'Yeni Slider')
+@section('title', __('New Slider'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.sliders.index') }}" class="text-slate-500 hover:text-slate-700">Sliderlar</a>
+    <a href="{{ route('admin.sliders.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Sliders') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-    <span class="text-slate-700 font-medium">Yeni Slider</span>
+    <span class="text-slate-700 font-medium">{{ __('New Slider') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-slate-900">Yeni Slider</h1>
-        <p class="text-sm text-slate-500 mt-1">Yeni bir slider olusturun</p>
+        <h1 class="text-2xl font-semibold text-slate-900">{{ __('New Slider') }}</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ __('Create a new slider') }}</p>
     </div>
 
     <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data">
@@ -21,64 +21,62 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-6">
-                <x-admin.card title="Temel Bilgiler">
+                <x-admin.card :title="__('Basic Information')">
                     <div class="space-y-4">
-                        <x-admin.form-input
+                        <x-admin.form-translatable-input
                             name="title"
-                            label="Baslik"
-                            placeholder="Slider basligi"
+                            label="{{ __('Title') }}"
+                            placeholder="{{ __('Slider title') }}"
                         />
 
-                        <x-admin.form-input
+                        <x-admin.form-translatable-input
                             name="subtitle"
-                            label="Alt Baslik"
-                            placeholder="Slider alt basligi"
+                            label="{{ __('Subtitle') }}"
+                            placeholder="{{ __('Slider subtitle') }}"
                         />
 
-                        <x-admin.form-textarea
+                        <x-admin.form-translatable-textarea
                             name="description"
-                            label="Aciklama"
+                            label="{{ __('Description') }}"
                             :rows="3"
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Gorseller">
+                <x-admin.card :title="__('Images')">
                     <div class="space-y-4">
                         <x-admin.form-image
                             name="image"
-                            label="Gorsel (Desktop)"
+                            label="{{ __('Image (Desktop)') }}"
                             required
-                            hint="Onerilen boyut: 1920x800px"
+                            hint="{{ __('Recommended size: 1920x800px') }}"
                         />
 
                         <x-admin.form-image
                             name="image_mobile"
-                            label="Gorsel (Mobil)"
-                            hint="Onerilen boyut: 768x600px"
+                            label="{{ __('Image (Mobile)') }}"
+                            hint="{{ __('Recommended size: 768x600px') }}"
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Buton Ayarlari">
+                <x-admin.card :title="__('Button Settings')">
                     <div class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <x-admin.form-input
-                                name="button_text"
-                                label="Buton Metni"
-                                placeholder="Orn: Kesfet"
-                            />
+                        <x-admin.form-translatable-input
+                            name="button_text"
+                            label="{{ __('Button Text') }}"
+                            placeholder="{{ __('e.g. Discover') }}"
+                        />
 
-                            <x-admin.form-input
-                                name="button_link"
-                                label="Buton Linki"
-                                placeholder="/kategori/..."
-                            />
-                        </div>
+                        <x-admin.form-input
+                            name="button_link"
+                            label="{{ __('Button Link') }}"
+                            placeholder="/category/..."
+                        />
 
                         <x-admin.form-select
                             name="button_style"
-                            label="Buton Stili"
+                            label="{{ __('Button Style') }}"
                             :options="[
                                 'primary' => 'Primary',
                                 'secondary' => 'Secondary',
@@ -92,19 +90,19 @@
 
             <!-- Sidebar -->
             <div class="space-y-6">
-                <x-admin.card title="Yayin Ayarlari">
+                <x-admin.card :title="__('Publish Settings')">
                     <div class="space-y-4">
                         <x-admin.form-toggle
                             name="is_active"
-                            label="Aktif"
-                            description="Slider sitede gorunur"
+                            label="{{ __('Active') }}"
+                            description="{{ __('Slider is visible on the site') }}"
                             :checked="old('is_active', true)"
                         />
 
                         <x-admin.form-input
                             name="order"
                             type="number"
-                            label="Sira"
+                            label="{{ __('Order') }}"
                             :value="old('order', 0)"
                             min="0"
                         />
@@ -112,32 +110,32 @@
                         <x-admin.form-input
                             name="starts_at"
                             type="datetime-local"
-                            label="Baslangic Tarihi"
+                            label="{{ __('Start Date') }}"
                         />
 
                         <x-admin.form-input
                             name="ends_at"
                             type="datetime-local"
-                            label="Bitis Tarihi"
+                            label="{{ __('End Date') }}"
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Gorunum Ayarlari">
+                <x-admin.card :title="__('Display Settings')">
                     <div class="space-y-4">
                         <x-admin.form-select
                             name="text_position"
-                            label="Metin Pozisyonu"
+                            label="{{ __('Text Position') }}"
                             :options="[
-                                'left' => 'Sol',
-                                'center' => 'Orta',
-                                'right' => 'Sag',
+                                'left' => __('Left'),
+                                'center' => __('Center'),
+                                'right' => __('Right'),
                             ]"
                             :value="old('text_position', 'center')"
                         />
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Metin Rengi</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('Text Color') }}</label>
                             <input type="color"
                                    name="text_color"
                                    value="{{ old('text_color', '#ffffff') }}"
@@ -146,7 +144,7 @@
 
                         <x-admin.form-input
                             name="overlay_color"
-                            label="Overlay Rengi"
+                            label="{{ __('Overlay Color') }}"
                             placeholder="rgba(0,0,0,0.3)"
                         />
                     </div>
@@ -156,10 +154,10 @@
 
         <div class="mt-6 flex items-center gap-3">
             <x-admin.button type="submit" icon="fa-check">
-                Kaydet
+                {{ __('Save') }}
             </x-admin.button>
             <x-admin.button href="{{ route('admin.sliders.index') }}" variant="ghost">
-                Iptal
+                {{ __('Cancel') }}
             </x-admin.button>
         </div>
     </form>

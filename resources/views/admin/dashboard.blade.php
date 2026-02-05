@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
+@section('title', __('Dashboard'))
 
 @section('content')
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-2xl font-semibold text-slate-900">Dashboard</h1>
-        <p class="text-sm text-slate-500 mt-1">BAIA e-ticaret yonetim paneline hos geldiniz</p>
+        <h1 class="text-2xl font-semibold text-slate-900">{{ __('Dashboard') }}</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ __('Welcome to BAIA e-commerce admin panel') }}</p>
     </div>
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <x-admin.stats-card
-            title="Toplam Urun"
+            :title="__('Total Products')"
             :value="$stats['total_products']"
             icon="fa-box"
             color="primary"
@@ -20,7 +20,7 @@
         />
 
         <x-admin.stats-card
-            title="Toplam Siparis"
+            :title="__('Total Orders')"
             :value="$stats['total_orders']"
             icon="fa-shopping-bag"
             color="info"
@@ -28,7 +28,7 @@
         />
 
         <x-admin.stats-card
-            title="Bekleyen Siparis"
+            :title="__('Pending Orders')"
             :value="$stats['pending_orders']"
             icon="fa-clock"
             color="warning"
@@ -36,7 +36,7 @@
         />
 
         <x-admin.stats-card
-            title="Bekleyen Yorum"
+            :title="__('Pending Reviews')"
             :value="$stats['pending_reviews']"
             icon="fa-star"
             color="success"
@@ -47,10 +47,10 @@
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Recent Orders -->
-        <x-admin.card title="Son Siparisler" subtitle="Son 10 siparis">
+        <x-admin.card :title="__('Recent Orders')" :subtitle="__('Last 10 orders')">
             <x-slot:actions>
                 <x-admin.button href="{{ route('admin.orders.index') }}" variant="ghost" size="sm">
-                    Tumunu Gor
+                    {{ __('View All') }}
                 </x-admin.button>
             </x-slot:actions>
 
@@ -69,7 +69,7 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-semibold text-slate-900">{{ number_format($order->total, 2) }} TL</p>
+                                <p class="text-sm font-semibold text-slate-900">{{ number_format($order->total, 2) }} {{ __('TL') }}</p>
                                 @php
                                     $statusColors = [
                                         'pending' => 'warning',
@@ -81,7 +81,7 @@
                                     ];
                                 @endphp
                                 <x-admin.badge :variant="$statusColors[$order->status] ?? 'default'" size="sm" dot>
-                                    {{ $order->status_label }}
+                                    {{ __($order->status) }}
                                 </x-admin.badge>
                             </div>
                         </a>
@@ -90,17 +90,17 @@
             @else
                 <x-admin.empty-state
                     icon="fa-shopping-bag"
-                    title="Henuz siparis yok"
-                    description="Siparisler burada gorunecek"
+                    :title="__('No orders yet')"
+                    :description="__('Orders will appear here')"
                 />
             @endif
         </x-admin.card>
 
         <!-- Low Stock Products -->
-        <x-admin.card title="Dusuk Stoklu Urunler" subtitle="Stok miktari 5 ve alti">
+        <x-admin.card :title="__('Low Stock Products')" :subtitle="__('Stock quantity 5 and below')">
             <x-slot:actions>
                 <x-admin.button href="{{ route('admin.products.index') }}?stock=low" variant="ghost" size="sm">
-                    Tumunu Gor
+                    {{ __('View All') }}
                 </x-admin.button>
             </x-slot:actions>
 
@@ -121,11 +121,11 @@
                                 @endif
                                 <div>
                                     <p class="text-sm font-medium text-slate-900 line-clamp-1">{{ $product->name }}</p>
-                                    <p class="text-xs text-slate-500">SKU: {{ $product->sku ?? '-' }}</p>
+                                    <p class="text-xs text-slate-500">{{ __('SKU') }}: {{ $product->sku ?? '-' }}</p>
                                 </div>
                             </div>
                             <x-admin.badge :variant="$product->stock == 0 ? 'danger' : 'warning'" size="sm">
-                                {{ $product->stock }} adet
+                                {{ $product->stock }} {{ __('pieces') }}
                             </x-admin.badge>
                         </a>
                     @endforeach
@@ -133,22 +133,22 @@
             @else
                 <x-admin.empty-state
                     icon="fa-box"
-                    title="Tum urunler stokta"
-                    description="Dusuk stoklu urun bulunmuyor"
+                    :title="__('All products in stock')"
+                    :description="__('No low stock products found')"
                 />
             @endif
         </x-admin.card>
     </div>
 
     <!-- Quick Actions -->
-    <x-admin.card title="Hizli Islemler" subtitle="Sik kullanilan islemler">
+    <x-admin.card :title="__('Quick Actions')" :subtitle="__('Frequently used actions')">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <a href="{{ route('admin.products.create') }}"
                class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50 transition-colors group">
                 <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center group-hover:bg-primary-200 transition-colors">
                     <i class="fas fa-plus text-lg"></i>
                 </div>
-                <span class="text-sm font-medium text-slate-700 group-hover:text-primary-700">Yeni Urun</span>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-primary-700">{{ __('New Product') }}</span>
             </a>
 
             <a href="{{ route('admin.categories.create') }}"
@@ -156,7 +156,7 @@
                 <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
                     <i class="fas fa-folder-plus text-lg"></i>
                 </div>
-                <span class="text-sm font-medium text-slate-700 group-hover:text-emerald-700">Yeni Kategori</span>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-emerald-700">{{ __('New Category') }}</span>
             </a>
 
             <a href="{{ route('admin.discount-codes.create') }}"
@@ -164,7 +164,7 @@
                 <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors">
                     <i class="fas fa-tags text-lg"></i>
                 </div>
-                <span class="text-sm font-medium text-slate-700 group-hover:text-amber-700">Indirim Kodu</span>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-amber-700">{{ __('Discount Codes') }}</span>
             </a>
 
             <a href="{{ route('admin.orders.export') }}"
@@ -172,23 +172,23 @@
                 <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center group-hover:bg-sky-200 transition-colors">
                     <i class="fas fa-download text-lg"></i>
                 </div>
-                <span class="text-sm font-medium text-slate-700 group-hover:text-sky-700">Siparis Raporu</span>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-sky-700">{{ __('Order Report') }}</span>
             </a>
         </div>
     </x-admin.card>
 
     <!-- Order Status Overview -->
     @if($ordersByStatus->count() > 0)
-        <x-admin.card title="Siparis Durumu Ozeti" class="mt-6">
+        <x-admin.card :title="__('Order Status Overview')" class="mt-6">
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 @php
                     $statusConfig = [
-                        'pending' => ['label' => 'Beklemede', 'color' => 'bg-amber-100 text-amber-700', 'icon' => 'fa-clock'],
-                        'confirmed' => ['label' => 'Onaylandi', 'color' => 'bg-sky-100 text-sky-700', 'icon' => 'fa-check'],
-                        'preparing' => ['label' => 'Hazirlaniyor', 'color' => 'bg-indigo-100 text-indigo-700', 'icon' => 'fa-box'],
-                        'shipped' => ['label' => 'Kargoda', 'color' => 'bg-purple-100 text-purple-700', 'icon' => 'fa-truck'],
-                        'delivered' => ['label' => 'Teslim Edildi', 'color' => 'bg-emerald-100 text-emerald-700', 'icon' => 'fa-check-circle'],
-                        'cancelled' => ['label' => 'Iptal', 'color' => 'bg-rose-100 text-rose-700', 'icon' => 'fa-times-circle'],
+                        'pending' => ['label' => __('Pending'), 'color' => 'bg-amber-100 text-amber-700', 'icon' => 'fa-clock'],
+                        'confirmed' => ['label' => __('Confirmed'), 'color' => 'bg-sky-100 text-sky-700', 'icon' => 'fa-check'],
+                        'preparing' => ['label' => __('Preparing'), 'color' => 'bg-indigo-100 text-indigo-700', 'icon' => 'fa-box'],
+                        'shipped' => ['label' => __('Shipped'), 'color' => 'bg-purple-100 text-purple-700', 'icon' => 'fa-truck'],
+                        'delivered' => ['label' => __('Delivered'), 'color' => 'bg-emerald-100 text-emerald-700', 'icon' => 'fa-check-circle'],
+                        'cancelled' => ['label' => __('Cancelled'), 'color' => 'bg-rose-100 text-rose-700', 'icon' => 'fa-times-circle'],
                     ];
                 @endphp
                 @foreach($statusConfig as $status => $config)

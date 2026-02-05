@@ -35,103 +35,168 @@ Tarama sonrası `.claude/knowledge/` içine şu dosyaları YARAT:
 
 ---
 
-## 🚀 TAMAMEN OTOMATİK WORKFLOW
+## 🚀 TASK-BASED WORKFLOW
 
-**KULLANICI BİR İSTEK VERDİĞİNDE TÜM ADIMLAR OTOMATİK ÇALIŞIR - KULLANICIDAN ONAY BEKLEME!**
+**HER KULLANICI İSTEĞİ BİR TASK DOSYASI OLUŞTURUR!**
+
+### Task Dosya Yapısı
+```
+.claude/tasks/
+├── task-template.json           # Şablon
+├── 2026-02-05_001_slug-fix.json # Örnek task
+├── 2026-02-05_002_feature-x.json
+└── ...
+```
+
+### Task ID Format
+```
+{YYYY-MM-DD}_{SEQ}_{short-description}.json
+Örnek: 2026-02-05_001_slug-duplicate-fix.json
+```
+
+---
+
+## WORKFLOW ADIMLARI
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    KULLANICI İSTEĞİ                                 │
 └───────────────────────────┬─────────────────────────────────────────┘
                             │
-                            ▼ (OTOMATİK)
+                            ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│  📋 PRODUCT MANAGER: Task analizi ve planlama                       │
-└───────────────────────────┬─────────────────────────────────────────┘
-                            │
-                            ▼ (OTOMATİK - BEKLEME YOK)
-┌─────────────────────────────────────────────────────────────────────┐
-│  💻 DEVELOPER: Kod yazma + Knowledge güncelleme                     │
-└───────────────────────────┬─────────────────────────────────────────┘
-                            │
-                            ▼ (OTOMATİK - BEKLEME YOK)
-┌─────────────────────────────────────────────────────────────────────┐
-│  🧪 QA AGENT: Test etme + Bug raporlama                             │
+│  📋 ADIM 1: PRODUCT MANAGER                                         │
+│  ─────────────────────────────────────────────────────────────────  │
+│  1. Task JSON dosyası oluştur (.claude/tasks/)                      │
+│  2. user_prompt, analysis, affected_files, acceptance_criteria doldur│
+│  3. Edge case'leri listele                                          │
+│  4. Task dosyasını KAYDET                                           │
 └───────────────────────────┬─────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│  ✅ SONUÇ: Kullanıcıya özet rapor                                   │
+│  💻 ADIM 2: DEVELOPER                                               │
+│  ─────────────────────────────────────────────────────────────────  │
+│  1. Task JSON'dan acceptance_criteria oku                           │
+│  2. affected_files'ı tara ve değiştir                               │
+│  3. Task JSON'a developer.changes ekle                              │
+│  4. Knowledge dosyalarını güncelle                                  │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  🧪 ADIM 3: QA AGENT                                                │
+│  ─────────────────────────────────────────────────────────────────  │
+│  1. acceptance_criteria'yı kontrol et                               │
+│  2. edge_cases'i test et (teorik)                                   │
+│  3. Task JSON'a qa section ekle                                     │
+│  4. Kullanıcının test etmesi gerekenleri listele                    │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  ✅ ADIM 4: SONUÇ                                                   │
+│  ─────────────────────────────────────────────────────────────────  │
+│  1. Task JSON'a result section ekle                                 │
+│  2. status: completed yap                                           │
+│  3. Kullanıcıya özet rapor ver                                      │
+│  4. Task dosya yolunu bildir                                        │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ADIM 1: KNOWLEDGE CHECK (Sessiz)
+## TASK JSON YAPISI
+
+```json
+{
+  "id": "2026-02-05_001",
+  "timestamp": "2026-02-05T15:30:00Z",
+  "status": "pending | in_progress | completed | failed",
+
+  "user_prompt": "Kullanıcının yazdığı orijinal istek",
+
+  "product_manager": {
+    "analysis": "Ne yapılması gerekiyor?",
+    "affected_files": ["dosya1.php", "dosya2.blade.php"],
+    "acceptance_criteria": ["Kriter 1", "Kriter 2"],
+    "edge_cases": ["Edge case 1", "Edge case 2"],
+    "priority": "high | medium | low"
+  },
+
+  "developer": {
+    "approach": "Teknik çözüm yaklaşımı",
+    "changes": [
+      {"file": "x.php", "action": "modify", "description": "Ne yapıldı"}
+    ]
+  },
+
+  "qa": {
+    "tests_performed": ["Test 1", "Test 2"],
+    "issues_found": [],
+    "user_should_test": ["Kullanıcı şunu test etmeli"]
+  },
+
+  "result": {
+    "success": true,
+    "summary": "Özet",
+    "user_action_required": "Varsa kullanıcının yapması gereken"
+  }
+}
+```
+
+---
+
+## ÇIKTI FORMATI
+
+Her task tamamlandığında kullanıcıya şu formatta rapor ver:
 
 ```
-1. .claude/knowledge/ dosyalarını oku
-2. İlgili modelleri, route'ları, servisleri HATIRLA
-3. Mevcut yapıyı anla
+📋 TASK: {task_id}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 İSTEK:
+{user_prompt}
+
+🔍 ANALİZ:
+{product_manager.analysis}
+
+📁 ETKİLENEN DOSYALAR:
+- {file1}
+- {file2}
+
+✅ ACCEPTANCE CRITERIA:
+- [ ] {criteria1}
+- [ ] {criteria2}
+
+💻 YAPILAN DEĞİŞİKLİKLER:
+- {change1}
+- {change2}
+
+🧪 QA - KULLANICININ TEST ETMESİ GEREKENLER:
+- {test1}
+- {test2}
+
+📄 TASK DOSYASI: .claude/tasks/{task_id}.json
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---
 
-## ADIM 2: PRODUCT MANAGER PHASE (Otomatik)
-
-`.claude/product-manager.md` kurallarına göre:
-1. **Knowledge'dan** mevcut yapıyı kontrol et
-2. İsteği analiz et
-3. Task planı oluştur (acceptance criteria dahil)
-4. **KULLANICIDAN ONAY BEKLEME** - direkt Developer phase'e geç
-
----
-
-## ADIM 3: DEVELOPER PHASE (Otomatik)
-
-`.claude/laravel-developer.md` kurallarına göre:
-1. **Knowledge'dan** ilgili kodları oku
-2. Mevcut pattern'leri takip et
-3. Laravel best practices ile kodu yaz
-4. **Knowledge dosyalarını GÜNCELLE**
-5. **KULLANICIDAN ONAY BEKLEME** - direkt QA phase'e geç
-
----
-
-## ADIM 4: QA PHASE (Otomatik)
-
-**⚠️ BU ADIM HER ZAMAN ÇALIŞIR - ATLAMA!**
-
-`.claude/qa-agent.md` kurallarına göre:
-1. Yapılan değişiklikleri test et
-2. Siteyi browser'da test et (mümkünse)
-3. Edge case'leri kontrol et
-4. Bug varsa raporla ve düzelt
-5. Final rapor oluştur
-
-### QA Kontrol Listesi:
-- [ ] Sayfa yükleniyor mu?
-- [ ] Görseller görünüyor mu?
-- [ ] Linkler çalışıyor mu?
-- [ ] Mobile responsive mi?
-- [ ] Console'da hata var mı?
-- [ ] PHP/Laravel hataları var mı?
-
----
-
-## WORKFLOW KURALLARI
+## ZORUNLU KURALLAR
 
 ### ❌ YAPMA:
-- Kullanıcıdan onay bekleme
+- Task dosyası oluşturmadan kod yazma
+- acceptance_criteria belirlemeden geliştirme yapma
+- QA section'ı boş bırakma
 - "Devam edeyim mi?" diye sorma
-- QA phase'i atlama
-- Knowledge güncellemeyi unutma
 
 ### ✅ YAP:
-- Tüm adımları otomatik çalıştır
-- Her adımı sessizce tamamla
-- Sadece sonuçları raporla
-- Hata varsa düzelt ve devam et
+- HER istek için task JSON oluştur
+- TÜM affected_files'ı tara
+- Edge case'leri düşün ve listele
+- Kullanıcının test etmesi gerekenleri belirt
+- Task dosya yolunu kullanıcıya bildir
 
 ---
 
@@ -143,70 +208,29 @@ Tarama sonrası `.claude/knowledge/` içine şu dosyaları YARAT:
 | Senior Laravel Dev | `.claude/laravel-developer.md` | Kod yazma |
 | QA Engineer | `.claude/qa-agent.md` | Test, validation |
 
-## CODING STANDARDS
-
-| Framework | Dosya |
-|-----------|-------|
-| Laravel | `.claude/coding-standards/laravel.md` |
-
 ## KNOWLEDGE DOSYALARI
 
 | Dosya | İçerik |
 |-------|--------|
-| `project-structure.md` | Genel mimari |
-| `models.md` | Model ve ilişkiler |
-| `routes.md` | API/Web routes |
-| `database.md` | DB şeması |
-| `services.md` | Business logic |
-| `frontend.md` | UI yapısı |
-| `changelog.md` | Değişiklik logu |
+| `knowledge/project-structure.md` | Genel mimari |
+| `knowledge/models.md` | Model ve ilişkiler |
+| `knowledge/routes.md` | API/Web routes |
+| `knowledge/database.md` | DB şeması |
+| `knowledge/changelog.md` | Değişiklik logu |
+| `MEMORY.md` | Öğrenilen dersler, hatalar |
+| `tasks/*.json` | Task geçmişi |
 
 ---
 
-## ÖRNEK AKIŞ
+## ÖRNEK
 
-**Kullanıcı:** "Navbar'a arama özelliği ekle"
+**Kullanıcı:** "Slug duplicate hatası var"
 
-**Claude (Otomatik - Sessiz):**
-```
-📋 PM: Arama özelliği planlanıyor...
-💻 DEV: SearchController oluşturuluyor...
-💻 DEV: search.blade.php oluşturuluyor...
-💻 DEV: Route ekleniyor...
-📝 Knowledge güncelleniyor...
-🧪 QA: Test ediliyor...
-```
+**Claude:**
+1. `.claude/tasks/2026-02-05_001_slug-duplicate-fix.json` oluşturur
+2. PM section doldurur (analysis, affected_files, criteria)
+3. Developer section doldurur (approach, changes)
+4. QA section doldurur (tests, user_should_test)
+5. Kullanıcıya rapor verir + task dosya yolunu bildirir
 
-**Claude (Kullanıcıya Rapor):**
-```
-✅ Arama özelliği eklendi!
-
-Yapılanlar:
-- SearchController oluşturuldu
-- /ara route'u eklendi
-- Navbar'a arama ikonu eklendi
-
-QA Sonucu:
-- ✅ Sayfa yükleniyor
-- ✅ Arama çalışıyor
-- ✅ Sonuçlar gösteriliyor
-
-Dosyalar:
-- app/Http/Controllers/SearchController.php
-- resources/views/search/index.blade.php
-- routes/web.php (güncellendi)
-```
-
----
-
-## CONFIG
-
-### Laravel Project Requirements
-```json
-{
-  "require": {
-    "php": "^8.2",
-    "laravel/framework": "^12.0"
-  }
-}
-```
+Kullanıcı `.claude/tasks/` klasörüne bakarak tüm geçmişi görebilir.

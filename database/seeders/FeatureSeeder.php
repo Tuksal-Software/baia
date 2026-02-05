@@ -15,8 +15,8 @@ class FeatureSeeder extends Seeder
         $features = [
             [
                 'icon' => 'truck',
-                'title' => 'Ücretsiz Kargo',
-                'description' => '2000₺ üzeri siparişlerde',
+                'title' => ['tr' => 'Ücretsiz Kargo', 'en' => 'Free Shipping', 'de' => 'Kostenloser Versand'],
+                'description' => ['tr' => '2000₺ üzeri siparişlerde', 'en' => 'On orders over 2000₺', 'de' => 'Bei Bestellungen über 2000₺'],
                 'link' => '/kargo-teslimat',
                 'position' => 'home',
                 'order' => 1,
@@ -24,8 +24,8 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'icon' => 'shield-check',
-                'title' => '2 Yıl Garanti',
-                'description' => 'Tüm ürünlerde geçerli',
+                'title' => ['tr' => '2 Yıl Garanti', 'en' => '2 Year Warranty', 'de' => '2 Jahre Garantie'],
+                'description' => ['tr' => 'Tüm ürünlerde geçerli', 'en' => 'Valid on all products', 'de' => 'Gültig für alle Produkte'],
                 'link' => '/garanti',
                 'position' => 'home',
                 'order' => 2,
@@ -33,8 +33,8 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'icon' => 'refresh-cw',
-                'title' => '14 Gün İade',
-                'description' => 'Koşulsuz iade garantisi',
+                'title' => ['tr' => '14 Gün İade', 'en' => '14 Day Returns', 'de' => '14 Tage Rückgabe'],
+                'description' => ['tr' => 'Koşulsuz iade garantisi', 'en' => 'Unconditional return guarantee', 'de' => 'Bedingungslose Rückgabegarantie'],
                 'link' => '/iade-degisim',
                 'position' => 'home',
                 'order' => 3,
@@ -42,8 +42,8 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'icon' => 'credit-card',
-                'title' => 'Güvenli Ödeme',
-                'description' => '256-bit SSL koruma',
+                'title' => ['tr' => 'Güvenli Ödeme', 'en' => 'Secure Payment', 'de' => 'Sichere Zahlung'],
+                'description' => ['tr' => '256-bit SSL koruma', 'en' => '256-bit SSL protection', 'de' => '256-Bit SSL-Schutz'],
                 'link' => null,
                 'position' => 'home',
                 'order' => 4,
@@ -51,8 +51,8 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'icon' => 'headphones',
-                'title' => 'Müşteri Desteği',
-                'description' => '7/24 destek hattı',
+                'title' => ['tr' => 'Müşteri Desteği', 'en' => 'Customer Support', 'de' => 'Kundendienst'],
+                'description' => ['tr' => '7/24 destek hattı', 'en' => '24/7 support line', 'de' => '24/7 Support-Hotline'],
                 'link' => '/iletisim',
                 'position' => 'footer',
                 'order' => 1,
@@ -60,8 +60,8 @@ class FeatureSeeder extends Seeder
             ],
             [
                 'icon' => 'package',
-                'title' => 'Kolay Montaj',
-                'description' => 'Detaylı montaj kılavuzu',
+                'title' => ['tr' => 'Kolay Montaj', 'en' => 'Easy Assembly', 'de' => 'Einfache Montage'],
+                'description' => ['tr' => 'Detaylı montaj kılavuzu', 'en' => 'Detailed assembly guide', 'de' => 'Detaillierte Montageanleitung'],
                 'link' => null,
                 'position' => 'footer',
                 'order' => 2,
@@ -70,10 +70,7 @@ class FeatureSeeder extends Seeder
         ];
 
         foreach ($features as $feature) {
-            Feature::updateOrCreate(
-                ['title' => $feature['title'], 'position' => $feature['position']],
-                $feature
-            );
+            Feature::create($feature);
         }
     }
 }

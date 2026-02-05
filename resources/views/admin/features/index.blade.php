@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Ozellikler')
+@section('title', __('Features'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Ozellikler</span>
+    <span class="text-slate-700 font-medium">{{ __('Features') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Ozellikler</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ $features->count() }} ozellik</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Features') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ $features->count() }} {{ __('features') }}</p>
         </div>
         <x-admin.button href="{{ route('admin.features.create') }}" icon="fa-plus">
-            Yeni Ozellik
+            {{ __('New Feature') }}
         </x-admin.button>
     </div>
 
@@ -23,7 +23,7 @@
         <div class="p-4 flex gap-2 flex-wrap">
             <a href="{{ route('admin.features.index') }}"
                class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors {{ !request('position') ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
-                Tumu
+                {{ __('All') }}
             </a>
             @foreach($positions as $key => $label)
                 <a href="{{ route('admin.features.index', ['position' => $key]) }}"
@@ -36,13 +36,13 @@
 
     <!-- Features Table -->
     <x-admin.data-table :headers="[
-        ['label' => 'Ikon', 'width' => '70px'],
-        ['label' => 'Baslik', 'width' => '20%'],
-        'Aciklama',
-        ['label' => 'Pozisyon', 'class' => 'text-center'],
-        ['label' => 'Sira', 'class' => 'text-center'],
-        ['label' => 'Durum', 'class' => 'text-center'],
-        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '120px'],
+        ['label' => __('Icon'), 'width' => '70px'],
+        ['label' => __('Title'), 'width' => '20%'],
+        __('Description'),
+        ['label' => __('Position'), 'class' => 'text-center'],
+        ['label' => __('Order'), 'class' => 'text-center'],
+        ['label' => __('Status'), 'class' => 'text-center'],
+        ['label' => __('Actions'), 'class' => 'text-right', 'width' => '120px'],
     ]">
         @forelse($features as $feature)
             <tr class="hover:bg-slate-50 transition-colors">
@@ -71,7 +71,7 @@
                         @method('PATCH')
                         <button type="submit">
                             <x-admin.badge :variant="$feature->is_active ? 'success' : 'danger'" size="sm" dot>
-                                {{ $feature->is_active ? 'Aktif' : 'Pasif' }}
+                                {{ $feature->is_active ? __('Active') : __('Inactive') }}
                             </x-admin.badge>
                         </button>
                     </form>
@@ -80,18 +80,18 @@
                     <div class="flex items-center justify-end gap-1">
                         <a href="{{ route('admin.features.edit', $feature) }}"
                            class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                           title="Duzenle">
+                           title="{{ __('Edit') }}">
                             <i class="fas fa-edit text-sm"></i>
                         </a>
                         <form action="{{ route('admin.features.destroy', $feature) }}"
                               method="POST"
                               class="inline"
-                              onsubmit="return confirm('Bu ozelligi silmek istediginizden emin misiniz?')">
+                              onsubmit="return confirm('{{ __('Are you sure you want to delete this feature?') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                    title="Sil">
+                                    title="{{ __('Delete') }}">
                                 <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
@@ -103,9 +103,9 @@
                 <td colspan="7" class="px-4 py-12">
                     <x-admin.empty-state
                         icon="fa-star"
-                        title="Ozellik bulunamadi"
-                        description="Henuz ozellik eklenmemis"
-                        action="Yeni Ozellik Ekle"
+                        :title="__('No features found')"
+                        :description="__('No features have been added yet')"
+                        :action="__('Add New Feature')"
                         :actionUrl="route('admin.features.create')"
                     />
                 </td>

@@ -20,14 +20,51 @@
             </div>
         </div>
 
-        <!-- Right: Actions + User Menu -->
+        <!-- Right: Actions + Language + User Menu -->
         <div class="flex items-center gap-2">
             <!-- Quick Actions -->
             <a href="{{ route('admin.products.create') }}"
                class="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
                 <i class="fas fa-plus text-xs"></i>
-                <span>Yeni Urun</span>
+                <span>{{ __('New Product') }}</span>
             </a>
+
+            <!-- Language Switcher -->
+            @php
+                $locales = config('app.available_locales', []);
+                $currentLocale = app()->getLocale();
+            @endphp
+            <div x-data="{ langOpen: false }" class="relative">
+                <button @click="langOpen = !langOpen"
+                        class="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-globe text-slate-400"></i>
+                    <span class="uppercase font-medium">{{ $currentLocale }}</span>
+                    <i class="fas fa-chevron-down text-xs text-slate-400"></i>
+                </button>
+
+                <div x-show="langOpen"
+                     x-cloak
+                     @click.away="langOpen = false"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
+                    <div class="px-3 py-1.5 text-xs font-medium text-slate-400 uppercase">{{ __('Language') }}</div>
+                    @foreach($locales as $locale => $data)
+                        <a href="{{ route('language.switch', $locale) }}"
+                           class="flex items-center gap-2 px-3 py-2 text-sm {{ $locale === $currentLocale ? 'bg-primary-50 text-primary-700' : 'text-slate-700 hover:bg-slate-50' }}">
+                            <span class="w-5 text-center">{{ $data['flag'] ?? '🌐' }}</span>
+                            <span>{{ __($data['name'] ?? ucfirst($locale)) }}</span>
+                            @if($locale === $currentLocale)
+                                <i class="fas fa-check text-xs text-primary-600 ml-auto"></i>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            </div>
 
             <!-- User Menu -->
             <div x-data="{ open: false }" class="relative">
@@ -59,14 +96,14 @@
                     <a href="{{ route('admin.settings.index') }}"
                        class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                         <i class="fas fa-cog text-slate-400 w-4"></i>
-                        Ayarlar
+                        {{ __('Settings') }}
                     </a>
 
                     <a href="{{ route('home') }}"
                        target="_blank"
                        class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                         <i class="fas fa-external-link-alt text-slate-400 w-4"></i>
-                        Siteyi Gor
+                        {{ __('View on Site') }}
                     </a>
 
                     <div class="border-t border-slate-100 my-1"></div>
@@ -76,7 +113,7 @@
                         <button type="submit"
                                 class="w-full flex items-center gap-2 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50">
                             <i class="fas fa-sign-out-alt w-4"></i>
-                            Cikis Yap
+                            {{ __('Logout') }}
                         </button>
                     </form>
                 </div>

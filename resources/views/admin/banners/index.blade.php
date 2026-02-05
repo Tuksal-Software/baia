@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Bannerlar')
+@section('title', __('Banners'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Bannerlar</span>
+    <span class="text-slate-700 font-medium">{{ __('Banners') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Bannerlar</h1>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Banners') }}</h1>
             <p class="text-sm text-slate-500 mt-1">{{ $banners->count() }} banner</p>
         </div>
         <x-admin.button href="{{ route('admin.banners.create') }}" icon="fa-plus">
-            Yeni Banner
+            {{ __('New Banner') }}
         </x-admin.button>
     </div>
 
@@ -23,7 +23,7 @@
         <div class="p-4 flex gap-2 flex-wrap">
             <a href="{{ route('admin.banners.index') }}"
                class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors {{ !request('position') ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
-                Tumu
+                {{ __('All') }}
             </a>
             @foreach($positions as $key => $label)
                 <a href="{{ route('admin.banners.index', ['position' => $key]) }}"
@@ -36,12 +36,12 @@
 
     <!-- Banners Table -->
     <x-admin.data-table :headers="[
-        ['label' => 'Gorsel', 'width' => '160px'],
-        ['label' => 'Ad', 'width' => '25%'],
-        ['label' => 'Pozisyon', 'class' => 'text-center'],
-        ['label' => 'Sira', 'class' => 'text-center'],
-        ['label' => 'Durum', 'class' => 'text-center'],
-        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '120px'],
+        ['label' => __('Image'), 'width' => '160px'],
+        ['label' => __('Name'), 'width' => '25%'],
+        ['label' => __('Position'), 'class' => 'text-center'],
+        ['label' => __('Order'), 'class' => 'text-center'],
+        ['label' => __('Status'), 'class' => 'text-center'],
+        ['label' => __('Actions'), 'class' => 'text-right', 'width' => '120px'],
     ]">
         @forelse($banners as $banner)
             <tr class="hover:bg-slate-50 transition-colors">
@@ -70,7 +70,7 @@
                         @method('PATCH')
                         <button type="submit">
                             <x-admin.badge :variant="$banner->is_active ? 'success' : 'danger'" size="sm" dot>
-                                {{ $banner->is_active ? 'Aktif' : 'Pasif' }}
+                                {{ $banner->is_active ? __('Active') : __('Inactive') }}
                             </x-admin.badge>
                         </button>
                     </form>
@@ -79,18 +79,18 @@
                     <div class="flex items-center justify-end gap-1">
                         <a href="{{ route('admin.banners.edit', $banner) }}"
                            class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                           title="Duzenle">
+                           title="{{ __('Edit') }}">
                             <i class="fas fa-edit text-sm"></i>
                         </a>
                         <form action="{{ route('admin.banners.destroy', $banner) }}"
                               method="POST"
                               class="inline"
-                              onsubmit="return confirm('Bu banneri silmek istediginizden emin misiniz?')">
+                              onsubmit="return confirm('{{ __('Are you sure you want to delete this banner?') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                    title="Sil">
+                                    title="{{ __('Delete') }}">
                                 <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
@@ -102,9 +102,9 @@
                 <td colspan="6" class="px-4 py-12">
                     <x-admin.empty-state
                         icon="fa-image"
-                        title="Banner bulunamadi"
-                        description="Henuz banner eklenmemis"
-                        action="Yeni Banner Ekle"
+                        :title="__('No banners found')"
+                        :description="__('No banners have been added yet')"
+                        :action="__('Add New Banner')"
                         :actionUrl="route('admin.banners.create')"
                     />
                 </td>

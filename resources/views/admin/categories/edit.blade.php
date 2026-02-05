@@ -33,10 +33,10 @@
         <div class="max-w-2xl">
             <x-admin.card title="Kategori Bilgileri">
                 <div class="space-y-4">
-                    <x-admin.form-input
+                    <x-admin.form-translatable-input
                         name="name"
                         label="Kategori Adi"
-                        :value="$category->name"
+                        :value="$category->getTranslations('name')"
                         required
                     />
 
@@ -54,10 +54,10 @@
                         placeholder="- Ana Kategori -"
                     />
 
-                    <x-admin.form-textarea
+                    <x-admin.form-translatable-textarea
                         name="description"
                         label="Aciklama"
-                        :value="$category->description"
+                        :value="$category->getTranslations('description')"
                         :rows="3"
                     />
 

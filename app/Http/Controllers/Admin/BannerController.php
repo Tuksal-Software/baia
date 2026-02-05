@@ -48,30 +48,45 @@ class BannerController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'position' => 'required|string|in:' . implode(',', array_keys(self::POSITIONS)),
-            'title' => 'nullable|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
+            'title' => 'nullable|array',
+            'title.tr' => 'nullable|string|max:255',
+            'title.en' => 'nullable|string|max:255',
+            'title.de' => 'nullable|string|max:255',
+            'subtitle' => 'nullable|array',
+            'subtitle.tr' => 'nullable|string|max:255',
+            'subtitle.en' => 'nullable|string|max:255',
+            'subtitle.de' => 'nullable|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:4096',
             'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'link' => 'nullable|string|max:255',
             'order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
-        $validated['image'] = $this->uploadFile($request->file('image'), 'banners');
+        $bannerData = [
+            'name' => $validated['name'],
+            'position' => $validated['position'],
+            'title' => isset($validated['title']) ? array_filter($validated['title']) : null,
+            'subtitle' => isset($validated['subtitle']) ? array_filter($validated['subtitle']) : null,
+            'link' => $validated['link'] ?? null,
+            'order' => $request->input('order', Banner::max('order') + 1),
+            'is_active' => $request->boolean('is_active', true),
+            'starts_at' => $validated['starts_at'] ?? null,
+            'ends_at' => $validated['ends_at'] ?? null,
+        ];
+
+        $bannerData['image'] = $this->uploadFile($request->file('image'), 'banners');
 
         if ($request->hasFile('image_mobile')) {
-            $validated['image_mobile'] = $this->uploadFile($request->file('image_mobile'), 'banners');
+            $bannerData['image_mobile'] = $this->uploadFile($request->file('image_mobile'), 'banners');
         }
 
-        $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['order'] = $request->input('order', Banner::max('order') + 1);
-
-        Banner::create($validated);
+        Banner::create($bannerData);
 
         return redirect()->route('admin.banners.index')
-            ->with('success', 'Banner başarıyla oluşturuldu.');
+            ->with('success', __('Banner created successfully.'));
     }
 
     public function edit(Banner $banner): View
@@ -85,37 +100,54 @@ class BannerController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'position' => 'required|string|in:' . implode(',', array_keys(self::POSITIONS)),
-            'title' => 'nullable|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
+            'title' => 'nullable|array',
+            'title.tr' => 'nullable|string|max:255',
+            'title.en' => 'nullable|string|max:255',
+            'title.de' => 'nullable|string|max:255',
+            'subtitle' => 'nullable|array',
+            'subtitle.tr' => 'nullable|string|max:255',
+            'subtitle.en' => 'nullable|string|max:255',
+            'subtitle.de' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'image_mobile' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'link' => 'nullable|string|max:255',
             'order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
+        $bannerData = [
+            'name' => $validated['name'],
+            'position' => $validated['position'],
+            'title' => isset($validated['title']) ? array_filter($validated['title']) : null,
+            'subtitle' => isset($validated['subtitle']) ? array_filter($validated['subtitle']) : null,
+            'link' => $validated['link'] ?? null,
+            'order' => $validated['order'] ?? $banner->order,
+            'is_active' => $request->boolean('is_active'),
+            'starts_at' => $validated['starts_at'] ?? null,
+            'ends_at' => $validated['ends_at'] ?? null,
+        ];
+
         if ($request->hasFile('image')) {
             $this->deleteFile($banner->image);
-            $validated['image'] = $this->uploadFile($request->file('image'), 'banners');
+            $bannerData['image'] = $this->uploadFile($request->file('image'), 'banners');
         }
 
         if ($request->hasFile('image_mobile')) {
             $this->deleteFile($banner->image_mobile);
-            $validated['image_mobile'] = $this->uploadFile($request->file('image_mobile'), 'banners');
+            $bannerData['image_mobile'] = $this->uploadFile($request->file('image_mobile'), 'banners');
         }
 
         if ($request->boolean('remove_image_mobile') && $banner->image_mobile) {
             $this->deleteFile($banner->image_mobile);
-            $validated['image_mobile'] = null;
+            $bannerData['image_mobile'] = null;
         }
 
-        $validated['is_active'] = $request->boolean('is_active');
-        $banner->update($validated);
+        $banner->update($bannerData);
 
         return redirect()->route('admin.banners.index')
-            ->with('success', 'Banner başarıyla güncellendi.');
+            ->with('success', __('Banner updated successfully.'));
     }
 
     public function destroy(Banner $banner): RedirectResponse
@@ -125,7 +157,7 @@ class BannerController extends Controller
         $banner->delete();
 
         return redirect()->route('admin.banners.index')
-            ->with('success', 'Banner başarıyla silindi.');
+            ->with('success', __('Banner deleted successfully.'));
     }
 
     public function updateOrder(Request $request): JsonResponse
@@ -146,8 +178,8 @@ class BannerController extends Controller
     public function toggleStatus(Banner $banner): RedirectResponse
     {
         $banner->update(['is_active' => !$banner->is_active]);
-        $status = $banner->is_active ? 'aktif' : 'pasif';
+        $status = $banner->is_active ? __('activated') : __('deactivated');
 
-        return redirect()->back()->with('success', "Banner {$status} yapıldı.");
+        return redirect()->back()->with('success', __('Banner :status.', ['status' => $status]));
     }
 }

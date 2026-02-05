@@ -30,7 +30,7 @@
         <div class="absolute top-3 left-3 flex flex-col gap-1.5">
             @if($product->is_new)
                 <span class="bg-white text-black text-[10px] font-semibold px-2.5 py-1 uppercase tracking-wider border border-black">
-                    Yeni
+                    {{ __('New') }}
                 </span>
             @endif
             @if($product->sale_price)
@@ -49,13 +49,13 @@
                     <input type="hidden" name="quantity" value="1">
                     <button type="submit"
                             class="w-full bg-black text-white py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-gray-900 transition-colors">
-                        Sepete Ekle
+                        {{ __('Add to Cart') }}
                     </button>
                 </form>
             </div>
         @else
             <div class="absolute inset-0 bg-white/70 flex items-center justify-center">
-                <span class="text-xs font-medium uppercase tracking-wider text-gray-500">Tukendi</span>
+                <span class="text-xs font-medium uppercase tracking-wider text-gray-500">{{ __('Sold Out') }}</span>
             </div>
         @endif
     </a>

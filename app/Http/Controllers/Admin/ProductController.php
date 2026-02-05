@@ -62,18 +62,24 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|array',
+            'name.tr' => 'required|string|max:255',
+            'name.en' => 'nullable|string|max:255',
+            'name.de' => 'nullable|string|max:255',
             'slug' => 'nullable|string|max:255|unique:products,slug',
             'category_id' => 'required|exists:categories,id',
-            'short_description' => 'nullable|string|max:500',
-            'description' => 'nullable|string',
+            'short_description' => 'nullable|array',
+            'short_description.*' => 'nullable|string|max:500',
+            'description' => 'nullable|array',
+            'description.*' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
+            'currency' => 'required|in:TRY,USD,EUR',
             'sku' => 'nullable|string|max:100|unique:products,sku',
-            'stock' => 'integer|min:0',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
-            'is_new' => 'boolean',
+            'stock' => 'nullable|integer|min:0',
+            'is_active' => 'nullable',
+            'is_featured' => 'nullable',
+            'is_new' => 'nullable',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:4096',
             'specifications' => 'nullable|array',
@@ -90,20 +96,30 @@ class ProductController extends Controller
         ]);
 
         if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $baseSlug = Str::slug($validated['name']['tr'] ?? '');
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (Product::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $validated['slug'] = $slug;
         }
 
         DB::beginTransaction();
 
         try {
             $product = Product::create([
-                'name' => $validated['name'],
+                'name' => array_filter($validated['name']),
                 'slug' => $validated['slug'],
                 'category_id' => $validated['category_id'],
-                'short_description' => $validated['short_description'] ?? null,
-                'description' => $validated['description'] ?? null,
+                'short_description' => isset($validated['short_description']) ? array_filter($validated['short_description']) : null,
+                'description' => isset($validated['description']) ? array_filter($validated['description']) : null,
                 'price' => $validated['price'],
                 'sale_price' => $validated['sale_price'] ?? null,
+                'currency' => $validated['currency'],
                 'sku' => $validated['sku'] ?? null,
                 'stock' => $validated['stock'] ?? 0,
                 'is_active' => $request->boolean('is_active', true),
@@ -206,18 +222,24 @@ class ProductController extends Controller
     public function update(Request $request, Product $product): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|array',
+            'name.tr' => 'required|string|max:255',
+            'name.en' => 'nullable|string|max:255',
+            'name.de' => 'nullable|string|max:255',
             'slug' => 'nullable|string|max:255|unique:products,slug,' . $product->id,
             'category_id' => 'required|exists:categories,id',
-            'short_description' => 'nullable|string|max:500',
-            'description' => 'nullable|string',
+            'short_description' => 'nullable|array',
+            'short_description.*' => 'nullable|string|max:500',
+            'description' => 'nullable|array',
+            'description.*' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
+            'currency' => 'required|in:TRY,USD,EUR',
             'sku' => 'nullable|string|max:100|unique:products,sku,' . $product->id,
-            'stock' => 'integer|min:0',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
-            'is_new' => 'boolean',
+            'stock' => 'nullable|integer|min:0',
+            'is_active' => 'nullable',
+            'is_featured' => 'nullable',
+            'is_new' => 'nullable',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:4096',
             'specifications' => 'nullable|array',
@@ -236,20 +258,30 @@ class ProductController extends Controller
         ]);
 
         if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $baseSlug = Str::slug($validated['name']['tr'] ?? '');
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $validated['slug'] = $slug;
         }
 
         DB::beginTransaction();
 
         try {
             $product->update([
-                'name' => $validated['name'],
+                'name' => array_filter($validated['name']),
                 'slug' => $validated['slug'],
                 'category_id' => $validated['category_id'],
-                'short_description' => $validated['short_description'] ?? null,
-                'description' => $validated['description'] ?? null,
+                'short_description' => isset($validated['short_description']) ? array_filter($validated['short_description']) : null,
+                'description' => isset($validated['description']) ? array_filter($validated['description']) : null,
                 'price' => $validated['price'],
                 'sale_price' => $validated['sale_price'] ?? null,
+                'currency' => $validated['currency'],
                 'sku' => $validated['sku'] ?? null,
                 'stock' => $validated['stock'] ?? 0,
                 'is_active' => $request->boolean('is_active'),

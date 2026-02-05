@@ -11,35 +11,32 @@ use Illuminate\View\View;
 
 class FeatureController extends Controller
 {
-    /**
-     * Feature positions
-     */
-    public const POSITIONS = [
-        'home' => 'Ana Sayfa',
-        'footer' => 'Footer',
-    ];
+    public static function getPositions(): array
+    {
+        return [
+            'home' => __('Home'),
+            'footer' => __('Footer'),
+        ];
+    }
 
-    /**
-     * Available icons
-     */
-    public const ICONS = [
-        'truck' => 'Kargo',
-        'shield-check' => 'Kalkan',
-        'refresh-cw' => 'Yenileme',
-        'credit-card' => 'Kredi Kartı',
-        'headphones' => 'Kulaklık',
-        'package' => 'Paket',
-        'check-circle' => 'Onay',
-        'clock' => 'Saat',
-        'gift' => 'Hediye',
-        'star' => 'Yıldız',
-        'heart' => 'Kalp',
-        'award' => 'Ödül',
-    ];
+    public static function getIcons(): array
+    {
+        return [
+            'truck' => __('Truck'),
+            'shield-check' => __('Shield'),
+            'refresh-cw' => __('Refresh'),
+            'credit-card' => __('Credit Card'),
+            'headphones' => __('Headphones'),
+            'package' => __('Package'),
+            'check-circle' => __('Check'),
+            'clock' => __('Clock'),
+            'gift' => __('Gift'),
+            'star' => __('Star'),
+            'heart' => __('Heart'),
+            'award' => __('Award'),
+        ];
+    }
 
-    /**
-     * Display feature list
-     */
     public function index(Request $request): View
     {
         $query = Feature::ordered();
@@ -49,94 +46,99 @@ class FeatureController extends Controller
         }
 
         $features = $query->get();
-        $positions = self::POSITIONS;
+        $positions = self::getPositions();
 
         return view('admin.features.index', compact('features', 'positions'));
     }
 
-    /**
-     * Show create form
-     */
     public function create(): View
     {
-        $positions = self::POSITIONS;
-        $icons = self::ICONS;
+        $positions = self::getPositions();
+        $icons = self::getIcons();
 
         return view('admin.features.create', compact('positions', 'icons'));
     }
 
-    /**
-     * Store new feature
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'icon' => 'required|string|max:50',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:500',
+            'title' => 'required|array',
+            'title.tr' => 'required|string|max:255',
+            'title.en' => 'nullable|string|max:255',
+            'title.de' => 'nullable|string|max:255',
+            'description' => 'nullable|array',
+            'description.tr' => 'nullable|string|max:500',
+            'description.en' => 'nullable|string|max:500',
+            'description.de' => 'nullable|string|max:500',
             'link' => 'nullable|string|max:255',
-            'position' => 'required|string|in:' . implode(',', array_keys(self::POSITIONS)),
+            'position' => 'required|string|in:' . implode(',', array_keys(self::getPositions())),
             'order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable',
         ]);
 
-        $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['order'] = $request->input('order', Feature::max('order') + 1);
-
-        Feature::create($validated);
+        Feature::create([
+            'icon' => $validated['icon'],
+            'title' => array_filter($validated['title']),
+            'description' => isset($validated['description']) ? array_filter($validated['description']) : null,
+            'link' => $validated['link'] ?? null,
+            'position' => $validated['position'],
+            'order' => $request->input('order', Feature::max('order') + 1),
+            'is_active' => $request->boolean('is_active', true),
+        ]);
 
         return redirect()->route('admin.features.index')
-            ->with('success', 'Özellik başarıyla oluşturuldu.');
+            ->with('success', __('Feature created successfully.'));
     }
 
-    /**
-     * Show edit form
-     */
     public function edit(Feature $feature): View
     {
-        $positions = self::POSITIONS;
-        $icons = self::ICONS;
+        $positions = self::getPositions();
+        $icons = self::getIcons();
 
         return view('admin.features.edit', compact('feature', 'positions', 'icons'));
     }
 
-    /**
-     * Update feature
-     */
     public function update(Request $request, Feature $feature): RedirectResponse
     {
         $validated = $request->validate([
             'icon' => 'required|string|max:50',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:500',
+            'title' => 'required|array',
+            'title.tr' => 'required|string|max:255',
+            'title.en' => 'nullable|string|max:255',
+            'title.de' => 'nullable|string|max:255',
+            'description' => 'nullable|array',
+            'description.tr' => 'nullable|string|max:500',
+            'description.en' => 'nullable|string|max:500',
+            'description.de' => 'nullable|string|max:500',
             'link' => 'nullable|string|max:255',
-            'position' => 'required|string|in:' . implode(',', array_keys(self::POSITIONS)),
+            'position' => 'required|string|in:' . implode(',', array_keys(self::getPositions())),
             'order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable',
         ]);
 
-        $validated['is_active'] = $request->boolean('is_active');
-
-        $feature->update($validated);
+        $feature->update([
+            'icon' => $validated['icon'],
+            'title' => array_filter($validated['title']),
+            'description' => isset($validated['description']) ? array_filter($validated['description']) : null,
+            'link' => $validated['link'] ?? null,
+            'position' => $validated['position'],
+            'order' => $validated['order'] ?? $feature->order,
+            'is_active' => $request->boolean('is_active'),
+        ]);
 
         return redirect()->route('admin.features.index')
-            ->with('success', 'Özellik başarıyla güncellendi.');
+            ->with('success', __('Feature updated successfully.'));
     }
 
-    /**
-     * Delete feature
-     */
     public function destroy(Feature $feature): RedirectResponse
     {
         $feature->delete();
 
         return redirect()->route('admin.features.index')
-            ->with('success', 'Özellik başarıyla silindi.');
+            ->with('success', __('Feature deleted successfully.'));
     }
 
-    /**
-     * Update feature order (AJAX)
-     */
     public function updateOrder(Request $request): JsonResponse
     {
         $request->validate([
@@ -152,17 +154,11 @@ class FeatureController extends Controller
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Toggle feature status
-     */
     public function toggleStatus(Feature $feature): RedirectResponse
     {
-        $feature->is_active = !$feature->is_active;
-        $feature->save();
+        $feature->update(['is_active' => !$feature->is_active]);
+        $status = $feature->is_active ? __('activated') : __('deactivated');
 
-        $status = $feature->is_active ? 'aktif' : 'pasif';
-
-        return redirect()->back()
-            ->with('success', "Özellik {$status} yapıldı.");
+        return redirect()->back()->with('success', __('Feature :status.', ['status' => $status]));
     }
 }

@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Kategoriler')
+@section('title', __('Categories'))
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Kategoriler</h1>
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">{{ __('Categories') }}</h1>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         @foreach($categories as $category)
             <a href="{{ route('categories.show', $category) }}" class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden group">
@@ -13,7 +13,7 @@
                 @endif
                 <div class="p-4">
                     <h3 class="font-semibold text-gray-800 group-hover:text-purple-600">{{ $category->name }}</h3>
-                    <p class="text-sm text-gray-500 mt-1">{{ $category->products_count }} Urun</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ __(':count Products', ['count' => $category->products_count]) }}</p>
                     @if($category->children->count() > 0)
                         <div class="mt-2 text-xs text-gray-400">{{ $category->children->pluck('name')->implode(', ') }}</div>
                     @endif

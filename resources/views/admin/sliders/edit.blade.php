@@ -1,27 +1,27 @@
 @extends('layouts.admin')
 
-@section('title', 'Slider Duzenle')
+@section('title', __('Edit Slider'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.sliders.index') }}" class="text-slate-500 hover:text-slate-700">Sliderlar</a>
+    <a href="{{ route('admin.sliders.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Sliders') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-    <span class="text-slate-700 font-medium">{{ $slider->title ?: 'Slider Duzenle' }}</span>
+    <span class="text-slate-700 font-medium">{{ $slider->title ?: __('Edit Slider') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Slider Duzenle</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ $slider->title ?: '(Basliksiz)' }}</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Edit Slider') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ $slider->title ?: __('(No title)') }}</p>
         </div>
         <form action="{{ route('admin.sliders.destroy', $slider) }}"
               method="POST"
-              onsubmit="return confirm('Bu slideri silmek istediginizden emin misiniz?')">
+              onsubmit="return confirm('{{ __('Are you sure you want to delete this slider?') }}')">
             @csrf
             @method('DELETE')
             <x-admin.button type="submit" variant="outline-danger" icon="fa-trash">
-                Sil
+                {{ __('Delete') }}
             </x-admin.button>
         </form>
     </div>
@@ -33,47 +33,47 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-6">
-                <x-admin.card title="Temel Bilgiler">
+                <x-admin.card :title="__('Basic Information')">
                     <div class="space-y-4">
-                        <x-admin.form-input
+                        <x-admin.form-translatable-input
                             name="title"
-                            label="Baslik"
-                            :value="$slider->title"
-                            placeholder="Slider basligi"
+                            label="{{ __('Title') }}"
+                            :value="$slider->getTranslations('title')"
+                            placeholder="{{ __('Slider title') }}"
                         />
 
-                        <x-admin.form-input
+                        <x-admin.form-translatable-input
                             name="subtitle"
-                            label="Alt Baslik"
-                            :value="$slider->subtitle"
-                            placeholder="Slider alt basligi"
+                            label="{{ __('Subtitle') }}"
+                            :value="$slider->getTranslations('subtitle')"
+                            placeholder="{{ __('Slider subtitle') }}"
                         />
 
-                        <x-admin.form-textarea
+                        <x-admin.form-translatable-textarea
                             name="description"
-                            label="Aciklama"
-                            :value="$slider->description"
+                            label="{{ __('Description') }}"
+                            :value="$slider->getTranslations('description')"
                             :rows="3"
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Gorseller">
+                <x-admin.card :title="__('Images')">
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Gorsel (Desktop)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('Image (Desktop)') }}</label>
                             <div class="flex items-start gap-4">
                                 <img src="{{ $slider->image_url }}"
                                      class="w-40 h-24 object-cover rounded-lg border border-slate-200"
                                      alt="Current image">
                                 <div class="flex-1">
-                                    <x-admin.form-image name="image" hint="Onerilen boyut: 1920x800px" />
+                                    <x-admin.form-image name="image" hint="{{ __('Recommended size: 1920x800px') }}" />
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Gorsel (Mobil)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('Image (Mobile)') }}</label>
                             <div class="flex items-start gap-4">
                                 @if($slider->image_mobile)
                                     <div class="relative">
@@ -87,34 +87,32 @@
                                     </div>
                                 @endif
                                 <div class="flex-1">
-                                    <x-admin.form-image name="image_mobile" hint="Onerilen boyut: 768x600px" />
+                                    <x-admin.form-image name="image_mobile" hint="{{ __('Recommended size: 768x600px') }}" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Buton Ayarlari">
+                <x-admin.card :title="__('Button Settings')">
                     <div class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <x-admin.form-input
-                                name="button_text"
-                                label="Buton Metni"
-                                :value="$slider->button_text"
-                                placeholder="Orn: Kesfet"
-                            />
+                        <x-admin.form-translatable-input
+                            name="button_text"
+                            label="{{ __('Button Text') }}"
+                            :value="$slider->getTranslations('button_text')"
+                            placeholder="{{ __('e.g. Discover') }}"
+                        />
 
-                            <x-admin.form-input
-                                name="button_link"
-                                label="Buton Linki"
-                                :value="$slider->button_link"
-                                placeholder="/kategori/..."
-                            />
-                        </div>
+                        <x-admin.form-input
+                            name="button_link"
+                            label="{{ __('Button Link') }}"
+                            :value="$slider->button_link"
+                            placeholder="/category/..."
+                        />
 
                         <x-admin.form-select
                             name="button_style"
-                            label="Buton Stili"
+                            label="{{ __('Button Style') }}"
                             :options="[
                                 'primary' => 'Primary',
                                 'secondary' => 'Secondary',
@@ -128,19 +126,19 @@
 
             <!-- Sidebar -->
             <div class="space-y-6">
-                <x-admin.card title="Yayin Ayarlari">
+                <x-admin.card :title="__('Publish Settings')">
                     <div class="space-y-4">
                         <x-admin.form-toggle
                             name="is_active"
-                            label="Aktif"
-                            description="Slider sitede gorunur"
+                            label="{{ __('Active') }}"
+                            description="{{ __('Slider is visible on the site') }}"
                             :checked="$slider->is_active"
                         />
 
                         <x-admin.form-input
                             name="order"
                             type="number"
-                            label="Sira"
+                            label="{{ __('Order') }}"
                             :value="$slider->order"
                             min="0"
                         />
@@ -148,34 +146,34 @@
                         <x-admin.form-input
                             name="starts_at"
                             type="datetime-local"
-                            label="Baslangic Tarihi"
+                            label="{{ __('Start Date') }}"
                             :value="$slider->starts_at?->format('Y-m-d\TH:i')"
                         />
 
                         <x-admin.form-input
                             name="ends_at"
                             type="datetime-local"
-                            label="Bitis Tarihi"
+                            label="{{ __('End Date') }}"
                             :value="$slider->ends_at?->format('Y-m-d\TH:i')"
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Gorunum Ayarlari">
+                <x-admin.card :title="__('Display Settings')">
                     <div class="space-y-4">
                         <x-admin.form-select
                             name="text_position"
-                            label="Metin Pozisyonu"
+                            label="{{ __('Text Position') }}"
                             :options="[
-                                'left' => 'Sol',
-                                'center' => 'Orta',
-                                'right' => 'Sag',
+                                'left' => __('Left'),
+                                'center' => __('Center'),
+                                'right' => __('Right'),
                             ]"
                             :value="$slider->text_position"
                         />
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Metin Rengi</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('Text Color') }}</label>
                             <input type="color"
                                    name="text_color"
                                    value="{{ old('text_color', $slider->text_color) }}"
@@ -184,21 +182,21 @@
 
                         <x-admin.form-input
                             name="overlay_color"
-                            label="Overlay Rengi"
+                            label="{{ __('Overlay Color') }}"
                             :value="$slider->overlay_color"
                             placeholder="rgba(0,0,0,0.3)"
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Bilgi">
+                <x-admin.card :title="__('Information')">
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Olusturulma</span>
+                            <span class="text-slate-500">{{ __('Created') }}</span>
                             <span class="text-slate-900">{{ $slider->created_at->format('d.m.Y H:i') }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Son Guncelleme</span>
+                            <span class="text-slate-500">{{ __('Last Updated') }}</span>
                             <span class="text-slate-900">{{ $slider->updated_at->format('d.m.Y H:i') }}</span>
                         </div>
                     </div>
@@ -208,10 +206,10 @@
 
         <div class="mt-6 flex items-center gap-3">
             <x-admin.button type="submit" icon="fa-check">
-                Degisiklikleri Kaydet
+                {{ __('Save Changes') }}
             </x-admin.button>
             <x-admin.button href="{{ route('admin.sliders.index') }}" variant="ghost">
-                Iptal
+                {{ __('Cancel') }}
             </x-admin.button>
         </div>
     </form>

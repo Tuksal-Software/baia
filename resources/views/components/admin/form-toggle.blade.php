@@ -17,7 +17,7 @@
             role="switch"
             x-data="{ checked: {{ $isChecked ? 'true' : 'false' }} }"
             :aria-checked="checked"
-            @click="checked = !checked; $refs.input.value = checked ? '{{ $value }}' : ''"
+            @click="checked = !checked; $refs.input.value = checked ? '{{ $value }}' : '0'"
             :class="checked ? 'bg-primary-600' : 'bg-slate-200'"
             class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             {{ $disabled ? 'disabled' : '' }}>
@@ -28,7 +28,7 @@
     <input type="hidden"
            name="{{ $name }}"
            x-ref="input"
-           value="{{ $isChecked ? $value : '' }}">
+           value="{{ $isChecked ? $value : '0' }}">
 
     @if($label || $description)
         <div class="flex-1">

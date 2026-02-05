@@ -78,11 +78,39 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'tr'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'tr'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    'faker_locale' => env('APP_FAKER_LOCALE', 'tr_TR'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Available Locales
+    |--------------------------------------------------------------------------
+    |
+    | The available locales for the application. These are used for the
+    | language switcher and translation system.
+    |
+    */
+
+    'available_locales' => [
+        'tr' => [
+            'name' => 'Türkçe',
+            'native' => 'Türkçe',
+            'flag' => '🇹🇷',
+        ],
+        'en' => [
+            'name' => 'English',
+            'native' => 'English',
+            'flag' => '🇬🇧',
+        ],
+        'de' => [
+            'name' => 'German',
+            'native' => 'Deutsch',
+            'flag' => '🇩🇪',
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

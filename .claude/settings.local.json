@@ -7,7 +7,19 @@
       "Bash(cmd.exe /c \"cd /d D:\\\\Projects\\\\baia\\\\public && mklink /D storage ..\\\\storage\\\\app\\\\public\")",
       "Bash(composer dump-autoload:*)",
       "Bash(php -l:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(composer require:*)",
+      "Bash(php -r:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(cmd /c \"cd /d D:\\\\Projects\\\\baia && php artisan migrate:fresh --seed\")",
+      "Bash(cmd /c \"cd /d D:\\\\Projects\\\\baia && php artisan migrate:fresh --seed 2>&1\")",
+      "Bash(where:*)",
+      "Bash(timeout:*)",
+      "Bash(curl:*)",
+      "Bash(ping:*)",
+      "Bash(C:\\\\Users\\\\tuksa\\\\.config\\\\herd\\\\bin\\\\php.bat:*)",
+      "WebFetch(domain:localhost)"
     ]
   }
 }

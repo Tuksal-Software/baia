@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Tum Urunler')
+@section('title', __('All Products'))
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Tum Urunler</h1>
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">{{ __('All Products') }}</h1>
     @if($products->count() > 0)
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
             @foreach($products as $product)
@@ -11,7 +11,7 @@
         </div>
         <div class="mt-8">{{ $products->links() }}</div>
     @else
-        <div class="text-center py-12"><i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i><p class="text-gray-600">Henuz urun bulunmuyor.</p></div>
+        <div class="text-center py-12"><i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i><p class="text-gray-600">{{ __('No products yet.') }}</p></div>
     @endif
 </div>
 @endsection

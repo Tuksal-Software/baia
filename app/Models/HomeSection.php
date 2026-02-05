@@ -3,9 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Translatable\HasTranslations;
 
 class HomeSection extends Model
 {
+    use HasTranslations;
+
+    /**
+     * Translatable fields
+     */
+    public array $translatable = ['title', 'subtitle'];
     protected $fillable = [
         'type',
         'title',

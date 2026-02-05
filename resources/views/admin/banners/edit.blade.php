@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Banner Duzenle')
+@section('title', __('Edit Banner'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.banners.index') }}" class="text-slate-500 hover:text-slate-700">Bannerlar</a>
+    <a href="{{ route('admin.banners.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Banners') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
     <span class="text-slate-700 font-medium">{{ $banner->name }}</span>
 @endsection
@@ -12,16 +12,16 @@
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Banner Duzenle</h1>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Edit Banner') }}</h1>
             <p class="text-sm text-slate-500 mt-1">{{ $banner->name }}</p>
         </div>
         <form action="{{ route('admin.banners.destroy', $banner) }}"
               method="POST"
-              onsubmit="return confirm('Bu banneri silmek istediginizden emin misiniz?')">
+              onsubmit="return confirm('{{ __('Are you sure you want to delete this banner?') }}')">
             @csrf
             @method('DELETE')
             <x-admin.button type="submit" variant="outline-danger" icon="fa-trash">
-                Sil
+                {{ __('Delete') }}
             </x-admin.button>
         </form>
     </div>
@@ -33,50 +33,50 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-6">
-                <x-admin.card title="Temel Bilgiler">
+                <x-admin.card :title="__('Basic Information')">
                     <div class="space-y-4">
                         <x-admin.form-input
                             name="name"
-                            label="Banner Adi"
+                            label="{{ __('Banner Name') }}"
                             :value="$banner->name"
                             required
                         />
 
                         <x-admin.form-select
                             name="position"
-                            label="Pozisyon"
+                            label="{{ __('Position') }}"
                             :options="$positions"
                             :value="$banner->position"
                             required
                         />
 
-                        <x-admin.form-input
+                        <x-admin.form-translatable-input
                             name="title"
-                            label="Baslik"
-                            :value="$banner->title"
-                            placeholder="Banner basligi (opsiyonel)"
+                            label="{{ __('Title') }}"
+                            :value="$banner->getTranslations('title')"
+                            placeholder="{{ __('Banner title (optional)') }}"
                         />
 
-                        <x-admin.form-input
+                        <x-admin.form-translatable-input
                             name="subtitle"
-                            label="Alt Baslik"
-                            :value="$banner->subtitle"
-                            placeholder="Banner alt basligi (opsiyonel)"
+                            label="{{ __('Subtitle') }}"
+                            :value="$banner->getTranslations('subtitle')"
+                            placeholder="{{ __('Banner subtitle (optional)') }}"
                         />
 
                         <x-admin.form-input
                             name="link"
-                            label="Link"
+                            label="{{ __('Link') }}"
                             :value="$banner->link"
-                            placeholder="/kategori/..."
+                            placeholder="/category/..."
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Gorseller">
+                <x-admin.card :title="__('Images')">
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Gorsel (Desktop)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('Image (Desktop)') }}</label>
                             <div class="flex items-start gap-4">
                                 <img src="{{ $banner->image_url }}"
                                      class="w-40 h-24 object-cover rounded-lg border border-slate-200"
@@ -88,7 +88,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Gorsel (Mobil)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('Image (Mobile)') }}</label>
                             <div class="flex items-start gap-4">
                                 @if($banner->image_mobile)
                                     <div class="relative">
@@ -112,19 +112,19 @@
 
             <!-- Sidebar -->
             <div class="space-y-6">
-                <x-admin.card title="Yayin Ayarlari">
+                <x-admin.card :title="__('Publish Settings')">
                     <div class="space-y-4">
                         <x-admin.form-toggle
                             name="is_active"
-                            label="Aktif"
-                            description="Banner sitede gorunur"
+                            label="{{ __('Active') }}"
+                            description="{{ __('Banner is visible on the site') }}"
                             :checked="$banner->is_active"
                         />
 
                         <x-admin.form-input
                             name="order"
                             type="number"
-                            label="Sira"
+                            label="{{ __('Order') }}"
                             :value="$banner->order"
                             min="0"
                         />
@@ -132,27 +132,27 @@
                         <x-admin.form-input
                             name="starts_at"
                             type="datetime-local"
-                            label="Baslangic Tarihi"
+                            label="{{ __('Start Date') }}"
                             :value="$banner->starts_at?->format('Y-m-d\TH:i')"
                         />
 
                         <x-admin.form-input
                             name="ends_at"
                             type="datetime-local"
-                            label="Bitis Tarihi"
+                            label="{{ __('End Date') }}"
                             :value="$banner->ends_at?->format('Y-m-d\TH:i')"
                         />
                     </div>
                 </x-admin.card>
 
-                <x-admin.card title="Bilgi">
+                <x-admin.card :title="__('Information')">
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Olusturulma</span>
+                            <span class="text-slate-500">{{ __('Created') }}</span>
                             <span class="text-slate-900">{{ $banner->created_at->format('d.m.Y H:i') }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Son Guncelleme</span>
+                            <span class="text-slate-500">{{ __('Last Updated') }}</span>
                             <span class="text-slate-900">{{ $banner->updated_at->format('d.m.Y H:i') }}</span>
                         </div>
                     </div>
@@ -162,10 +162,10 @@
 
         <div class="mt-6 flex items-center gap-3">
             <x-admin.button type="submit" icon="fa-check">
-                Degisiklikleri Kaydet
+                {{ __('Save Changes') }}
             </x-admin.button>
             <x-admin.button href="{{ route('admin.banners.index') }}" variant="ghost">
-                Iptal
+                {{ __('Cancel') }}
             </x-admin.button>
         </div>
     </form>

@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'Yeni Urun')
+@section('title', __('New Product'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.products.index') }}" class="text-slate-500 hover:text-slate-700">Urunler</a>
+    <a href="{{ route('admin.products.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Products') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-    <span class="text-slate-700 font-medium">Yeni Urun</span>
+    <span class="text-slate-700 font-medium">{{ __('New Product') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-slate-900">Yeni Urun</h1>
-        <p class="text-sm text-slate-500 mt-1">Yeni bir urun ekleyin</p>
+        <h1 class="text-2xl font-semibold text-slate-900">{{ __('New Product') }}</h1>
+        <p class="text-sm text-slate-500 mt-1">{{ __('Add a new product') }}</p>
     </div>
 
     <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
@@ -22,70 +22,75 @@
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Basic Info -->
-                <x-admin.card title="Temel Bilgiler">
+                <x-admin.card title="{{ __('Basic Information') }}">
                     <div class="space-y-4">
-                        <x-admin.form-input
+                        <x-admin.form-translatable-input
                             name="name"
-                            label="Urun Adi"
-                            placeholder="Urun adini girin"
+                            label="{{ __('Product Name') }}"
+                            placeholder="{{ __('Enter product name') }}"
                             required
                         />
 
                         <x-admin.form-input
                             name="slug"
-                            label="Slug"
-                            placeholder="Otomatik olusturulur"
-                            hint="Bos birakırsaniz urun adindan otomatik olusturulur"
+                            label="{{ __('Slug') }}"
+                            placeholder="{{ __('Auto-generated') }}"
+                            hint="{{ __('Leave empty to auto-generate from product name') }}"
                         />
 
-                        <x-admin.form-select
-                            name="category_id"
-                            label="Kategori"
-                            required
-                            :options="$categories->flatMap(function($cat) {
-                                $options = [];
-                                if ($cat->children->isEmpty()) {
-                                    $options[$cat->id] = $cat->name;
+                        @php
+                            $categoryOptions = [];
+                            foreach($categories as $cat) {
+                                $activeChildren = $cat->children->where('is_active', true);
+                                if ($activeChildren->isEmpty()) {
+                                    $categoryOptions[$cat->id] = $cat->name;
                                 } else {
-                                    foreach ($cat->children as $child) {
-                                        $options[$child->id] = $cat->name . ' > ' . $child->name;
+                                    // Parent category de seçilebilir
+                                    $categoryOptions[$cat->id] = $cat->name;
+                                    foreach ($activeChildren as $child) {
+                                        $categoryOptions[$child->id] = $cat->name . ' → ' . $child->name;
                                     }
                                 }
-                                return $options;
-                            })->toArray()"
-                            placeholder="Kategori secin"
+                            }
+                        @endphp
+                        <x-admin.form-select
+                            name="category_id"
+                            label="{{ __('Category') }}"
+                            required
+                            :options="$categoryOptions"
+                            placeholder="{{ __('Select category') }}"
                         />
 
-                        <x-admin.form-textarea
+                        <x-admin.form-translatable-textarea
                             name="short_description"
-                            label="Kisa Aciklama"
+                            label="{{ __('Short Description') }}"
                             :rows="2"
-                            placeholder="Urun hakkinda kisa bir aciklama"
-                            hint="Maksimum 500 karakter"
+                            placeholder="{{ __('Brief description about the product') }}"
+                            hint="{{ __('Maximum 500 characters') }}"
                         />
 
-                        <x-admin.form-textarea
+                        <x-admin.form-translatable-textarea
                             name="description"
-                            label="Detayli Aciklama"
+                            label="{{ __('Detailed Description') }}"
                             :rows="5"
-                            placeholder="Urunun detayli aciklamasi"
+                            placeholder="{{ __('Detailed product description') }}"
                         />
                     </div>
                 </x-admin.card>
 
                 <!-- Images -->
-                <x-admin.card title="Gorseller">
+                <x-admin.card title="{{ __('Images') }}">
                     <x-admin.form-image
                         name="images"
-                        label="Urun Gorselleri"
+                        label="{{ __('Product Images') }}"
                         multiple
-                        hint="Birden fazla gorsel secebilirsiniz. Ilk gorsel ana gorsel olacaktir."
+                        hint="{{ __('You can select multiple images. First image will be the main image.') }}"
                     />
                 </x-admin.card>
 
                 <!-- Specifications -->
-                <x-admin.card title="Teknik Ozellikler">
-                    <p class="text-sm text-slate-500 mb-4">Boyut, malzeme, agirlik gibi teknik ozellikleri ekleyin</p>
+                <x-admin.card title="{{ __('Technical Specifications') }}">
+                    <p class="text-sm text-slate-500 mb-4">{{ __('Add technical specifications like size, material, weight') }}</p>
 
                     <div x-data="{ specs: [{ key: '', value: '', unit: '' }] }">
                         <template x-for="(spec, index) in specs" :key="index">
@@ -94,21 +99,21 @@
                                     <input type="text"
                                            :name="'specifications['+index+'][key]'"
                                            x-model="spec.key"
-                                           placeholder="Ozellik (ör: Boyut)"
+                                           placeholder="{{ __('Property (e.g. Size)') }}"
                                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
                                 </div>
                                 <div class="col-span-4">
                                     <input type="text"
                                            :name="'specifications['+index+'][value]'"
                                            x-model="spec.value"
-                                           placeholder="Deger (ör: 120x80)"
+                                           placeholder="{{ __('Value (e.g. 120x80)') }}"
                                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
                                 </div>
                                 <div class="col-span-3">
                                     <input type="text"
                                            :name="'specifications['+index+'][unit]'"
                                            x-model="spec.unit"
-                                           placeholder="Birim (ör: cm)"
+                                           placeholder="{{ __('Unit (e.g. cm)') }}"
                                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
                                 </div>
                                 <div class="col-span-1 flex items-center justify-center">
@@ -126,14 +131,14 @@
                                         variant="ghost"
                                         size="sm"
                                         icon="fa-plus">
-                            Ozellik Ekle
+                            {{ __('Add Specification') }}
                         </x-admin.button>
                     </div>
                 </x-admin.card>
 
                 <!-- Features -->
-                <x-admin.card title="Urun Ozellikleri">
-                    <p class="text-sm text-slate-500 mb-4">Urunun one cikan ozelliklerini listeleyin (checkmark listesi olarak gorunur)</p>
+                <x-admin.card title="{{ __('Product Features') }}">
+                    <p class="text-sm text-slate-500 mb-4">{{ __('List the key features of the product (shown as checkmark list)') }}</p>
 
                     <div x-data="{ features: [''] }">
                         <template x-for="(feature, index) in features" :key="index">
@@ -142,7 +147,7 @@
                                     <input type="text"
                                            :name="'features['+index+']'"
                                            x-model="features[index]"
-                                           placeholder="Ozellik (ör: Kolay temizlenebilir yuzey)"
+                                           placeholder="{{ __('Feature (e.g. Easy-clean surface)') }}"
                                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
                                 </div>
                                 <button type="button"
@@ -158,37 +163,37 @@
                                         variant="ghost"
                                         size="sm"
                                         icon="fa-plus">
-                            Ozellik Ekle
+                            {{ __('Add Feature') }}
                         </x-admin.button>
                     </div>
                 </x-admin.card>
 
                 <!-- Variants -->
-                <x-admin.card title="Varyantlar">
-                    <p class="text-sm text-slate-500 mb-4">Renk, boyut gibi urun varyantlarini ekleyin</p>
+                <x-admin.card title="{{ __('Variants') }}">
+                    <p class="text-sm text-slate-500 mb-4">{{ __('Add product variants like color, size') }}</p>
 
                     <div x-data="{ variants: [] }">
                         <template x-for="(variant, index) in variants" :key="index">
                             <div class="p-4 bg-slate-50 rounded-lg mb-3">
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     <div>
-                                        <label class="block text-xs font-medium text-slate-500 mb-1">Varyant Adi</label>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">{{ __('Variant Name') }}</label>
                                         <input type="text"
                                                :name="'variants['+index+'][name]'"
                                                x-model="variant.name"
-                                               placeholder="ör: Kirmizi"
+                                               placeholder="{{ __('e.g. Red') }}"
                                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-slate-500 mb-1">SKU</label>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">{{ __('SKU') }}</label>
                                         <input type="text"
                                                :name="'variants['+index+'][sku]'"
                                                x-model="variant.sku"
-                                               placeholder="Opsiyonel"
+                                               placeholder="{{ __('Optional') }}"
                                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-slate-500 mb-1">Fiyat Farki (TL)</label>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">{{ __('Price Difference') }}</label>
                                         <input type="number"
                                                :name="'variants['+index+'][price_difference]'"
                                                x-model="variant.price_difference"
@@ -197,7 +202,7 @@
                                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-slate-500 mb-1">Stok</label>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">{{ __('Stock') }}</label>
                                         <input type="number"
                                                :name="'variants['+index+'][stock]'"
                                                x-model="variant.stock"
@@ -210,7 +215,7 @@
                                     <button type="button"
                                             @click="variants.splice(index, 1)"
                                             class="text-sm text-rose-600 hover:text-rose-700">
-                                        <i class="fas fa-trash mr-1"></i> Varyanti Kaldir
+                                        <i class="fas fa-trash mr-1"></i> {{ __('Remove Variant') }}
                                     </button>
                                 </div>
                             </div>
@@ -221,7 +226,7 @@
                                         variant="ghost"
                                         size="sm"
                                         icon="fa-plus">
-                            Varyant Ekle
+                            {{ __('Add Variant') }}
                         </x-admin.button>
                     </div>
                 </x-admin.card>
@@ -230,38 +235,48 @@
             <!-- Sidebar -->
             <div class="space-y-6">
                 <!-- Price & Stock -->
-                <x-admin.card title="Fiyat & Stok">
+                <x-admin.card :title="__('Price & Stock')">
                     <div class="space-y-4">
+                        <x-admin.form-select
+                            name="currency"
+                            label="{{ __('Currency') }}"
+                            required
+                            :options="[
+                                'TRY' => '₺ ' . __('Turkish Lira'),
+                                'USD' => '$ ' . __('US Dollar'),
+                                'EUR' => '€ ' . __('Euro'),
+                            ]"
+                            :value="old('currency', 'TRY')"
+                        />
+
                         <x-admin.form-input
                             name="price"
                             type="number"
-                            label="Fiyat"
+                            label="{{ __('Price') }}"
                             step="0.01"
                             min="0"
                             required
-                            suffix="TL"
                         />
 
                         <x-admin.form-input
                             name="sale_price"
                             type="number"
-                            label="Indirimli Fiyat"
+                            label="{{ __('Sale Price') }}"
                             step="0.01"
                             min="0"
-                            suffix="TL"
-                            hint="Indirim yoksa bos birakin"
+                            hint="{{ __('Leave empty if no discount') }}"
                         />
 
                         <x-admin.form-input
                             name="sku"
-                            label="SKU"
-                            placeholder="Stok Kodu"
+                            label="{{ __('SKU') }}"
+                            placeholder="{{ __('Stock Code') }}"
                         />
 
                         <x-admin.form-input
                             name="stock"
                             type="number"
-                            label="Stok Miktari"
+                            label="{{ __('Stock Quantity') }}"
                             min="0"
                             :value="0"
                         />
@@ -269,25 +284,25 @@
                 </x-admin.card>
 
                 <!-- Status -->
-                <x-admin.card title="Durum">
+                <x-admin.card title="{{ __('Status') }}">
                     <div class="space-y-4">
                         <x-admin.form-toggle
                             name="is_active"
-                            label="Aktif"
-                            description="Urun sitede gorunur"
+                            label="{{ __('Active') }}"
+                            description="{{ __('Product is visible on the site') }}"
                             :checked="true"
                         />
 
                         <x-admin.form-toggle
                             name="is_featured"
-                            label="One Cikan"
-                            description="Ana sayfada one cikan urunlerde gosterilir"
+                            label="{{ __('Featured') }}"
+                            description="{{ __('Shown in featured products on homepage') }}"
                         />
 
                         <x-admin.form-toggle
                             name="is_new"
-                            label="Yeni Urun"
-                            description="Yeni urun etiketi gosterilir"
+                            label="{{ __('New Product') }}"
+                            description="{{ __('New product badge is shown') }}"
                         />
                     </div>
                 </x-admin.card>
@@ -296,10 +311,10 @@
                 <x-admin.card>
                     <div class="space-y-3">
                         <x-admin.button type="submit" class="w-full" icon="fa-check">
-                            Urunu Kaydet
+                            {{ __('Save Product') }}
                         </x-admin.button>
                         <x-admin.button href="{{ route('admin.products.index') }}" variant="ghost" class="w-full">
-                            Iptal
+                            {{ __('Cancel') }}
                         </x-admin.button>
                     </div>
                 </x-admin.card>

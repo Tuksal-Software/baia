@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -15,88 +14,90 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Oturma Odası',
+                'name' => ['tr' => 'Oturma Odası', 'en' => 'Living Room', 'de' => 'Wohnzimmer'],
                 'slug' => 'oturma-odasi',
-                'description' => 'Oturma odası mobilyaları',
+                'description' => ['tr' => 'Oturma odası mobilyaları', 'en' => 'Living room furniture', 'de' => 'Wohnzimmermöbel'],
                 'order' => 1,
+                'is_active' => true,
                 'children' => [
-                    ['name' => 'Koltuklar', 'slug' => 'koltuklar', 'order' => 1],
-                    ['name' => 'Kanepeler', 'slug' => 'kanepeler', 'order' => 2],
-                    ['name' => 'TV Üniteleri', 'slug' => 'tv-uniteleri', 'order' => 3],
-                    ['name' => 'Sehpalar', 'slug' => 'sehpalar', 'order' => 4],
+                    ['name' => ['tr' => 'Koltuklar', 'en' => 'Armchairs', 'de' => 'Sessel'], 'slug' => 'koltuklar', 'order' => 1],
+                    ['name' => ['tr' => 'Kanepeler', 'en' => 'Sofas', 'de' => 'Sofas'], 'slug' => 'kanepeler', 'order' => 2],
+                    ['name' => ['tr' => 'TV Üniteleri', 'en' => 'TV Units', 'de' => 'TV-Möbel'], 'slug' => 'tv-uniteleri', 'order' => 3],
+                    ['name' => ['tr' => 'Sehpalar', 'en' => 'Coffee Tables', 'de' => 'Couchtische'], 'slug' => 'sehpalar', 'order' => 4],
                 ],
             ],
             [
-                'name' => 'Yatak Odası',
+                'name' => ['tr' => 'Yatak Odası', 'en' => 'Bedroom', 'de' => 'Schlafzimmer'],
                 'slug' => 'yatak-odasi',
-                'description' => 'Yatak odası mobilyaları',
+                'description' => ['tr' => 'Yatak odası mobilyaları', 'en' => 'Bedroom furniture', 'de' => 'Schlafzimmermöbel'],
                 'order' => 2,
+                'is_active' => true,
                 'children' => [
-                    ['name' => 'Yataklar', 'slug' => 'yataklar', 'order' => 1],
-                    ['name' => 'Gardıroplar', 'slug' => 'gardroplar', 'order' => 2],
-                    ['name' => 'Komodinler', 'slug' => 'komodinler', 'order' => 3],
-                    ['name' => 'Şifonyerler', 'slug' => 'sifonyerler', 'order' => 4],
+                    ['name' => ['tr' => 'Yataklar', 'en' => 'Beds', 'de' => 'Betten'], 'slug' => 'yataklar', 'order' => 1],
+                    ['name' => ['tr' => 'Gardıroplar', 'en' => 'Wardrobes', 'de' => 'Kleiderschränke'], 'slug' => 'gardroplar', 'order' => 2],
+                    ['name' => ['tr' => 'Komodinler', 'en' => 'Nightstands', 'de' => 'Nachttische'], 'slug' => 'komodinler', 'order' => 3],
+                    ['name' => ['tr' => 'Şifonyerler', 'en' => 'Dressers', 'de' => 'Kommoden'], 'slug' => 'sifonyerler', 'order' => 4],
                 ],
             ],
             [
-                'name' => 'Yemek Odası',
+                'name' => ['tr' => 'Yemek Odası', 'en' => 'Dining Room', 'de' => 'Esszimmer'],
                 'slug' => 'yemek-odasi',
-                'description' => 'Yemek odası mobilyaları',
+                'description' => ['tr' => 'Yemek odası mobilyaları', 'en' => 'Dining room furniture', 'de' => 'Esszimmermöbel'],
                 'order' => 3,
+                'is_active' => true,
                 'children' => [
-                    ['name' => 'Yemek Masaları', 'slug' => 'yemek-masalari', 'order' => 1],
-                    ['name' => 'Sandalyeler', 'slug' => 'sandalyeler', 'order' => 2],
-                    ['name' => 'Konsollar', 'slug' => 'konsollar', 'order' => 3],
-                    ['name' => 'Büfeler', 'slug' => 'bufeler', 'order' => 4],
+                    ['name' => ['tr' => 'Yemek Masaları', 'en' => 'Dining Tables', 'de' => 'Esstische'], 'slug' => 'yemek-masalari', 'order' => 1],
+                    ['name' => ['tr' => 'Sandalyeler', 'en' => 'Chairs', 'de' => 'Stühle'], 'slug' => 'sandalyeler', 'order' => 2],
+                    ['name' => ['tr' => 'Konsollar', 'en' => 'Consoles', 'de' => 'Konsolen'], 'slug' => 'konsollar', 'order' => 3],
+                    ['name' => ['tr' => 'Büfeler', 'en' => 'Buffets', 'de' => 'Buffets'], 'slug' => 'bufeler', 'order' => 4],
                 ],
             ],
             [
-                'name' => 'Çalışma Odası',
+                'name' => ['tr' => 'Çalışma Odası', 'en' => 'Home Office', 'de' => 'Arbeitszimmer'],
                 'slug' => 'calisma-odasi',
-                'description' => 'Çalışma odası mobilyaları',
+                'description' => ['tr' => 'Çalışma odası mobilyaları', 'en' => 'Home office furniture', 'de' => 'Büromöbel'],
                 'order' => 4,
+                'is_active' => true,
                 'children' => [
-                    ['name' => 'Çalışma Masaları', 'slug' => 'calisma-masalari', 'order' => 1],
-                    ['name' => 'Ofis Koltukları', 'slug' => 'ofis-koltuklari', 'order' => 2],
-                    ['name' => 'Kitaplıklar', 'slug' => 'kitapliklar', 'order' => 3],
+                    ['name' => ['tr' => 'Çalışma Masaları', 'en' => 'Desks', 'de' => 'Schreibtische'], 'slug' => 'calisma-masalari', 'order' => 1],
+                    ['name' => ['tr' => 'Ofis Koltukları', 'en' => 'Office Chairs', 'de' => 'Bürostühle'], 'slug' => 'ofis-koltuklari', 'order' => 2],
+                    ['name' => ['tr' => 'Kitaplıklar', 'en' => 'Bookcases', 'de' => 'Bücherregale'], 'slug' => 'kitapliklar', 'order' => 3],
                 ],
             ],
             [
-                'name' => 'Mutfak',
+                'name' => ['tr' => 'Mutfak', 'en' => 'Kitchen', 'de' => 'Küche'],
                 'slug' => 'mutfak',
-                'description' => 'Mutfak mobilyaları',
+                'description' => ['tr' => 'Mutfak mobilyaları', 'en' => 'Kitchen furniture', 'de' => 'Küchenmöbel'],
                 'order' => 5,
+                'is_active' => true,
                 'children' => [
-                    ['name' => 'Mutfak Masaları', 'slug' => 'mutfak-masalari', 'order' => 1],
-                    ['name' => 'Bar Tabureleri', 'slug' => 'bar-tabureleri', 'order' => 2],
+                    ['name' => ['tr' => 'Mutfak Masaları', 'en' => 'Kitchen Tables', 'de' => 'Küchentische'], 'slug' => 'mutfak-masalari', 'order' => 1],
+                    ['name' => ['tr' => 'Bar Tabureleri', 'en' => 'Bar Stools', 'de' => 'Barhocker'], 'slug' => 'bar-tabureleri', 'order' => 2],
                 ],
             ],
             [
-                'name' => 'Bahçe & Balkon',
+                'name' => ['tr' => 'Bahçe & Balkon', 'en' => 'Garden & Balcony', 'de' => 'Garten & Balkon'],
                 'slug' => 'bahce-balkon',
-                'description' => 'Dış mekan mobilyaları',
+                'description' => ['tr' => 'Dış mekan mobilyaları', 'en' => 'Outdoor furniture', 'de' => 'Gartenmöbel'],
                 'order' => 6,
+                'is_active' => true,
                 'children' => [
-                    ['name' => 'Bahçe Takımları', 'slug' => 'bahce-takimlari', 'order' => 1],
-                    ['name' => 'Şezlonglar', 'slug' => 'sezlonglar', 'order' => 2],
+                    ['name' => ['tr' => 'Bahçe Takımları', 'en' => 'Garden Sets', 'de' => 'Gartenmöbel-Sets'], 'slug' => 'bahce-takimlari', 'order' => 1],
+                    ['name' => ['tr' => 'Şezlonglar', 'en' => 'Loungers', 'de' => 'Liegen'], 'slug' => 'sezlonglar', 'order' => 2],
                 ],
             ],
         ];
 
-        foreach ($categories as $category) {
-            $children = $category['children'] ?? [];
-            unset($category['children']);
+        foreach ($categories as $categoryData) {
+            $children = $categoryData['children'] ?? [];
+            unset($categoryData['children']);
 
-            $category['created_at'] = now();
-            $category['updated_at'] = now();
-
-            $parentId = DB::table('categories')->insertGetId($category);
+            $parent = Category::create($categoryData);
 
             foreach ($children as $child) {
-                $child['parent_id'] = $parentId;
-                $child['created_at'] = now();
-                $child['updated_at'] = now();
-                DB::table('categories')->insert($child);
+                $child['parent_id'] = $parent->id;
+                $child['is_active'] = true;
+                Category::create($child);
             }
         }
     }

@@ -65,7 +65,7 @@ class MenuController extends Controller
         Menu::clearCache();
 
         return redirect()->route('admin.menus.edit', $menu)
-            ->with('success', 'Menü başarıyla güncellendi.');
+            ->with('success', __('Menu updated successfully.'));
     }
 
     /**

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Ana Sayfa')
+@section('title', __('Home'))
 @section('content')
 
 @foreach($sections as $section)
@@ -44,8 +44,8 @@
 
         @case('newsletter')
             <x-newsletter-section
-                :title="$section->title ?? 'Bultenimize Katilın'"
-                :subtitle="$section->subtitle ?? 'Yeni urunler ve kampanyalardan haberdar olun'"
+                :title="$section->title"
+                :subtitle="$section->subtitle"
                 :backgroundColor="$section->getSetting('background_color', '#f5f5dc')" />
             @break
     @endswitch

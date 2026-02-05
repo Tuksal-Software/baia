@@ -21,7 +21,7 @@
         <div class="max-w-2xl">
             <x-admin.card title="Kategori Bilgileri">
                 <div class="space-y-4">
-                    <x-admin.form-input
+                    <x-admin.form-translatable-input
                         name="name"
                         label="Kategori Adi"
                         placeholder="Kategori adini girin"
@@ -43,7 +43,7 @@
                         hint="Bos birakirsaniz ana kategori olarak olusturulur"
                     />
 
-                    <x-admin.form-textarea
+                    <x-admin.form-translatable-textarea
                         name="description"
                         label="Aciklama"
                         :rows="3"

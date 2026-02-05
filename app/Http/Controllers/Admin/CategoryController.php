@@ -36,27 +36,46 @@ class CategoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|array',
+            'name.tr' => 'required|string|max:255',
+            'name.en' => 'nullable|string|max:255',
+            'name.de' => 'nullable|string|max:255',
             'slug' => 'nullable|string|max:255|unique:categories,slug',
             'parent_id' => 'nullable|exists:categories,id',
-            'description' => 'nullable|string|max:2000',
+            'description' => 'nullable|array',
+            'description.*' => 'nullable|string|max:2000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'order' => 'integer|min:0',
             'is_active' => 'boolean',
         ]);
 
         if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $baseSlug = Str::slug($validated['name']['tr'] ?? '');
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (Category::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $validated['slug'] = $slug;
         }
 
+        $imagePath = null;
         if ($request->hasFile('image')) {
-            $validated['image'] = $this->uploadFile($request->file('image'), 'categories');
+            $imagePath = $this->uploadFile($request->file('image'), 'categories');
         }
 
-        $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['order'] = $request->input('order', 0);
-
-        Category::create($validated);
+        Category::create([
+            'name' => array_filter($validated['name']),
+            'slug' => $validated['slug'],
+            'parent_id' => $validated['parent_id'] ?? null,
+            'description' => isset($validated['description']) ? array_filter($validated['description']) : null,
+            'image' => $imagePath,
+            'order' => $request->input('order', 0),
+            'is_active' => $request->boolean('is_active', true),
+        ]);
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Kategori başarıyla oluşturuldu.');
@@ -76,31 +95,52 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|array',
+            'name.tr' => 'required|string|max:255',
+            'name.en' => 'nullable|string|max:255',
+            'name.de' => 'nullable|string|max:255',
             'slug' => 'nullable|string|max:255|unique:categories,slug,' . $category->id,
             'parent_id' => 'nullable|exists:categories,id',
-            'description' => 'nullable|string|max:2000',
+            'description' => 'nullable|array',
+            'description.*' => 'nullable|string|max:2000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'order' => 'integer|min:0',
             'is_active' => 'boolean',
         ]);
 
-        if ($validated['parent_id'] == $category->id) {
+        if (($validated['parent_id'] ?? null) == $category->id) {
             return redirect()->back()
                 ->with('error', 'Kategori kendisinin üst kategorisi olamaz.');
         }
 
         if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $baseSlug = Str::slug($validated['name']['tr'] ?? '');
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $validated['slug'] = $slug;
         }
+
+        $updateData = [
+            'name' => array_filter($validated['name']),
+            'slug' => $validated['slug'],
+            'parent_id' => $validated['parent_id'] ?? null,
+            'description' => isset($validated['description']) ? array_filter($validated['description']) : null,
+            'order' => $request->input('order', $category->order),
+            'is_active' => $request->boolean('is_active'),
+        ];
 
         if ($request->hasFile('image')) {
             $this->deleteFile($category->image);
-            $validated['image'] = $this->uploadFile($request->file('image'), 'categories');
+            $updateData['image'] = $this->uploadFile($request->file('image'), 'categories');
         }
 
-        $validated['is_active'] = $request->boolean('is_active');
-        $category->update($validated);
+        $category->update($updateData);
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Kategori başarıyla güncellendi.');

@@ -20,9 +20,19 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\SliderController as AdminSliderController;
+use App\Http\Controllers\Admin\TranslationController as AdminTranslationController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\NewsletterController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Language Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
 
 /*
 |--------------------------------------------------------------------------
@@ -194,4 +204,9 @@ Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function ()
     // Users
     Route::resource('users', AdminUserController::class);
     Route::patch('users/{user}/toggle-admin', [AdminUserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+
+    // Translations (AJAX)
+    Route::post('translations/translate', [AdminTranslationController::class, 'translate'])->name('translations.translate');
+    Route::post('translations/translate-field', [AdminTranslationController::class, 'translateField'])->name('translations.translate-field');
+    Route::get('translations/status', [AdminTranslationController::class, 'status'])->name('translations.status');
 });

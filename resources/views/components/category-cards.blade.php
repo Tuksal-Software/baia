@@ -32,7 +32,7 @@
                     <div class="absolute inset-0 flex flex-col justify-end p-6">
                         <h3 class="text-xl md:text-2xl font-serif font-bold text-white mb-2">{{ $category->name }}</h3>
                         <span class="text-white/80 text-sm uppercase tracking-wider group-hover:text-white transition-colors">
-                            Koleksiyonu Gor
+                            {{ __('View Collection') }}
                             <svg class="inline-block w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                             </svg>
@@ -46,7 +46,7 @@
             <div class="text-center mt-10">
                 <a href="{{ route('categories.index') }}"
                    class="inline-block px-8 py-3 border-2 border-black text-black uppercase text-sm tracking-wider hover:bg-black hover:text-white transition-all duration-300">
-                    Tum Kategoriler
+                    {{ __('All Categories') }}
                 </a>
             </div>
         @endif

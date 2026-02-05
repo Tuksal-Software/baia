@@ -7,10 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Translatable\HasTranslations;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasTranslations;
+
+    /**
+     * Translatable fields
+     */
+    public array $translatable = ['name', 'short_description', 'description'];
+
+    /**
+     * Currency symbols mapping
+     */
+    public const CURRENCIES = [
+        'TRY' => ['symbol' => '₺', 'name' => 'Türk Lirası'],
+        'USD' => ['symbol' => '$', 'name' => 'US Dollar'],
+        'EUR' => ['symbol' => '€', 'name' => 'Euro'],
+    ];
 
     protected $fillable = [
         'category_id',
@@ -20,6 +35,7 @@ class Product extends Model
         'description',
         'price',
         'sale_price',
+        'currency',
         'sku',
         'stock',
         'is_active',
@@ -189,6 +205,30 @@ class Product extends Model
     public function getIsInStockAttribute(): bool
     {
         return $this->stock > 0;
+    }
+
+    /**
+     * Get currency symbol
+     */
+    public function getCurrencySymbolAttribute(): string
+    {
+        return self::CURRENCIES[$this->currency]['symbol'] ?? '₺';
+    }
+
+    /**
+     * Get formatted price with currency
+     */
+    public function getFormattedPriceAttribute(): string
+    {
+        return $this->currency_symbol . number_format($this->price, 2, ',', '.');
+    }
+
+    /**
+     * Get formatted current price with currency
+     */
+    public function getFormattedCurrentPriceAttribute(): string
+    {
+        return $this->currency_symbol . number_format($this->current_price, 2, ',', '.');
     }
 
     /**

@@ -28,7 +28,7 @@
             @endif
             @if($product->is_new)
                 <span class="bg-white text-black text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 border border-black">
-                    Yeni
+                    {{ __('New') }}
                 </span>
             @endif
         </div>
@@ -36,7 +36,7 @@
         <!-- Out of Stock Overlay -->
         @unless($product->is_in_stock)
             <div class="absolute inset-0 bg-white/80 flex items-center justify-center">
-                <span class="text-sm font-medium uppercase tracking-wider text-gray-600">Tukendi</span>
+                <span class="text-sm font-medium uppercase tracking-wider text-gray-600">{{ __('Sold Out') }}</span>
             </div>
         @endunless
 
@@ -48,7 +48,7 @@
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                     <button type="submit"
                             class="w-full bg-black text-white py-3 text-xs font-semibold uppercase tracking-wider hover:bg-gray-900 transition-colors">
-                        Sepete Ekle
+                        {{ __('Add to Cart') }}
                     </button>
                 </form>
             </div>

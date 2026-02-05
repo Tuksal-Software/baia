@@ -107,7 +107,7 @@
                                 <div class="mt-8 pt-6 border-t border-gray-100">
                                     <a href="{{ route('categories.show', $category) }}"
                                        class="inline-flex items-center gap-2 text-sm font-medium text-black hover:text-gray-600 transition-colors uppercase tracking-wider">
-                                        Tum {{ $category->name }} Urunleri
+                                        {{ __('All :name Products', ['name' => $category->name]) }}
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                                         </svg>
@@ -125,7 +125,7 @@
                                         <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></div>
                                         <div class="absolute bottom-4 left-4 right-4">
                                             <span class="inline-block bg-white text-black text-xs font-semibold px-4 py-2 uppercase tracking-wider">
-                                                Koleksiyonu Kesfet
+                                                {{ __('Discover Collection') }}
                                             </span>
                                         </div>
                                     </a>
@@ -174,19 +174,6 @@
         @endif
     </div>
 
-    {{-- Overlay --}}
-    <div x-show="activeMenu !== null"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         @click="closeMenu()"
-         class="fixed inset-0 bg-black/10 z-40"
-         :style="'top: ' + overlayTop + 'px'"
-         x-cloak>
-    </div>
 </div>
 
 <script>
@@ -194,20 +181,6 @@ function megaNav() {
     return {
         activeMenu: null,
         closeTimer: null,
-        overlayTop: 0,
-
-        init() {
-            this.updateOverlayTop();
-            window.addEventListener('resize', () => this.updateOverlayTop());
-            window.addEventListener('scroll', () => this.updateOverlayTop());
-        },
-
-        updateOverlayTop() {
-            if (this.$refs.megaNavWrapper) {
-                const rect = this.$refs.megaNavWrapper.getBoundingClientRect();
-                this.overlayTop = rect.bottom + window.scrollY;
-            }
-        },
 
         openMenu(menu) {
             this.cancelCloseTimer();

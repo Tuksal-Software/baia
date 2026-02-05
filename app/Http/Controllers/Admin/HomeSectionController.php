@@ -13,9 +13,6 @@ use Illuminate\View\View;
 
 class HomeSectionController extends Controller
 {
-    /**
-     * Display section list
-     */
     public function index(): View
     {
         $sections = HomeSection::ordered()->get();
@@ -24,9 +21,6 @@ class HomeSectionController extends Controller
         return view('admin.home-sections.index', compact('sections', 'types'));
     }
 
-    /**
-     * Show create form
-     */
     public function create(): View
     {
         $types = HomeSection::TYPES;
@@ -36,33 +30,36 @@ class HomeSectionController extends Controller
         return view('admin.home-sections.create', compact('types', 'categories', 'banners'));
     }
 
-    /**
-     * Store new section
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'type' => 'required|string|in:' . implode(',', array_keys(HomeSection::TYPES)),
-            'title' => 'nullable|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
+            'title' => 'nullable|array',
+            'title.tr' => 'nullable|string|max:255',
+            'title.en' => 'nullable|string|max:255',
+            'title.de' => 'nullable|string|max:255',
+            'subtitle' => 'nullable|array',
+            'subtitle.tr' => 'nullable|string|max:255',
+            'subtitle.en' => 'nullable|string|max:255',
+            'subtitle.de' => 'nullable|string|max:255',
             'settings' => 'nullable|array',
             'order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable',
         ]);
 
-        $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['order'] = $request->input('order', HomeSection::max('order') + 1);
-        $validated['settings'] = $request->input('settings', []);
-
-        HomeSection::create($validated);
+        HomeSection::create([
+            'type' => $validated['type'],
+            'title' => isset($validated['title']) ? array_filter($validated['title']) : null,
+            'subtitle' => isset($validated['subtitle']) ? array_filter($validated['subtitle']) : null,
+            'settings' => $request->input('settings', []),
+            'order' => $request->input('order', HomeSection::max('order') + 1),
+            'is_active' => $request->boolean('is_active', true),
+        ]);
 
         return redirect()->route('admin.home-sections.index')
-            ->with('success', 'Bölüm başarıyla oluşturuldu.');
+            ->with('success', __('Section created successfully.'));
     }
 
-    /**
-     * Show edit form
-     */
     public function edit(HomeSection $homeSection): View
     {
         $types = HomeSection::TYPES;
@@ -72,43 +69,44 @@ class HomeSectionController extends Controller
         return view('admin.home-sections.edit', compact('homeSection', 'types', 'categories', 'banners'));
     }
 
-    /**
-     * Update section
-     */
     public function update(Request $request, HomeSection $homeSection): RedirectResponse
     {
         $validated = $request->validate([
             'type' => 'required|string|in:' . implode(',', array_keys(HomeSection::TYPES)),
-            'title' => 'nullable|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
+            'title' => 'nullable|array',
+            'title.tr' => 'nullable|string|max:255',
+            'title.en' => 'nullable|string|max:255',
+            'title.de' => 'nullable|string|max:255',
+            'subtitle' => 'nullable|array',
+            'subtitle.tr' => 'nullable|string|max:255',
+            'subtitle.en' => 'nullable|string|max:255',
+            'subtitle.de' => 'nullable|string|max:255',
             'settings' => 'nullable|array',
             'order' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable',
         ]);
 
-        $validated['is_active'] = $request->boolean('is_active');
-        $validated['settings'] = $request->input('settings', []);
-
-        $homeSection->update($validated);
+        $homeSection->update([
+            'type' => $validated['type'],
+            'title' => isset($validated['title']) ? array_filter($validated['title']) : null,
+            'subtitle' => isset($validated['subtitle']) ? array_filter($validated['subtitle']) : null,
+            'settings' => $request->input('settings', []),
+            'order' => $validated['order'] ?? $homeSection->order,
+            'is_active' => $request->boolean('is_active'),
+        ]);
 
         return redirect()->route('admin.home-sections.index')
-            ->with('success', 'Bölüm başarıyla güncellendi.');
+            ->with('success', __('Section updated successfully.'));
     }
 
-    /**
-     * Delete section
-     */
     public function destroy(HomeSection $homeSection): RedirectResponse
     {
         $homeSection->delete();
 
         return redirect()->route('admin.home-sections.index')
-            ->with('success', 'Bölüm başarıyla silindi.');
+            ->with('success', __('Section deleted successfully.'));
     }
 
-    /**
-     * Update section order (AJAX)
-     */
     public function updateOrder(Request $request): JsonResponse
     {
         $request->validate([
@@ -124,17 +122,11 @@ class HomeSectionController extends Controller
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Toggle section status
-     */
     public function toggleStatus(HomeSection $homeSection): RedirectResponse
     {
-        $homeSection->is_active = !$homeSection->is_active;
-        $homeSection->save();
+        $homeSection->update(['is_active' => !$homeSection->is_active]);
+        $status = $homeSection->is_active ? __('activated') : __('deactivated');
 
-        $status = $homeSection->is_active ? 'aktif' : 'pasif';
-
-        return redirect()->back()
-            ->with('success', "Bölüm {$status} yapıldı.");
+        return redirect()->back()->with('success', __('Section :status.', ['status' => $status]));
     }
 }

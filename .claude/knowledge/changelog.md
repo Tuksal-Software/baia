@@ -362,6 +362,207 @@
 
 ---
 
+## [3.0.0] - 2026-02-05
+
+### Multi-Language Support (Localization)
+
+### Added
+- **Laravel Localization System**: Full i18n support for 3 languages
+  - Turkish (default), English, German
+  - Session-based language switching
+  - Browser language detection
+
+- **SetLocale Middleware**: Automatic locale detection and setting
+  - File: `app/Http/Middleware/SetLocale.php`
+  - Registered in `bootstrap/app.php` for web middleware
+
+- **Language Controller**: Handles language switching
+  - File: `app/Http/Controllers/LanguageController.php`
+  - Route: `GET /lang/{locale}` → `language.switch`
+
+- **Translation Service**: MyMemory API integration for auto-translation
+  - File: `app/Services/TranslationService.php`
+  - Free API, no API key required
+  - Supports TR → EN, TR → DE translations
+  - 24-hour cache for translated strings
+
+- **Admin Translation Controller**: AJAX endpoints for admin panel
+  - File: `app/Http/Controllers/Admin/TranslationController.php`
+  - Routes: `POST admin/translations/translate`, `POST admin/translations/translate-field`
+
+- **Translatable Form Components** (Admin Panel)
+  - `form-translatable-input.blade.php` - Input with language tabs
+  - `form-translatable-textarea.blade.php` - Textarea with language tabs
+  - Features: Language tabs (TR/EN/DE), Auto-translate button, Alpine.js powered
+
+- **Language Switcher Component** (Frontend)
+  - File: `resources/views/components/language-switcher.blade.php`
+  - Dropdown with flags and language names
+  - Mobile version in hamburger menu
+
+- **Language Files**: JSON translation files
+  - `lang/tr.json` - Turkish (100+ strings)
+  - `lang/en.json` - English translations
+  - `lang/de.json` - German translations
+
+- **Database Migration**: Convert text fields to JSON for translations
+  - File: `database/migrations/2026_02_05_000001_convert_translatable_fields_to_json.php`
+  - Converts existing data to JSON format with Turkish as default
+
+### Changed
+- **Config**: `config/app.php`
+  - Default locale set to 'tr'
+  - Added `available_locales` array with language metadata (name, native, flag)
+
+- **Models Updated with HasTranslations Trait**:
+  - `Product.php` - translatable: name, short_description, description
+  - `Category.php` - translatable: name, description
+  - `Slider.php` - translatable: title, subtitle, description, button_text
+  - `Banner.php` - translatable: title, subtitle
+  - `HomeSection.php` - translatable: title, subtitle
+  - `Feature.php` - translatable: title, description
+
+- **Admin Controllers Updated**:
+  - `ProductController.php` - Handles array input for translatable fields
+  - `CategoryController.php` - Handles array input for translatable fields
+
+- **Admin Forms Updated**:
+  - `products/create.blade.php` - Uses translatable components
+  - `products/edit.blade.php` - Uses translatable components
+  - `categories/create.blade.php` - Uses translatable components
+  - `categories/edit.blade.php` - Uses translatable components
+
+- **Frontend Layout**: `layouts/app.blade.php`
+  - Added language switcher in header
+  - Dynamic `lang` attribute on HTML tag
+  - Mobile language switcher in hamburger menu
+
+### Dependencies
+- Added `spatie/laravel-translatable: ^6.8` to composer.json
+- Run `composer install` after pulling changes
+
+### Technical Notes
+- Hybrid translation approach: Auto-translate + manual correction
+- MyMemory API: Free, 1000 words/day limit, cached 24 hours
+- Backward compatible: Old text data auto-wrapped as Turkish translation
+- No breaking changes to existing functionality
+
+### Usage
+1. Install dependencies: `composer install`
+2. Run migration: `php artisan migrate`
+3. Access language switcher in frontend header
+4. Use "Auto Translate" button in admin forms to translate content
+
+---
+
+## [3.0.1] - 2026-02-05
+
+### Localization Bugfix
+
+### Fixed
+- **Spatie Translatable Not Working**: Seeders were using `DB::table()` instead of Model classes
+  - Root cause: `DB::table()->insert()` bypasses Eloquent, so `HasTranslations` trait never processed the data
+  - Solution: Converted all seeders to use Model classes (`Category::create()`, `Product::create()`, etc.)
+  - Removed `json_encode()` from seeders - Spatie handles JSON conversion automatically
+
+- **Mega Navbar Shadow Bug**: Removed overlay div causing gray shadow when scrolling
+  - File: `resources/views/components/mega-navbar.blade.php`
+  - Removed overlay element that had `bg-black/10` class
+
+### Changed
+- **CategorySeeder.php**: Now uses `Category::create()` with array translations
+- **ProductSeeder.php**: Now uses `Product::create()` with array translations
+- **FeatureSeeder.php**: Now uses `Feature::create()` with array translations
+- **HomeSectionSeeder.php**: Now uses `HomeSection::create()` with array translations
+
+### Technical Notes
+- **IMPORTANT**: When using `spatie/laravel-translatable`, ALWAYS use Eloquent Models for seeding/creating records
+- `DB::table()->insert()` will NOT work with HasTranslations trait
+- Translatable arrays should be passed as PHP arrays, NOT json_encode'd strings
+- Example correct usage: `'name' => ['tr' => 'Koltuklar', 'en' => 'Armchairs', 'de' => 'Sessel']`
+
+---
+
+## [3.0.2] - 2026-02-05
+
+### Menu & MenuItem Localization
+
+### Added
+- **Menu Model HasTranslations**: Added multi-language support to menus
+  - File: `app/Models/Menu.php`
+  - Added `HasTranslations` trait
+  - Translatable field: `name`
+
+- **MenuItem Model HasTranslations**: Added multi-language support to menu items
+  - File: `app/Models/MenuItem.php`
+  - Added `HasTranslations` trait
+  - Translatable field: `title`
+
+- **Database Migration**: Convert Menu/MenuItem fields to JSON
+  - File: `database/migrations/2026_02_05_000002_convert_menu_items_title_to_json.php`
+  - Converts `menu_items.title` varchar → JSON
+  - Converts `menus.name` varchar → JSON
+  - Migrates existing data with TR/EN/DE copies
+
+### Changed
+- **MenuSeeder.php**: Updated with translations for all menu items
+  - Header menu items: Yeni Ürünler, Oturma Odası, etc. with EN/DE translations
+  - Footer menu: Hakkımızda, İletişim, Kariyer, etc. with EN/DE translations
+  - Footer secondary menu: Sipariş Takibi, Kargo & Teslimat, etc. with EN/DE translations
+
+### Technical Notes
+- Run `php artisan migrate:fresh --seed` to apply changes
+- Menus now automatically display in current locale
+- Footer and navbar menu items will change based on language selection
+
+---
+
+## [3.1.0] - 2026-02-05
+
+### Complete Admin Panel Localization Audit
+
+### Changed
+- **Features Module**: Full localization
+  - `features/index.blade.php` - All UI text uses `__()` helper
+  - `features/create.blade.php` - Translatable inputs for title/description
+  - `features/edit.blade.php` - Translatable inputs with `getTranslations()`
+  - `FeatureController.php` - `getPositions()` and `getIcons()` methods return translated strings
+
+- **Menus Module**: Full localization
+  - `menus/index.blade.php` - All UI text uses `__()` helper
+  - `menus/edit.blade.php` - All UI text + JS translations object
+  - `MenuController.php` - Success message uses `__()` helper
+
+- **Sliders Module**: Full localization
+  - `sliders/index.blade.php` - All UI text uses `__()` helper
+  - `sliders/create.blade.php` - Already localized (verified)
+  - `sliders/edit.blade.php` - Already localized (verified)
+
+- **Banners Module**: Full localization
+  - `banners/index.blade.php` - All UI text uses `__()` helper
+  - `banners/create.blade.php` - Already localized (verified)
+  - `banners/edit.blade.php` - Already localized (verified)
+
+- **Home Sections Module**: Full localization
+  - `home-sections/index.blade.php` - All UI text uses `__()` helper
+  - `home-sections/create.blade.php` - Already localized (verified)
+  - `home-sections/edit.blade.php` - Already localized (verified)
+
+### Added
+- **Translation Strings**: 100+ new translation keys added to language files
+  - `lang/tr.json` - Turkish translations
+  - `lang/en.json` - English translations
+  - `lang/de.json` - German translations
+  - Categories: Features, Menus, Sliders, Banners, Home Sections, General UI
+
+### Technical Notes
+- All admin panel "İçerik Yönetimi" (Content Management) section views now fully localized
+- All translatable database fields use `form-translatable-input` and `form-translatable-textarea` components
+- JavaScript code in views uses a `translations` object for dynamic text
+- FeatureController constants converted to methods to support runtime translation
+
+---
+
 ## Pending / Future Changes
 
 _Bu bölüm yeni değişiklikler yapıldıkça güncellenecek._
@@ -373,6 +574,7 @@ _Bu bölüm yeni değişiklikler yapıldıkça güncellenecek._
 - [ ] API endpoints (Sanctum)
 - [ ] Payment gateway integration
 - [ ] Email notifications
+- [x] Multi-language support (Localization)
 
 ---
 
