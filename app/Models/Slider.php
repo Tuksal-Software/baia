@@ -34,17 +34,11 @@ class Slider extends Model
         ];
     }
 
-    /**
-     * Scope for active sliders
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope for published sliders (active and within date range)
-     */
     public function scopePublished($query)
     {
         return $query->active()
@@ -58,28 +52,24 @@ class Slider extends Model
             });
     }
 
-    /**
-     * Scope ordered by order field
-     */
     public function scopeOrdered($query)
     {
         return $query->orderBy('order');
     }
 
-    /**
-     * Get the image URL
-     */
     public function getImageUrlAttribute(): string
     {
+        if (!$this->image) {
+            return '';
+        }
         if (str_starts_with($this->image, 'http')) {
             return $this->image;
         }
-        return asset('storage/' . $this->image);
+        // Handle both old (sliders/...) and new (uploads/sliders/...) path formats
+        $path = str_starts_with($this->image, 'uploads/') ? $this->image : 'uploads/' . $this->image;
+        return asset($path);
     }
 
-    /**
-     * Get the mobile image URL
-     */
     public function getMobileImageUrlAttribute(): ?string
     {
         if (!$this->image_mobile) {
@@ -88,6 +78,8 @@ class Slider extends Model
         if (str_starts_with($this->image_mobile, 'http')) {
             return $this->image_mobile;
         }
-        return asset('storage/' . $this->image_mobile);
+        // Handle both old and new path formats
+        $path = str_starts_with($this->image_mobile, 'uploads/') ? $this->image_mobile : 'uploads/' . $this->image_mobile;
+        return asset($path);
     }
 }

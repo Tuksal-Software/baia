@@ -1,66 +1,96 @@
 @extends('layouts.admin')
+
 @section('title', 'Yeni Ozellik')
+
+@section('breadcrumb')
+    <a href="{{ route('admin.features.index') }}" class="text-slate-500 hover:text-slate-700">Ozellikler</a>
+    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+    <span class="text-slate-700 font-medium">Yeni Ozellik</span>
+@endsection
+
 @section('content')
-<div class="max-w-2xl">
-    <div class="flex items-center gap-2 mb-6">
-        <a href="{{ route('admin.features.index') }}" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-        <h2 class="text-xl font-semibold">Yeni Ozellik</h2>
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-slate-900">Yeni Ozellik</h1>
+        <p class="text-sm text-slate-500 mt-1">Yeni bir ozellik olusturun</p>
     </div>
 
-    <form action="{{ route('admin.features.store') }}" method="POST" class="bg-white rounded-lg p-6">
+    <form action="{{ route('admin.features.store') }}" method="POST">
         @csrf
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ikon *</label>
-                <select name="icon" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                    @foreach($icons as $key => $label)
-                        <option value="{{ $key }}" {{ old('icon') === $key ? 'selected' : '' }}>{{ $label }} ({{ $key }})</option>
-                    @endforeach
-                </select>
-                <p class="text-xs text-gray-500 mt-1">Lucide ikonlari kullanilmaktadir.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <x-admin.card title="Temel Bilgiler">
+                    <div class="space-y-4">
+                        <x-admin.form-select
+                            name="icon"
+                            label="Ikon"
+                            :options="$icons"
+                            required
+                            hint="Lucide ikonlari kullanilmaktadir"
+                        />
+
+                        <x-admin.form-input
+                            name="title"
+                            label="Baslik"
+                            placeholder="Ozellik basligi"
+                            required
+                        />
+
+                        <x-admin.form-textarea
+                            name="description"
+                            label="Aciklama"
+                            :rows="3"
+                        />
+
+                        <x-admin.form-input
+                            name="link"
+                            label="Link"
+                            placeholder="/sayfa/..."
+                        />
+                    </div>
+                </x-admin.card>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Baslik *</label>
-                <input type="text" name="title" value="{{ old('title') }}" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <x-admin.card title="Yayin Ayarlari">
+                    <div class="space-y-4">
+                        <x-admin.form-toggle
+                            name="is_active"
+                            label="Aktif"
+                            description="Ozellik sitede gorunur"
+                            :checked="old('is_active', true)"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Aciklama</label>
-                <textarea name="description" rows="2" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">{{ old('description') }}</textarea>
-            </div>
+                        <x-admin.form-select
+                            name="position"
+                            label="Pozisyon"
+                            :options="$positions"
+                            :value="old('position', 'home')"
+                            required
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Link</label>
-                <input type="text" name="link" value="{{ old('link') }}" placeholder="/sayfa/..." class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Pozisyon *</label>
-                <select name="position" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                    @foreach($positions as $key => $label)
-                        <option value="{{ $key }}" {{ old('position', 'home') === $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sira</label>
-                <input type="number" name="order" value="{{ old('order', 0) }}" min="0" class="w-32 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
-
-            <div>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }} class="rounded text-purple-600">
-                    Aktif
-                </label>
+                        <x-admin.form-input
+                            name="order"
+                            type="number"
+                            label="Sira"
+                            :value="old('order', 0)"
+                            min="0"
+                        />
+                    </div>
+                </x-admin.card>
             </div>
         </div>
 
-        <div class="mt-6 flex gap-3">
-            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Kaydet</button>
-            <a href="{{ route('admin.features.index') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Iptal</a>
+        <div class="mt-6 flex items-center gap-3">
+            <x-admin.button type="submit" icon="fa-check">
+                Kaydet
+            </x-admin.button>
+            <x-admin.button href="{{ route('admin.features.index') }}" variant="ghost">
+                Iptal
+            </x-admin.button>
         </div>
     </form>
-</div>
 @endsection

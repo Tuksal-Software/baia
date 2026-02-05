@@ -1,71 +1,114 @@
 @extends('layouts.admin')
+
 @section('title', 'Bannerlar')
+
+@section('breadcrumb')
+    <span class="text-slate-700 font-medium">Bannerlar</span>
+@endsection
+
 @section('content')
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold">Bannerlar ({{ $banners->count() }})</h2>
-    <a href="{{ route('admin.banners.create') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-        <i class="fas fa-plus mr-2"></i>Yeni Banner
-    </a>
-</div>
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-slate-900">Bannerlar</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ $banners->count() }} banner</p>
+        </div>
+        <x-admin.button href="{{ route('admin.banners.create') }}" icon="fa-plus">
+            Yeni Banner
+        </x-admin.button>
+    </div>
 
-<!-- Position Filter -->
-<div class="flex gap-2 mb-4 flex-wrap">
-    <a href="{{ route('admin.banners.index') }}" class="px-3 py-1 rounded {{ !request('position') ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">Tumu</a>
-    @foreach($positions as $key => $label)
-        <a href="{{ route('admin.banners.index', ['position' => $key]) }}" class="px-3 py-1 rounded {{ request('position') === $key ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">{{ $label }}</a>
-    @endforeach
-</div>
+    <!-- Position Filter -->
+    <x-admin.card class="mb-6" :padding="false">
+        <div class="p-4 flex gap-2 flex-wrap">
+            <a href="{{ route('admin.banners.index') }}"
+               class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors {{ !request('position') ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                Tumu
+            </a>
+            @foreach($positions as $key => $label)
+                <a href="{{ route('admin.banners.index', ['position' => $key]) }}"
+                   class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors {{ request('position') === $key ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    {{ $label }}
+                </a>
+            @endforeach
+        </div>
+    </x-admin.card>
 
-<div class="bg-white rounded-lg overflow-hidden">
-    <table class="w-full">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Gorsel</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Ad</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Pozisyon</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Sira</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Durum</th>
-                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">Islemler</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y">
-            @forelse($banners as $banner)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3">
-                        <img src="{{ $banner->image_url }}" class="w-32 h-20 object-cover rounded">
-                    </td>
-                    <td class="px-4 py-3">
-                        <p class="font-medium">{{ $banner->name }}</p>
-                        @if($banner->title)
-                            <p class="text-sm text-gray-500">{{ $banner->title }}</p>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-center text-sm text-gray-600">{{ $positions[$banner->position] ?? $banner->position }}</td>
-                    <td class="px-4 py-3 text-center text-gray-600">{{ $banner->order }}</td>
-                    <td class="px-4 py-3 text-center">
-                        <form action="{{ route('admin.banners.toggle-status', $banner) }}" method="POST" class="inline">
-                            @csrf @method('PATCH')
-                            <button type="submit" class="px-2 py-1 rounded text-xs {{ $banner->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+    <!-- Banners Table -->
+    <x-admin.data-table :headers="[
+        ['label' => 'Gorsel', 'width' => '160px'],
+        ['label' => 'Ad', 'width' => '25%'],
+        ['label' => 'Pozisyon', 'class' => 'text-center'],
+        ['label' => 'Sira', 'class' => 'text-center'],
+        ['label' => 'Durum', 'class' => 'text-center'],
+        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '120px'],
+    ]">
+        @forelse($banners as $banner)
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                    <img src="{{ $banner->image_url }}"
+                         alt="{{ $banner->name }}"
+                         class="w-32 h-20 object-cover rounded-lg border border-slate-200">
+                </td>
+                <td class="px-4 py-3">
+                    <p class="text-sm font-medium text-slate-900">{{ $banner->name }}</p>
+                    @if($banner->title)
+                        <p class="text-xs text-slate-500 mt-0.5">{{ $banner->title }}</p>
+                    @endif
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <x-admin.badge variant="default" size="sm">
+                        {{ $positions[$banner->position] ?? $banner->position }}
+                    </x-admin.badge>
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <span class="text-sm text-slate-600">{{ $banner->order }}</span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <form action="{{ route('admin.banners.toggle-status', $banner) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit">
+                            <x-admin.badge :variant="$banner->is_active ? 'success' : 'danger'" size="sm" dot>
                                 {{ $banner->is_active ? 'Aktif' : 'Pasif' }}
+                            </x-admin.badge>
+                        </button>
+                    </form>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <a href="{{ route('admin.banners.edit', $banner) }}"
+                           class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                           title="Duzenle">
+                            <i class="fas fa-edit text-sm"></i>
+                        </a>
+                        <form action="{{ route('admin.banners.destroy', $banner) }}"
+                              method="POST"
+                              class="inline"
+                              onsubmit="return confirm('Bu banneri silmek istediginizden emin misiniz?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                    title="Sil">
+                                <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        <a href="{{ route('admin.banners.edit', $banner) }}" class="text-blue-600 hover:text-blue-800 mr-3">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="{{ route('admin.banners.destroy', $banner) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediginize emin misiniz?')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">Henuz banner eklenmemis.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="6" class="px-4 py-12">
+                    <x-admin.empty-state
+                        icon="fa-image"
+                        title="Banner bulunamadi"
+                        description="Henuz banner eklenmemis"
+                        action="Yeni Banner Ekle"
+                        :actionUrl="route('admin.banners.create')"
+                    />
+                </td>
+            </tr>
+        @endforelse
+    </x-admin.data-table>
 @endsection

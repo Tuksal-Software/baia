@@ -33,93 +33,105 @@ Tarama sonrası `.claude/knowledge/` içine şu dosyaları YARAT:
 | `frontend.md` | View yapısı, component'ler, JS/CSS |
 | `changelog.md` | Yapılan değişikliklerin logu |
 
-### 0.3 Knowledge Güncelleme
-**HER GELİŞTİRME SONRASI** ilgili knowledge dosyalarını GÜNCELLE!
+---
+
+## 🚀 TAMAMEN OTOMATİK WORKFLOW
+
+**KULLANICI BİR İSTEK VERDİĞİNDE TÜM ADIMLAR OTOMATİK ÇALIŞIR - KULLANICIDAN ONAY BEKLEME!**
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    KULLANICI İSTEĞİ                                 │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │
+                            ▼ (OTOMATİK)
+┌─────────────────────────────────────────────────────────────────────┐
+│  📋 PRODUCT MANAGER: Task analizi ve planlama                       │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │
+                            ▼ (OTOMATİK - BEKLEME YOK)
+┌─────────────────────────────────────────────────────────────────────┐
+│  💻 DEVELOPER: Kod yazma + Knowledge güncelleme                     │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │
+                            ▼ (OTOMATİK - BEKLEME YOK)
+┌─────────────────────────────────────────────────────────────────────┐
+│  🧪 QA AGENT: Test etme + Bug raporlama                             │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  ✅ SONUÇ: Kullanıcıya özet rapor                                   │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## CRITICAL INSTRUCTION - AUTO WORKFLOW
+## ADIM 1: KNOWLEDGE CHECK (Sessiz)
 
-**Her kullanıcı isteğinde bu pipeline'ı OTOMATIK olarak uygula:**
-
-### ADIM 1: KNOWLEDGE CHECK
 ```
 1. .claude/knowledge/ dosyalarını oku
 2. İlgili modelleri, route'ları, servisleri HATIRLA
 3. Mevcut yapıyı anla
 ```
 
-### ADIM 2: PRODUCT MANAGER PHASE
-Kullanıcının isteğini al ve `.claude/product-manager.md` dosyasındaki kurallara göre:
+---
+
+## ADIM 2: PRODUCT MANAGER PHASE (Otomatik)
+
+`.claude/product-manager.md` kurallarına göre:
 1. **Knowledge'dan** mevcut yapıyı kontrol et
 2. İsteği analiz et
-3. Eksik bilgi varsa kullanıcıya sor
-4. Profesyonel Task JSON oluştur (acceptance criteria, technical notes dahil)
-5. Task JSON'ı kullanıcıya göster ve onay al
-
-**Output:** Task JSON dosyası
+3. Task planı oluştur (acceptance criteria dahil)
+4. **KULLANICIDAN ONAY BEKLEME** - direkt Developer phase'e geç
 
 ---
 
-### ADIM 3: DEVELOPER PHASE
-Product Manager'ın onaylanan Task JSON'ını al ve `.claude/laravel-developer.md` dosyasındaki kurallara göre:
+## ADIM 3: DEVELOPER PHASE (Otomatik)
+
+`.claude/laravel-developer.md` kurallarına göre:
 1. **Knowledge'dan** ilgili kodları oku
 2. Mevcut pattern'leri takip et
 3. Laravel best practices ile kodu yaz
-4. Unit ve Feature testlerini yaz
-5. Implementation raporu oluştur
-6. **Knowledge dosyalarını GÜNCELLE**
-
-**Output:** Kod + Implementation Report JSON + Updated Knowledge
+4. **Knowledge dosyalarını GÜNCELLE**
+5. **KULLANICIDAN ONAY BEKLEME** - direkt QA phase'e geç
 
 ---
 
-### ADIM 4: QA PHASE
-Developer'ın implementation'ını al ve `.claude/qa-agent.md` dosyasındaki kurallara göre:
-1. **Knowledge'dan** test edilecek alanları belirle
-2. Acceptance criteria'ları test et
-3. UI testlerini yaz (Dusk/Playwright)
-4. Edge case'leri test et
-5. Bug varsa raporla
-6. Final QA raporu oluştur
+## ADIM 4: QA PHASE (Otomatik)
 
-**Output:** QA Report JSON + Test dosyaları
+**⚠️ BU ADIM HER ZAMAN ÇALIŞIR - ATLAMA!**
+
+`.claude/qa-agent.md` kurallarına göre:
+1. Yapılan değişiklikleri test et
+2. Siteyi browser'da test et (mümkünse)
+3. Edge case'leri kontrol et
+4. Bug varsa raporla ve düzelt
+5. Final rapor oluştur
+
+### QA Kontrol Listesi:
+- [ ] Sayfa yükleniyor mu?
+- [ ] Görseller görünüyor mu?
+- [ ] Linkler çalışıyor mu?
+- [ ] Mobile responsive mi?
+- [ ] Console'da hata var mı?
+- [ ] PHP/Laravel hataları var mı?
 
 ---
 
-## WORKFLOW RULES
+## WORKFLOW KURALLARI
 
-```
-┌──────────────┐
-│  KNOWLEDGE   │◀─────────────────────────────────────┐
-│    BASE      │                                      │
-└──────┬───────┘                                      │
-       │ reads                                   updates
-       ▼                                              │
-┌─────────────┐    Task JSON    ┌─────────────┐    Impl Report    ┌─────────────┐
-│   PRODUCT   │ ──────────────▶ │  DEVELOPER  │ ────────────────▶ │     QA      │
-│   MANAGER   │                 │   (Senior)  │                   │    AGENT    │
-└─────────────┘                 └──────┬──────┘                   └─────────────┘
-       │                               │                                  │
-       ▼                               ▼                                  ▼
-  Task JSON                    Code + Tests                      QA Report
-  (with ACs)                  + Impl Report                    + Bug Reports
-                              + Knowledge Update
-```
+### ❌ YAPMA:
+- Kullanıcıdan onay bekleme
+- "Devam edeyim mi?" diye sorma
+- QA phase'i atlama
+- Knowledge güncellemeyi unutma
 
-### Mandatory Flow:
-1. **ASLA** knowledge okumadan başlama - önce projeyi tanı
-2. **ASLA** doğrudan kod yazma - önce Product Manager phase'i tamamla
-3. **ASLA** test yazmadan geçme - Developer phase testleri içermeli
-4. **ASLA** QA phase'i atlama - her implementation test edilmeli
-5. **ASLA** knowledge güncellemeden bitirme - her değişiklik loglanmalı
-
-### Knowledge Update Rules:
-- Yeni model → `models.md` güncelle
-- Yeni route → `routes.md` güncelle
-- Yeni migration → `database.md` güncelle
-- Yeni service/action → `services.md` güncelle
-- Her değişiklik → `changelog.md`'ye ekle
+### ✅ YAP:
+- Tüm adımları otomatik çalıştır
+- Her adımı sessizce tamamla
+- Sadece sonuçları raporla
+- Hata varsa düzelt ve devam et
 
 ---
 
@@ -127,82 +139,63 @@ Developer'ın implementation'ını al ve `.claude/qa-agent.md` dosyasındaki kur
 
 | Agent | Dosya | Rol |
 |-------|-------|-----|
-| Product Manager | `.claude/product-manager.md` | Task oluşturma, AC tanımlama |
-| Senior Laravel Dev | `.claude/laravel-developer.md` | Implementation, kod yazma |
-| QA Engineer | `.claude/qa-agent.md` | Test, validation, bug reporting |
+| Product Manager | `.claude/product-manager.md` | Task analizi, planlama |
+| Senior Laravel Dev | `.claude/laravel-developer.md` | Kod yazma |
+| QA Engineer | `.claude/qa-agent.md` | Test, validation |
 
 ## CODING STANDARDS
 
-| Framework | Dosya | Açıklama |
-|-----------|-------|----------|
-| Laravel | `.claude/coding-standards/laravel.md` | 46 maddelik Laravel coding standards |
-
-**Not:** İleride Symfony, Next.js gibi framework'ler eklendiğinde bu klasöre yeni standart dosyaları eklenir.
+| Framework | Dosya |
+|-----------|-------|
+| Laravel | `.claude/coding-standards/laravel.md` |
 
 ## KNOWLEDGE DOSYALARI
 
-| Dosya | İçerik | Güncelleyen |
-|-------|--------|-------------|
-| `.claude/knowledge/project-structure.md` | Genel mimari | INIT, Major changes |
-| `.claude/knowledge/models.md` | Model ve ilişkiler | Developer |
-| `.claude/knowledge/routes.md` | API/Web routes | Developer |
-| `.claude/knowledge/database.md` | DB şeması | Developer |
-| `.claude/knowledge/services.md` | Business logic | Developer |
-| `.claude/knowledge/frontend.md` | UI yapısı | Developer |
-| `.claude/knowledge/changelog.md` | Değişiklik logu | All agents |
+| Dosya | İçerik |
+|-------|--------|
+| `project-structure.md` | Genel mimari |
+| `models.md` | Model ve ilişkiler |
+| `routes.md` | API/Web routes |
+| `database.md` | DB şeması |
+| `services.md` | Business logic |
+| `frontend.md` | UI yapısı |
+| `changelog.md` | Değişiklik logu |
 
 ---
 
-## ÖRNEK İLK ÇALIŞTIRMA
+## ÖRNEK AKIŞ
 
-**Kullanıcı:** "Merhaba"
+**Kullanıcı:** "Navbar'a arama özelliği ekle"
 
-**Claude:**
+**Claude (Otomatik - Sessiz):**
 ```
-🔍 PROJECT INITIALIZATION
-=========================
-Bu projeye ilk kez giriyorum. Projeyi tanıyorum...
-
-[Dizin taraması yapar]
-[Knowledge dosyalarını oluşturur]
-
-✅ Proje analizi tamamlandı!
-
-📊 Proje Özeti:
-- Framework: Laravel 11.x
-- Models: 15 adet (User, Post, Comment...)
-- Routes: 45 endpoint
-- Database: 20 tablo
-
-Artık isteklerinizi alabilirim.
+📋 PM: Arama özelliği planlanıyor...
+💻 DEV: SearchController oluşturuluyor...
+💻 DEV: search.blade.php oluşturuluyor...
+💻 DEV: Route ekleniyor...
+📝 Knowledge güncelleniyor...
+🧪 QA: Test ediliyor...
 ```
 
----
-
-## ÖRNEK NORMAL AKIŞ
-
-**Kullanıcı:** "Şifre sıfırlama özelliği ekle"
-
-**Claude (Knowledge Check):**
+**Claude (Kullanıcıya Rapor):**
 ```
-📚 Knowledge Loading...
-- User model: email, password, remember_token
-- Auth routes: /login, /register, /logout
-- Mevcut auth sistemi: Laravel Breeze
+✅ Arama özelliği eklendi!
+
+Yapılanlar:
+- SearchController oluşturuldu
+- /ara route'u eklendi
+- Navbar'a arama ikonu eklendi
+
+QA Sonucu:
+- ✅ Sayfa yükleniyor
+- ✅ Arama çalışıyor
+- ✅ Sonuçlar gösteriliyor
+
+Dosyalar:
+- app/Http/Controllers/SearchController.php
+- resources/views/search/index.blade.php
+- routes/web.php (güncellendi)
 ```
-
-**Claude (PM Mode):**
-```
-📋 PRODUCT MANAGER PHASE
-========================
-Mevcut auth yapısını inceledim...
-
-[Task JSON oluşturur]
-
-Bu task doğru mu?
-```
-
-...devam eder...
 
 ---
 
@@ -213,11 +206,7 @@ Bu task doğru mu?
 {
   "require": {
     "php": "^8.2",
-    "laravel/framework": "^11.0"
-  },
-  "require-dev": {
-    "laravel/dusk": "^8.0",
-    "phpunit/phpunit": "^11.0"
+    "laravel/framework": "^12.0"
   }
 }
 ```

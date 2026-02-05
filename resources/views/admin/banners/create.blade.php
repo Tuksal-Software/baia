@@ -1,82 +1,120 @@
 @extends('layouts.admin')
+
 @section('title', 'Yeni Banner')
+
+@section('breadcrumb')
+    <a href="{{ route('admin.banners.index') }}" class="text-slate-500 hover:text-slate-700">Bannerlar</a>
+    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+    <span class="text-slate-700 font-medium">Yeni Banner</span>
+@endsection
+
 @section('content')
-<div class="max-w-2xl">
-    <div class="flex items-center gap-2 mb-6">
-        <a href="{{ route('admin.banners.index') }}" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-        <h2 class="text-xl font-semibold">Yeni Banner</h2>
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-slate-900">Yeni Banner</h1>
+        <p class="text-sm text-slate-500 mt-1">Yeni bir banner olusturun</p>
     </div>
 
-    <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg p-6">
+    <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Banner Adi *</label>
-                <input type="text" name="name" value="{{ old('name') }}" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <x-admin.card title="Temel Bilgiler">
+                    <div class="space-y-4">
+                        <x-admin.form-input
+                            name="name"
+                            label="Banner Adi"
+                            placeholder="Banner adi"
+                            required
+                        />
+
+                        <x-admin.form-select
+                            name="position"
+                            label="Pozisyon"
+                            :options="$positions"
+                            required
+                        />
+
+                        <x-admin.form-input
+                            name="title"
+                            label="Baslik"
+                            placeholder="Banner basligi (opsiyonel)"
+                        />
+
+                        <x-admin.form-input
+                            name="subtitle"
+                            label="Alt Baslik"
+                            placeholder="Banner alt basligi (opsiyonel)"
+                        />
+
+                        <x-admin.form-input
+                            name="link"
+                            label="Link"
+                            placeholder="/kategori/..."
+                        />
+                    </div>
+                </x-admin.card>
+
+                <x-admin.card title="Gorseller">
+                    <div class="space-y-4">
+                        <x-admin.form-image
+                            name="image"
+                            label="Gorsel (Desktop)"
+                            required
+                        />
+
+                        <x-admin.form-image
+                            name="image_mobile"
+                            label="Gorsel (Mobil)"
+                        />
+                    </div>
+                </x-admin.card>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Pozisyon *</label>
-                <select name="position" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                    @foreach($positions as $key => $label)
-                        <option value="{{ $key }}" {{ old('position') === $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <x-admin.card title="Yayin Ayarlari">
+                    <div class="space-y-4">
+                        <x-admin.form-toggle
+                            name="is_active"
+                            label="Aktif"
+                            description="Banner sitede gorunur"
+                            :checked="old('is_active', true)"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Baslik</label>
-                <input type="text" name="title" value="{{ old('title') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
+                        <x-admin.form-input
+                            name="order"
+                            type="number"
+                            label="Sira"
+                            :value="old('order', 0)"
+                            min="0"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Alt Baslik</label>
-                <input type="text" name="subtitle" value="{{ old('subtitle') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
+                        <x-admin.form-input
+                            name="starts_at"
+                            type="datetime-local"
+                            label="Baslangic Tarihi"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Gorsel (Desktop) *</label>
-                <input type="file" name="image" accept="image/*" required class="w-full border rounded-lg px-4 py-2">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Gorsel (Mobil)</label>
-                <input type="file" name="image_mobile" accept="image/*" class="w-full border rounded-lg px-4 py-2">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Link</label>
-                <input type="text" name="link" value="{{ old('link') }}" placeholder="/kategori/..." class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Baslangic Tarihi</label>
-                    <input type="datetime-local" name="starts_at" value="{{ old('starts_at') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Bitis Tarihi</label>
-                    <input type="datetime-local" name="ends_at" value="{{ old('ends_at') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sira</label>
-                <input type="number" name="order" value="{{ old('order', 0) }}" min="0" class="w-32 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
-
-            <div>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }} class="rounded text-purple-600">
-                    Aktif
-                </label>
+                        <x-admin.form-input
+                            name="ends_at"
+                            type="datetime-local"
+                            label="Bitis Tarihi"
+                        />
+                    </div>
+                </x-admin.card>
             </div>
         </div>
 
-        <div class="mt-6 flex gap-3">
-            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Kaydet</button>
-            <a href="{{ route('admin.banners.index') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Iptal</a>
+        <div class="mt-6 flex items-center gap-3">
+            <x-admin.button type="submit" icon="fa-check">
+                Kaydet
+            </x-admin.button>
+            <x-admin.button href="{{ route('admin.banners.index') }}" variant="ghost">
+                Iptal
+            </x-admin.button>
         </div>
     </form>
-</div>
 @endsection

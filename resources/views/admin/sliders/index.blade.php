@@ -1,63 +1,98 @@
 @extends('layouts.admin')
-@section('title', 'Sliderlar')
-@section('content')
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold">Sliderlar ({{ $sliders->count() }})</h2>
-    <a href="{{ route('admin.sliders.create') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-        <i class="fas fa-plus mr-2"></i>Yeni Slider
-    </a>
-</div>
 
-<div class="bg-white rounded-lg overflow-hidden">
-    <table class="w-full">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Gorsel</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Baslik</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Pozisyon</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Sira</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Durum</th>
-                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">Islemler</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y">
-            @forelse($sliders as $slider)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3">
-                        <img src="{{ $slider->image_url }}" class="w-32 h-20 object-cover rounded">
-                    </td>
-                    <td class="px-4 py-3">
-                        <p class="font-medium">{{ $slider->title ?: '(Baslıksız)' }}</p>
-                        @if($slider->subtitle)
-                            <p class="text-sm text-gray-500">{{ $slider->subtitle }}</p>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-center text-sm text-gray-600">{{ ucfirst($slider->text_position) }}</td>
-                    <td class="px-4 py-3 text-center text-gray-600">{{ $slider->order }}</td>
-                    <td class="px-4 py-3 text-center">
-                        <form action="{{ route('admin.sliders.toggle-status', $slider) }}" method="POST" class="inline">
-                            @csrf @method('PATCH')
-                            <button type="submit" class="px-2 py-1 rounded text-xs {{ $slider->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+@section('title', 'Sliderlar')
+
+@section('breadcrumb')
+    <span class="text-slate-700 font-medium">Sliderlar</span>
+@endsection
+
+@section('content')
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-slate-900">Sliderlar</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ $sliders->count() }} slider</p>
+        </div>
+        <x-admin.button href="{{ route('admin.sliders.create') }}" icon="fa-plus">
+            Yeni Slider
+        </x-admin.button>
+    </div>
+
+    <!-- Sliders Table -->
+    <x-admin.data-table :headers="[
+        ['label' => 'Gorsel', 'width' => '160px'],
+        ['label' => 'Baslik', 'width' => '30%'],
+        ['label' => 'Pozisyon', 'class' => 'text-center'],
+        ['label' => 'Sira', 'class' => 'text-center'],
+        ['label' => 'Durum', 'class' => 'text-center'],
+        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '120px'],
+    ]">
+        @forelse($sliders as $slider)
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                    <img src="{{ $slider->image_url }}"
+                         alt="{{ $slider->title }}"
+                         class="w-32 h-20 object-cover rounded-lg border border-slate-200">
+                </td>
+                <td class="px-4 py-3">
+                    <p class="text-sm font-medium text-slate-900">{{ $slider->title ?: '(Basliksiz)' }}</p>
+                    @if($slider->subtitle)
+                        <p class="text-xs text-slate-500 mt-0.5">{{ $slider->subtitle }}</p>
+                    @endif
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <x-admin.badge variant="default" size="sm">
+                        {{ ucfirst($slider->text_position) }}
+                    </x-admin.badge>
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <span class="text-sm text-slate-600">{{ $slider->order }}</span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <form action="{{ route('admin.sliders.toggle-status', $slider) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit">
+                            <x-admin.badge :variant="$slider->is_active ? 'success' : 'danger'" size="sm" dot>
                                 {{ $slider->is_active ? 'Aktif' : 'Pasif' }}
+                            </x-admin.badge>
+                        </button>
+                    </form>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <a href="{{ route('admin.sliders.edit', $slider) }}"
+                           class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                           title="Duzenle">
+                            <i class="fas fa-edit text-sm"></i>
+                        </a>
+                        <form action="{{ route('admin.sliders.destroy', $slider) }}"
+                              method="POST"
+                              class="inline"
+                              onsubmit="return confirm('Bu slideri silmek istediginizden emin misiniz?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                    title="Sil">
+                                <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        <a href="{{ route('admin.sliders.edit', $slider) }}" class="text-blue-600 hover:text-blue-800 mr-3">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="{{ route('admin.sliders.destroy', $slider) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediginize emin misiniz?')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">Henuz slider eklenmemis.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="6" class="px-4 py-12">
+                    <x-admin.empty-state
+                        icon="fa-images"
+                        title="Slider bulunamadi"
+                        description="Henuz slider eklenmemis"
+                        action="Yeni Slider Ekle"
+                        :actionUrl="route('admin.sliders.create')"
+                    />
+                </td>
+            </tr>
+        @endforelse
+    </x-admin.data-table>
 @endsection

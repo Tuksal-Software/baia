@@ -4,16 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
+use App\Traits\HandlesFileUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SettingController extends Controller
 {
-    /**
-     * Display settings grouped by category
-     */
+    use HandlesFileUploads;
+
     public function index(Request $request): View
     {
         $groups = [
@@ -31,9 +30,6 @@ class SettingController extends Controller
         return view('admin.settings.index', compact('groups', 'activeGroup', 'settings'));
     }
 
-    /**
-     * Update settings
-     */
     public function update(Request $request): RedirectResponse
     {
         $settings = $request->input('settings', []);
@@ -48,11 +44,8 @@ class SettingController extends Controller
 
             // Handle file upload for image type
             if ($setting->type === 'image' && $request->hasFile("settings.{$key}")) {
-                // Delete old image
-                if ($setting->value) {
-                    Storage::disk('public')->delete($setting->value);
-                }
-                $value = $request->file("settings.{$key}")->store('settings', 'public');
+                $this->deleteFile($setting->value);
+                $value = $this->uploadFile($request->file("settings.{$key}"), 'settings');
             }
 
             // Handle boolean type
@@ -69,7 +62,7 @@ class SettingController extends Controller
             if ($shouldRemove) {
                 $setting = SiteSetting::where('key', $key)->first();
                 if ($setting && $setting->value) {
-                    Storage::disk('public')->delete($setting->value);
+                    $this->deleteFile($setting->value);
                     $setting->update(['value' => null]);
                 }
             }

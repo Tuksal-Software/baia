@@ -1,21 +1,188 @@
 @extends('layouts.admin')
+
 @section('title', 'Indirim Kodu Detay')
+
+@section('breadcrumb')
+    <a href="{{ route('admin.discount-codes.index') }}" class="text-slate-500 hover:text-slate-700">Indirim Kodlari</a>
+    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+    <span class="text-slate-700 font-medium">{{ $discountCode->code }}</span>
+@endsection
+
 @section('content')
-<div class="max-w-2xl">
-    <div class="flex items-center gap-2 mb-6"><a href="{{ route('admin.discount-codes.index') }}" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a><h2 class="text-xl font-semibold">{{ $discountCode->code }}</h2></div>
-    <div class="bg-white rounded-lg p-6">
-        <div class="grid grid-cols-2 gap-4 text-sm">
-            <div><span class="text-gray-500">Kod</span><p class="font-mono font-bold text-lg">{{ $discountCode->code }}</p></div>
-            <div><span class="text-gray-500">Durum</span><p><span class="px-2 py-1 rounded text-xs {{ $discountCode->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">{{ $discountCode->is_active ? 'Aktif' : 'Pasif' }}</span></p></div>
-            <div><span class="text-gray-500">Indirim</span><p class="font-semibold">{{ $discountCode->formatted_value }}</p></div>
-            <div><span class="text-gray-500">Min. Siparis</span><p>{{ $discountCode->min_order_amount > 0 ? number_format($discountCode->min_order_amount, 2) . ' TL' : '-' }}</p></div>
-            <div><span class="text-gray-500">Kullanim</span><p>{{ $discountCode->used_count }} / {{ $discountCode->usage_limit ?? 'Sinirsiz' }}</p></div>
-            <div><span class="text-gray-500">Gecerlilik</span><p>{{ $discountCode->starts_at?->format('d.m.Y') ?? '-' }} - {{ $discountCode->expires_at?->format('d.m.Y') ?? '-' }}</p></div>
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-slate-900">
+                <span class="font-mono bg-slate-100 px-3 py-1 rounded-lg">{{ $discountCode->code }}</span>
+            </h1>
+            <p class="text-sm text-slate-500 mt-2">Indirim kodu detaylari</p>
         </div>
-        <div class="border-t pt-4 mt-4 flex gap-3">
-            <a href="{{ route('admin.discount-codes.edit', $discountCode) }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><i class="fas fa-edit mr-2"></i>Duzenle</a>
-            <form action="{{ route('admin.discount-codes.toggle-status', $discountCode) }}" method="POST">@csrf @method('PATCH')<button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">{{ $discountCode->is_active ? 'Pasif Yap' : 'Aktif Yap' }}</button></form>
+        <div class="flex items-center gap-2">
+            <x-admin.button href="{{ route('admin.discount-codes.edit', $discountCode) }}" icon="fa-edit">
+                Duzenle
+            </x-admin.button>
+            <form action="{{ route('admin.discount-codes.toggle-status', $discountCode) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <x-admin.button type="submit" variant="secondary" icon="{{ $discountCode->is_active ? 'fa-pause' : 'fa-play' }}">
+                    {{ $discountCode->is_active ? 'Pasif Yap' : 'Aktif Yap' }}
+                </x-admin.button>
+            </form>
         </div>
     </div>
-</div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Code Details -->
+            <x-admin.card title="Kod Detaylari">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <span class="text-sm text-slate-500">Indirim Kodu</span>
+                        <p class="mt-1 font-mono text-lg font-bold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg inline-block">
+                            {{ $discountCode->code }}
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Durum</span>
+                        <p class="mt-1">
+                            <x-admin.badge :variant="$discountCode->is_active ? 'success' : 'danger'" size="md" dot>
+                                {{ $discountCode->is_active ? 'Aktif' : 'Pasif' }}
+                            </x-admin.badge>
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Indirim</span>
+                        <p class="mt-1 text-lg font-semibold text-slate-900">{{ $discountCode->formatted_value }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Minimum Siparis Tutari</span>
+                        <p class="mt-1 text-lg font-medium text-slate-900">
+                            {{ $discountCode->min_order_amount > 0 ? number_format($discountCode->min_order_amount, 2) . ' TL' : '-' }}
+                        </p>
+                    </div>
+                </div>
+            </x-admin.card>
+
+            <!-- Usage Stats -->
+            <x-admin.card title="Kullanim Istatistikleri">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                    <div class="text-center p-4 bg-slate-50 rounded-lg">
+                        <div class="text-3xl font-bold text-slate-900">{{ $discountCode->used_count }}</div>
+                        <div class="text-sm text-slate-500 mt-1">Kullanildi</div>
+                    </div>
+                    <div class="text-center p-4 bg-slate-50 rounded-lg">
+                        <div class="text-3xl font-bold text-slate-900">{{ $discountCode->usage_limit ?? '∞' }}</div>
+                        <div class="text-sm text-slate-500 mt-1">Limit</div>
+                    </div>
+                    <div class="text-center p-4 bg-slate-50 rounded-lg">
+                        @php
+                            $remaining = $discountCode->usage_limit ? ($discountCode->usage_limit - $discountCode->used_count) : null;
+                        @endphp
+                        <div class="text-3xl font-bold {{ $remaining !== null && $remaining <= 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                            {{ $remaining ?? '∞' }}
+                        </div>
+                        <div class="text-sm text-slate-500 mt-1">Kalan</div>
+                    </div>
+                </div>
+
+                @if($discountCode->usage_limit)
+                    <div class="mt-4">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-500">Kullanim Orani</span>
+                            <span class="text-slate-700 font-medium">
+                                {{ round(($discountCode->used_count / $discountCode->usage_limit) * 100) }}%
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2">
+                            <div class="bg-primary-600 h-2 rounded-full transition-all"
+                                 style="width: {{ min(100, ($discountCode->used_count / $discountCode->usage_limit) * 100) }}%"></div>
+                        </div>
+                    </div>
+                @endif
+            </x-admin.card>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Validity Period -->
+            <x-admin.card title="Gecerlilik Suresi">
+                <dl class="space-y-4">
+                    <div class="flex justify-between text-sm">
+                        <dt class="text-slate-500">Baslangic</dt>
+                        <dd class="font-medium text-slate-900">
+                            {{ $discountCode->starts_at?->format('d.m.Y') ?? 'Hemen gecerli' }}
+                        </dd>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <dt class="text-slate-500">Bitis</dt>
+                        <dd class="font-medium text-slate-900">
+                            {{ $discountCode->expires_at?->format('d.m.Y') ?? 'Suresiz' }}
+                        </dd>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100">
+                        @php
+                            $now = now();
+                            $isValid = $discountCode->is_active
+                                && (!$discountCode->starts_at || $discountCode->starts_at <= $now)
+                                && (!$discountCode->expires_at || $discountCode->expires_at >= $now)
+                                && (!$discountCode->usage_limit || $discountCode->used_count < $discountCode->usage_limit);
+                        @endphp
+                        <div class="flex items-center gap-3">
+                            @if($isValid)
+                                <span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                                <span class="text-sm font-medium text-slate-900">Gecerli</span>
+                            @else
+                                <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                                <span class="text-sm font-medium text-slate-900">Gecersiz</span>
+                            @endif
+                        </div>
+                    </div>
+                </dl>
+            </x-admin.card>
+
+            <!-- Dates -->
+            <x-admin.card title="Tarihler">
+                <dl class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <dt class="text-slate-500">Olusturulma</dt>
+                        <dd class="text-slate-900">{{ $discountCode->created_at->format('d.m.Y H:i') }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-slate-500">Son Guncelleme</dt>
+                        <dd class="text-slate-900">{{ $discountCode->updated_at->format('d.m.Y H:i') }}</dd>
+                    </div>
+                </dl>
+            </x-admin.card>
+
+            <!-- Actions -->
+            <x-admin.card title="Hizli Islemler">
+                <div class="space-y-2">
+                    <x-admin.button href="{{ route('admin.discount-codes.edit', $discountCode) }}" variant="secondary" class="w-full justify-start" icon="fa-edit">
+                        Duzenle
+                    </x-admin.button>
+                    <form action="{{ route('admin.discount-codes.toggle-status', $discountCode) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <x-admin.button type="submit" variant="secondary" class="w-full justify-start" icon="{{ $discountCode->is_active ? 'fa-pause' : 'fa-play' }}">
+                            {{ $discountCode->is_active ? 'Pasif Yap' : 'Aktif Yap' }}
+                        </x-admin.button>
+                    </form>
+                    <form action="{{ route('admin.discount-codes.destroy', $discountCode) }}"
+                          method="POST"
+                          onsubmit="return confirm('Bu indirim kodunu silmek istediginizden emin misiniz?')">
+                        @csrf
+                        @method('DELETE')
+                        <x-admin.button type="submit" variant="outline-danger" class="w-full justify-start" icon="fa-trash">
+                            Sil
+                        </x-admin.button>
+                    </form>
+                </div>
+            </x-admin.card>
+        </div>
+    </div>
 @endsection

@@ -1,119 +1,166 @@
 @extends('layouts.admin')
+
 @section('title', 'Yeni Slider')
+
+@section('breadcrumb')
+    <a href="{{ route('admin.sliders.index') }}" class="text-slate-500 hover:text-slate-700">Sliderlar</a>
+    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+    <span class="text-slate-700 font-medium">Yeni Slider</span>
+@endsection
+
 @section('content')
-<div class="max-w-2xl">
-    <div class="flex items-center gap-2 mb-6">
-        <a href="{{ route('admin.sliders.index') }}" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-        <h2 class="text-xl font-semibold">Yeni Slider</h2>
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-slate-900">Yeni Slider</h1>
+        <p class="text-sm text-slate-500 mt-1">Yeni bir slider olusturun</p>
     </div>
 
-    @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg p-6">
+    <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Baslik</label>
-                <input type="text" name="title" value="{{ old('title') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <x-admin.card title="Temel Bilgiler">
+                    <div class="space-y-4">
+                        <x-admin.form-input
+                            name="title"
+                            label="Baslik"
+                            placeholder="Slider basligi"
+                        />
+
+                        <x-admin.form-input
+                            name="subtitle"
+                            label="Alt Baslik"
+                            placeholder="Slider alt basligi"
+                        />
+
+                        <x-admin.form-textarea
+                            name="description"
+                            label="Aciklama"
+                            :rows="3"
+                        />
+                    </div>
+                </x-admin.card>
+
+                <x-admin.card title="Gorseller">
+                    <div class="space-y-4">
+                        <x-admin.form-image
+                            name="image"
+                            label="Gorsel (Desktop)"
+                            required
+                            hint="Onerilen boyut: 1920x800px"
+                        />
+
+                        <x-admin.form-image
+                            name="image_mobile"
+                            label="Gorsel (Mobil)"
+                            hint="Onerilen boyut: 768x600px"
+                        />
+                    </div>
+                </x-admin.card>
+
+                <x-admin.card title="Buton Ayarlari">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <x-admin.form-input
+                                name="button_text"
+                                label="Buton Metni"
+                                placeholder="Orn: Kesfet"
+                            />
+
+                            <x-admin.form-input
+                                name="button_link"
+                                label="Buton Linki"
+                                placeholder="/kategori/..."
+                            />
+                        </div>
+
+                        <x-admin.form-select
+                            name="button_style"
+                            label="Buton Stili"
+                            :options="[
+                                'primary' => 'Primary',
+                                'secondary' => 'Secondary',
+                                'outline' => 'Outline',
+                            ]"
+                            :value="old('button_style', 'primary')"
+                        />
+                    </div>
+                </x-admin.card>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Alt Baslik</label>
-                <input type="text" name="subtitle" value="{{ old('subtitle') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <x-admin.card title="Yayin Ayarlari">
+                    <div class="space-y-4">
+                        <x-admin.form-toggle
+                            name="is_active"
+                            label="Aktif"
+                            description="Slider sitede gorunur"
+                            :checked="old('is_active', true)"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Aciklama</label>
-                <textarea name="description" rows="2" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">{{ old('description') }}</textarea>
-            </div>
+                        <x-admin.form-input
+                            name="order"
+                            type="number"
+                            label="Sira"
+                            :value="old('order', 0)"
+                            min="0"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Gorsel (Desktop) *</label>
-                <input type="file" name="image" accept="image/*" required class="w-full border rounded-lg px-4 py-2">
-                <p class="text-xs text-gray-500 mt-1">Onerilen boyut: 1920x800px</p>
-            </div>
+                        <x-admin.form-input
+                            name="starts_at"
+                            type="datetime-local"
+                            label="Baslangic Tarihi"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Gorsel (Mobil)</label>
-                <input type="file" name="image_mobile" accept="image/*" class="w-full border rounded-lg px-4 py-2">
-                <p class="text-xs text-gray-500 mt-1">Onerilen boyut: 768x600px</p>
-            </div>
+                        <x-admin.form-input
+                            name="ends_at"
+                            type="datetime-local"
+                            label="Bitis Tarihi"
+                        />
+                    </div>
+                </x-admin.card>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Buton Metni</label>
-                    <input type="text" name="button_text" value="{{ old('button_text') }}" placeholder="Orn: Kesfet" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Buton Linki</label>
-                    <input type="text" name="button_link" value="{{ old('button_link') }}" placeholder="/kategori/..." class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-            </div>
+                <x-admin.card title="Gorunum Ayarlari">
+                    <div class="space-y-4">
+                        <x-admin.form-select
+                            name="text_position"
+                            label="Metin Pozisyonu"
+                            :options="[
+                                'left' => 'Sol',
+                                'center' => 'Orta',
+                                'right' => 'Sag',
+                            ]"
+                            :value="old('text_position', 'center')"
+                        />
 
-            <div class="grid grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Buton Stili</label>
-                    <select name="button_style" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="primary" {{ old('button_style') === 'primary' ? 'selected' : '' }}>Primary</option>
-                        <option value="secondary" {{ old('button_style') === 'secondary' ? 'selected' : '' }}>Secondary</option>
-                        <option value="outline" {{ old('button_style') === 'outline' ? 'selected' : '' }}>Outline</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Metin Pozisyonu</label>
-                    <select name="text_position" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="left" {{ old('text_position') === 'left' ? 'selected' : '' }}>Sol</option>
-                        <option value="center" {{ old('text_position', 'center') === 'center' ? 'selected' : '' }}>Orta</option>
-                        <option value="right" {{ old('text_position') === 'right' ? 'selected' : '' }}>Sag</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Metin Rengi</label>
-                    <input type="color" name="text_color" value="{{ old('text_color', '#ffffff') }}" class="w-full h-10 border rounded-lg cursor-pointer">
-                </div>
-            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Metin Rengi</label>
+                            <input type="color"
+                                   name="text_color"
+                                   value="{{ old('text_color', '#ffffff') }}"
+                                   class="w-full h-10 rounded-lg border border-slate-300 cursor-pointer">
+                        </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Overlay Rengi</label>
-                <input type="text" name="overlay_color" value="{{ old('overlay_color') }}" placeholder="rgba(0,0,0,0.3)" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Baslangic Tarihi</label>
-                    <input type="datetime-local" name="starts_at" value="{{ old('starts_at') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Bitis Tarihi</label>
-                    <input type="datetime-local" name="ends_at" value="{{ old('ends_at') }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sira</label>
-                <input type="number" name="order" value="{{ old('order', 0) }}" min="0" class="w-32 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
-
-            <div>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }} class="rounded text-purple-600">
-                    Aktif
-                </label>
+                        <x-admin.form-input
+                            name="overlay_color"
+                            label="Overlay Rengi"
+                            placeholder="rgba(0,0,0,0.3)"
+                        />
+                    </div>
+                </x-admin.card>
             </div>
         </div>
 
-        <div class="mt-6 flex gap-3">
-            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Kaydet</button>
-            <a href="{{ route('admin.sliders.index') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Iptal</a>
+        <div class="mt-6 flex items-center gap-3">
+            <x-admin.button type="submit" icon="fa-check">
+                Kaydet
+            </x-admin.button>
+            <x-admin.button href="{{ route('admin.sliders.index') }}" variant="ghost">
+                Iptal
+            </x-admin.button>
         </div>
     </form>
-</div>
 @endsection

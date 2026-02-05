@@ -6,10 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class Category extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saved(fn() => Cache::forget('nav_categories'));
+        static::deleted(fn() => Cache::forget('nav_categories'));
+    }
 
     protected $fillable = [
         'parent_id',
@@ -115,5 +122,21 @@ class Category extends Model
         }
 
         return $path->all();
+    }
+
+    /**
+     * Get image URL with proper path handling
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->image) {
+            return null;
+        }
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+        // Handle both old (categories/...) and new (uploads/categories/...) path formats
+        $path = str_starts_with($this->image, 'uploads/') ? $this->image : 'uploads/' . $this->image;
+        return asset($path);
     }
 }

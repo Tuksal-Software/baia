@@ -1,113 +1,216 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Dashboard') - Baia Admin</title>
+    <title>@yield('title', 'Dashboard') - BAIA Admin</title>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#EEF2FF',
+                            100: '#E0E7FF',
+                            200: '#C7D2FE',
+                            300: '#A5B4FC',
+                            400: '#818CF8',
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            700: '#4338CA',
+                            800: '#3730A3',
+                            900: '#312E81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>[x-cloak] { display: none !important; }</style>
+    <style>
+        [x-cloak] { display: none !important; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Sidebar transition */
+        .sidebar-transition {
+            transition: width 200ms ease-in-out;
+        }
+        .content-transition {
+            transition: margin-left 200ms ease-in-out;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 150ms, visibility 150ms;
+        }
+        .tooltip-trigger:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @stack('styles')
 </head>
-<body class="bg-gray-100" x-data="{ sidebarOpen: true, mobileSidebar: false }">
-    <div class="min-h-screen flex">
+<body class="h-full bg-slate-50 font-sans antialiased" x-data="{
+    sidebarOpen: localStorage.getItem('sidebarOpen') !== 'false',
+    mobileSidebar: false,
+    toggleSidebar() {
+        this.sidebarOpen = !this.sidebarOpen;
+        localStorage.setItem('sidebarOpen', this.sidebarOpen);
+    }
+}">
+    <div class="min-h-full flex">
         <!-- Sidebar -->
-        <aside :class="sidebarOpen ? 'w-64' : 'w-20'" class="hidden lg:block bg-gray-800 text-white transition-all duration-300 fixed h-full z-30">
-            <div class="p-4 border-b border-gray-700">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                    <span class="text-2xl font-bold text-purple-400">B</span>
-                    <span x-show="sidebarOpen" class="font-semibold">BAIA Admin</span>
-                </a>
-            </div>
-            <nav class="p-4">
-                <ul class="space-y-2">
-                    <li><a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-home w-5"></i><span x-show="sidebarOpen">Dashboard</span></a></li>
-                    <li><a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.categories.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-folder w-5"></i><span x-show="sidebarOpen">Kategoriler</span></a></li>
-                    <li><a href="{{ route('admin.products.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-box w-5"></i><span x-show="sidebarOpen">Urunler</span></a></li>
-                    <li><a href="{{ route('admin.orders.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.orders.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-shopping-bag w-5"></i><span x-show="sidebarOpen">Siparisler</span></a></li>
-                    <li><a href="{{ route('admin.reviews.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.reviews.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-star w-5"></i><span x-show="sidebarOpen">Yorumlar</span></a></li>
-                    <li><a href="{{ route('admin.discount-codes.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.discount-codes.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-tags w-5"></i><span x-show="sidebarOpen">Indirim Kodlari</span></a></li>
-                </ul>
-
-                <!-- CMS Section -->
-                <div class="border-t border-gray-700 mt-4 pt-4">
-                    <p x-show="sidebarOpen" class="px-3 mb-2 text-xs text-gray-500 uppercase tracking-wider">Icerik Yonetimi</p>
-                    <ul class="space-y-2">
-                        <li><a href="{{ route('admin.sliders.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.sliders.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-images w-5"></i><span x-show="sidebarOpen">Sliderlar</span></a></li>
-                        <li><a href="{{ route('admin.banners.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.banners.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-ad w-5"></i><span x-show="sidebarOpen">Bannerlar</span></a></li>
-                        <li><a href="{{ route('admin.home-sections.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.home-sections.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-th-large w-5"></i><span x-show="sidebarOpen">Ana Sayfa</span></a></li>
-                        <li><a href="{{ route('admin.features.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.features.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-check-circle w-5"></i><span x-show="sidebarOpen">Ozellikler</span></a></li>
-                        <li><a href="{{ route('admin.menus.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.menus.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-bars w-5"></i><span x-show="sidebarOpen">Menuler</span></a></li>
-                        <li><a href="{{ route('admin.newsletter.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.newsletter.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-envelope w-5"></i><span x-show="sidebarOpen">Bulten</span></a></li>
-                        <li><a href="{{ route('admin.settings.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.settings.*') ? 'bg-purple-600' : 'hover:bg-gray-700' }}"><i class="fas fa-cog w-5"></i><span x-show="sidebarOpen">Ayarlar</span></a></li>
-                    </ul>
-                </div>
-
-                <div class="border-t border-gray-700 mt-4 pt-4">
-                    <a href="{{ route('home') }}" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 text-gray-400"><i class="fas fa-external-link-alt w-5"></i><span x-show="sidebarOpen">Siteyi Gor</span></a>
-                </div>
-            </nav>
-        </aside>
+        <x-admin.sidebar />
 
         <!-- Mobile Sidebar Overlay -->
-        <div x-show="mobileSidebar" x-cloak class="lg:hidden fixed inset-0 z-40">
-            <div class="absolute inset-0 bg-black/50" @click="mobileSidebar = false"></div>
-            <aside class="absolute left-0 top-0 bottom-0 w-64 bg-gray-800 text-white">
-                <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-                    <span class="font-semibold">BAIA Admin</span>
-                    <button @click="mobileSidebar = false" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        <div x-show="mobileSidebar"
+             x-cloak
+             class="lg:hidden fixed inset-0 z-40"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="mobileSidebar = false"></div>
+            <aside class="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl flex flex-col"
+                   x-transition:enter="transition ease-out duration-200"
+                   x-transition:enter-start="-translate-x-full"
+                   x-transition:enter-end="translate-x-0"
+                   x-transition:leave="transition ease-in duration-150"
+                   x-transition:leave-start="translate-x-0"
+                   x-transition:leave-end="-translate-x-full">
+                <div class="h-16 flex items-center justify-between px-4 border-b border-slate-200">
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">B</span>
+                        </div>
+                        <span class="font-semibold text-slate-900">BAIA Admin</span>
+                    </a>
+                    <button @click="mobileSidebar = false" class="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <nav class="p-4 overflow-y-auto max-h-[calc(100vh-60px)]">
-                    <ul class="space-y-2">
-                        <li><a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-home w-5"></i> Dashboard</a></li>
-                        <li><a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-folder w-5"></i> Kategoriler</a></li>
-                        <li><a href="{{ route('admin.products.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-box w-5"></i> Urunler</a></li>
-                        <li><a href="{{ route('admin.orders.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-shopping-bag w-5"></i> Siparisler</a></li>
-                        <li><a href="{{ route('admin.reviews.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-star w-5"></i> Yorumlar</a></li>
-                        <li><a href="{{ route('admin.discount-codes.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-tags w-5"></i> Indirim Kodlari</a></li>
-                    </ul>
-                    <div class="border-t border-gray-700 mt-4 pt-4">
-                        <p class="px-3 mb-2 text-xs text-gray-500 uppercase">Icerik Yonetimi</p>
-                        <ul class="space-y-2">
-                            <li><a href="{{ route('admin.sliders.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-images w-5"></i> Sliderlar</a></li>
-                            <li><a href="{{ route('admin.banners.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-ad w-5"></i> Bannerlar</a></li>
-                            <li><a href="{{ route('admin.home-sections.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-th-large w-5"></i> Ana Sayfa</a></li>
-                            <li><a href="{{ route('admin.features.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-check-circle w-5"></i> Ozellikler</a></li>
-                            <li><a href="{{ route('admin.menus.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-bars w-5"></i> Menuler</a></li>
-                            <li><a href="{{ route('admin.newsletter.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-envelope w-5"></i> Bulten</a></li>
-                            <li><a href="{{ route('admin.settings.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-cog w-5"></i> Ayarlar</a></li>
-                        </ul>
-                    </div>
+                <nav class="flex-1 overflow-y-auto p-3">
+                    @include('components.admin.sidebar-nav', ['mobile' => true])
                 </nav>
             </aside>
         </div>
 
         <!-- Main Content -->
-        <div :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'" class="flex-1 transition-all duration-300">
-            <header class="bg-white shadow-sm sticky top-0 z-20">
-                <div class="flex items-center justify-between px-4 py-3">
-                    <div class="flex items-center gap-4">
-                        <button @click="mobileSidebar = true" class="lg:hidden text-gray-600"><i class="fas fa-bars text-xl"></i></button>
-                        <button @click="sidebarOpen = !sidebarOpen" class="hidden lg:block text-gray-600"><i class="fas fa-bars text-xl"></i></button>
-                        <h1 class="text-lg font-semibold text-gray-800">@yield('title', 'Dashboard')</h1>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm text-gray-600">{{ auth()->user()->name ?? 'Admin' }}</span>
-                        <form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="text-gray-600 hover:text-gray-800"><i class="fas fa-sign-out-alt"></i></button></form>
-                    </div>
-                </div>
-            </header>
+        <div :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'" class="flex-1 content-transition">
+            <!-- Header -->
+            <x-admin.header />
+
+            <!-- Page Content -->
             <main class="p-6">
-                @if(session('success'))<div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">{{ session('success') }}</div>@endif
-                @if(session('error'))<div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{{ session('error') }}</div>@endif
-                @if($errors->any())<div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"><ul class="list-disc list-inside">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+                <!-- Flash Messages -->
+                @if(session('success'))
+                    <x-admin.alert type="success" class="mb-6" dismissible>
+                        {{ session('success') }}
+                    </x-admin.alert>
+                @endif
+
+                @if(session('error'))
+                    <x-admin.alert type="danger" class="mb-6" dismissible>
+                        {{ session('error') }}
+                    </x-admin.alert>
+                @endif
+
+                @if(session('warning'))
+                    <x-admin.alert type="warning" class="mb-6" dismissible>
+                        {{ session('warning') }}
+                    </x-admin.alert>
+                @endif
+
+                @if($errors->any())
+                    <x-admin.alert type="danger" class="mb-6" dismissible>
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </x-admin.alert>
+                @endif
+
                 @yield('content')
             </main>
         </div>
     </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // Toast notification helper
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const colors = {
+                success: 'bg-emerald-500',
+                error: 'bg-rose-500',
+                warning: 'bg-amber-500',
+                info: 'bg-primary-500'
+            };
+
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-x-full transition-transform duration-300`;
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <span class="text-sm font-medium">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full');
+            });
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>

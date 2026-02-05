@@ -40,6 +40,7 @@
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
     </style>
+    <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @stack('styles')
 </head>
@@ -75,48 +76,11 @@
                     <!-- Logo -->
                     <a href="{{ route('home') }}" class="flex-shrink-0">
                         @if($siteSettings['site_logo'] ?? false)
-                            <img src="{{ asset('storage/' . $siteSettings['site_logo']) }}" alt="{{ $siteSettings['site_name'] ?? 'BAIA' }}" class="h-8 lg:h-10">
+                            <img src="{{ image_url($siteSettings['site_logo'], 'settings') }}" alt="{{ $siteSettings['site_name'] ?? 'BAIA' }}" class="h-8 lg:h-10">
                         @else
                             <span class="text-2xl lg:text-3xl font-serif font-bold text-black tracking-tight">{{ $siteSettings['site_name'] ?? 'BAIA' }}</span>
                         @endif
                     </a>
-
-                    <!-- Desktop Navigation -->
-                    <nav class="hidden lg:flex items-center justify-center flex-1 px-8">
-                        <div class="flex items-center gap-8">
-                            @if($headerMenu && $headerMenu->rootItems)
-                                @foreach($headerMenu->rootItems->where('is_active', true)->take(8) as $item)
-                                    @if($item->children && $item->children->where('is_active', true)->count() > 0)
-                                        <div class="relative group">
-                                            <a href="{{ $item->link }}"
-                                               class="flex items-center gap-1 text-sm uppercase tracking-wider text-gray-700 hover:text-black transition-colors py-2">
-                                                {{ $item->title }}
-                                                <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                </svg>
-                                            </a>
-                                            <!-- Dropdown -->
-                                            <div class="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                                                <div class="bg-white border border-gray-100 shadow-lg min-w-48 py-2">
-                                                    @foreach($item->children->where('is_active', true) as $child)
-                                                        <a href="{{ $child->link }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black">
-                                                            {{ $child->title }}
-                                                        </a>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <a href="{{ $item->link }}"
-                                           target="{{ $item->target }}"
-                                           class="text-sm uppercase tracking-wider text-gray-700 hover:text-black transition-colors whitespace-nowrap">
-                                            {{ $item->title }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </div>
-                    </nav>
 
                     <!-- Right Icons -->
                     <div class="flex items-center gap-1 lg:gap-2">
@@ -207,6 +171,9 @@
             </div>
         </div>
 
+        <!-- Mega Navigation -->
+        <x-mega-navbar :categories="$navCategories" :menu-items="$headerMenu?->rootItems" />
+
         <!-- Search Overlay -->
         <div x-show="searchOpen" x-cloak
              x-transition:enter="transition ease-out duration-300"
@@ -265,36 +232,50 @@
                     </button>
                 </div>
 
-                <!-- Mobile Navigation -->
+                <!-- Mobile Navigation - Categories -->
                 <nav class="py-2">
-                    @if($headerMenu && $headerMenu->rootItems)
-                        @foreach($headerMenu->rootItems->where('is_active', true) as $item)
-                            @if($item->children && $item->children->where('is_active', true)->count() > 0)
-                                <div x-data="{ open: false }">
-                                    <button @click="open = !open" class="flex items-center justify-between w-full px-6 py-3 text-gray-700 hover:bg-gray-50 uppercase text-sm tracking-wider">
-                                        <span>{{ $item->title }}</span>
-                                        <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                        </svg>
-                                    </button>
-                                    <div x-show="open" x-collapse class="bg-gray-50">
-                                        <a href="{{ $item->link }}" class="block px-8 py-2 text-sm text-gray-600 hover:text-black">
-                                            Tumu Gor
+                    @foreach($navCategories as $category)
+                        @if($category->children->where('is_active', true)->count() > 0)
+                            <div x-data="{ open: false }">
+                                <button @click="open = !open" class="flex items-center justify-between w-full px-6 py-3 text-gray-700 hover:bg-gray-50 uppercase text-sm tracking-wider font-medium">
+                                    <span>{{ $category->name }}</span>
+                                    <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div x-show="open" x-collapse class="bg-gray-50">
+                                    <a href="{{ route('categories.show', $category) }}" class="block px-8 py-2 text-sm text-gray-600 hover:text-black font-medium">
+                                        Tum {{ $category->name }}
+                                    </a>
+                                    @foreach($category->children->where('is_active', true) as $child)
+                                        <a href="{{ route('categories.show', $child) }}" class="block px-8 py-2 text-sm text-gray-600 hover:text-black">
+                                            {{ $child->name }}
                                         </a>
-                                        @foreach($item->children->where('is_active', true) as $child)
-                                            <a href="{{ $child->link }}" class="block px-8 py-2 text-sm text-gray-600 hover:text-black">
-                                                {{ $child->title }}
-                                            </a>
-                                        @endforeach
-                                    </div>
+                                    @endforeach
                                 </div>
-                            @else
-                                <a href="{{ $item->link }}"
-                                   class="block px-6 py-3 text-gray-700 hover:bg-gray-50 uppercase text-sm tracking-wider">
-                                    {{ $item->title }}
-                                </a>
-                            @endif
-                        @endforeach
+                            </div>
+                        @else
+                            <a href="{{ route('categories.show', $category) }}"
+                               class="block px-6 py-3 text-gray-700 hover:bg-gray-50 uppercase text-sm tracking-wider font-medium">
+                                {{ $category->name }}
+                            </a>
+                        @endif
+                    @endforeach
+
+                    {{-- Additional menu items --}}
+                    @if($headerMenu && $headerMenu->rootItems)
+                        <div class="border-t mt-2 pt-2">
+                            @foreach($headerMenu->rootItems->where('is_active', true) as $item)
+                                @php $isCategory = str_contains($item->link, '/kategori/') || str_contains($item->link, '/categories/'); @endphp
+                                @unless($isCategory)
+                                    <a href="{{ $item->link }}"
+                                       target="{{ $item->target ?? '_self' }}"
+                                       class="block px-6 py-3 text-gray-600 hover:bg-gray-50 text-sm">
+                                        {{ $item->title }}
+                                    </a>
+                                @endunless
+                            @endforeach
+                        </div>
                     @endif
                 </nav>
 

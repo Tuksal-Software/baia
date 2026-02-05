@@ -1,20 +1,114 @@
 @extends('layouts.admin')
+
 @section('title', 'Kategori Duzenle')
+
+@section('breadcrumb')
+    <a href="{{ route('admin.categories.index') }}" class="text-slate-500 hover:text-slate-700">Kategoriler</a>
+    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+    <span class="text-slate-700 font-medium">{{ $category->name }}</span>
+@endsection
+
 @section('content')
-<div class="max-w-2xl">
-    <div class="flex items-center gap-2 mb-6"><a href="{{ route('admin.categories.index') }}" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a><h2 class="text-xl font-semibold">Kategori Duzenle: {{ $category->name }}</h2></div>
-    <form action="{{ route('admin.categories.update', $category) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg p-6">
-        @csrf @method('PUT')
-        <div class="space-y-4">
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Kategori Adi *</label><input type="text" name="name" value="{{ old('name', $category->name) }}" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500"></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Slug</label><input type="text" name="slug" value="{{ old('slug', $category->slug) }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500"></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Ust Kategori</label><select name="parent_id" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500"><option value="">- Ana Kategori -</option>@foreach($parentCategories as $parent)<option value="{{ $parent->id }}" {{ old('parent_id', $category->parent_id) == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>@endforeach</select></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Aciklama</label><textarea name="description" rows="3" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">{{ old('description', $category->description) }}</textarea></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Gorsel</label>@if($category->image)<div class="mb-2"><img src="{{ asset('storage/' . $category->image) }}" class="h-20 rounded"></div>@endif<input type="file" name="image" accept="image/*" class="w-full border rounded-lg px-4 py-2"></div>
-            <div><label class="block text-sm font-medium text-gray-700 mb-1">Sira</label><input type="number" name="order" value="{{ old('order', $category->order) }}" min="0" class="w-32 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500"></div>
-            <div><label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $category->is_active) ? 'checked' : '' }} class="rounded text-purple-600">Aktif</label></div>
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-slate-900">Kategori Duzenle</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ $category->name }}</p>
         </div>
-        <div class="mt-6 flex gap-3"><button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Guncelle</button><a href="{{ route('admin.categories.index') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Iptal</a></div>
+        <form action="{{ route('admin.categories.destroy', $category) }}"
+              method="POST"
+              onsubmit="return confirm('Bu kategoriyi silmek istediginizden emin misiniz?')">
+            @csrf
+            @method('DELETE')
+            <x-admin.button type="submit" variant="outline-danger" icon="fa-trash">
+                Sil
+            </x-admin.button>
+        </form>
+    </div>
+
+    <form action="{{ route('admin.categories.update', $category) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+
+        <div class="max-w-2xl">
+            <x-admin.card title="Kategori Bilgileri">
+                <div class="space-y-4">
+                    <x-admin.form-input
+                        name="name"
+                        label="Kategori Adi"
+                        :value="$category->name"
+                        required
+                    />
+
+                    <x-admin.form-input
+                        name="slug"
+                        label="Slug"
+                        :value="$category->slug"
+                    />
+
+                    <x-admin.form-select
+                        name="parent_id"
+                        label="Ust Kategori"
+                        :value="$category->parent_id"
+                        :options="$parentCategories->pluck('name', 'id')->toArray()"
+                        placeholder="- Ana Kategori -"
+                    />
+
+                    <x-admin.form-textarea
+                        name="description"
+                        label="Aciklama"
+                        :value="$category->description"
+                        :rows="3"
+                    />
+
+                    <x-admin.form-image
+                        name="image"
+                        label="Kategori Gorseli"
+                        :value="$category->image"
+                    />
+
+                    <x-admin.form-input
+                        name="order"
+                        type="number"
+                        label="Siralama"
+                        :value="$category->order"
+                        min="0"
+                    />
+
+                    <x-admin.form-toggle
+                        name="is_active"
+                        label="Aktif"
+                        description="Kategori sitede gorunur"
+                        :checked="$category->is_active"
+                    />
+                </div>
+            </x-admin.card>
+
+            <x-admin.card title="Bilgi" class="mt-6">
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Urun Sayisi</span>
+                        <span class="text-slate-900 font-medium">{{ $category->products_count ?? $category->products()->count() }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Olusturulma</span>
+                        <span class="text-slate-900">{{ $category->created_at->format('d.m.Y H:i') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Son Guncelleme</span>
+                        <span class="text-slate-900">{{ $category->updated_at->format('d.m.Y H:i') }}</span>
+                    </div>
+                </div>
+            </x-admin.card>
+
+            <div class="mt-6 flex items-center gap-3">
+                <x-admin.button type="submit" icon="fa-check">
+                    Degisiklikleri Kaydet
+                </x-admin.button>
+                <x-admin.button href="{{ route('admin.categories.index') }}" variant="ghost">
+                    Iptal
+                </x-admin.button>
+            </div>
+        </div>
     </form>
-</div>
 @endsection

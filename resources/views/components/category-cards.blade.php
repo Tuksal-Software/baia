@@ -18,7 +18,7 @@
                    class="group relative aspect-[4/5] overflow-hidden">
                     <!-- Background Image -->
                     @if($category->image)
-                        <img src="{{ asset('storage/' . $category->image) }}"
+                        <img src="{{ $category->image_url }}"
                              alt="{{ $category->name }}"
                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                     @else

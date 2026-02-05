@@ -1,133 +1,222 @@
 @extends('layouts.admin')
+
 @section('title', 'Bolum Duzenle')
+
+@section('breadcrumb')
+    <a href="{{ route('admin.home-sections.index') }}" class="text-slate-500 hover:text-slate-700">Ana Sayfa Bolumleri</a>
+    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+    <span class="text-slate-700 font-medium">{{ $homeSection->title ?: 'Bolum Duzenle' }}</span>
+@endsection
+
 @section('content')
-<div class="max-w-2xl">
-    <div class="flex items-center gap-2 mb-6">
-        <a href="{{ route('admin.home-sections.index') }}" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-        <h2 class="text-xl font-semibold">Bolum Duzenle</h2>
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-slate-900">Bolum Duzenle</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ $types[$homeSection->type] ?? $homeSection->type }}</p>
+        </div>
+        <form action="{{ route('admin.home-sections.destroy', $homeSection) }}"
+              method="POST"
+              onsubmit="return confirm('Bu bolumu silmek istediginizden emin misiniz?')">
+            @csrf
+            @method('DELETE')
+            <x-admin.button type="submit" variant="outline-danger" icon="fa-trash">
+                Sil
+            </x-admin.button>
+        </form>
     </div>
 
-    <form action="{{ route('admin.home-sections.update', $homeSection) }}" method="POST" class="bg-white rounded-lg p-6">
-        @csrf @method('PUT')
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Bolum Tipi *</label>
-                <select name="type" id="section-type" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                    @foreach($types as $key => $label)
-                        <option value="{{ $key }}" {{ old('type', $homeSection->type) === $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
+    <form action="{{ route('admin.home-sections.update', $homeSection) }}" method="POST">
+        @csrf
+        @method('PUT')
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Baslik</label>
-                <input type="text" name="title" value="{{ old('title', $homeSection->title) }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <x-admin.card title="Temel Bilgiler">
+                    <div class="space-y-4">
+                        <x-admin.form-select
+                            name="type"
+                            label="Bolum Tipi"
+                            :options="$types"
+                            :value="$homeSection->type"
+                            required
+                            id="section-type"
+                        />
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Alt Baslik</label>
-                <input type="text" name="subtitle" value="{{ old('subtitle', $homeSection->subtitle) }}" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
+                        <x-admin.form-input
+                            name="title"
+                            label="Baslik"
+                            :value="$homeSection->title"
+                            placeholder="Bolum basligi"
+                        />
 
-            <!-- Dynamic settings based on type -->
-            <div id="settings-products" class="settings-group hidden space-y-4 p-4 bg-gray-50 rounded-lg">
-                <h4 class="font-medium text-gray-700">Urun Ayarlari</h4>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Urun Tipi</label>
-                    <select name="settings[type]" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="new" {{ ($homeSection->settings['type'] ?? '') === 'new' ? 'selected' : '' }}>Yeni Urunler</option>
-                        <option value="bestseller" {{ ($homeSection->settings['type'] ?? '') === 'bestseller' ? 'selected' : '' }}>Cok Satanlar</option>
-                        <option value="sale" {{ ($homeSection->settings['type'] ?? '') === 'sale' ? 'selected' : '' }}>Indirimli Urunler</option>
-                        <option value="featured" {{ ($homeSection->settings['type'] ?? '') === 'featured' ? 'selected' : '' }}>One Cikan Urunler</option>
-                        <option value="category" {{ ($homeSection->settings['type'] ?? '') === 'category' ? 'selected' : '' }}>Kategoriye Gore</option>
-                    </select>
+                        <x-admin.form-input
+                            name="subtitle"
+                            label="Alt Baslik"
+                            :value="$homeSection->subtitle"
+                            placeholder="Bolum alt basligi"
+                        />
+                    </div>
+                </x-admin.card>
+
+                <!-- Dynamic Settings -->
+                <div id="settings-products" class="settings-group hidden">
+                    <x-admin.card title="Urun Ayarlari">
+                        <div class="space-y-4">
+                            <x-admin.form-select
+                                name="settings[type]"
+                                label="Urun Tipi"
+                                :options="[
+                                    'new' => 'Yeni Urunler',
+                                    'bestseller' => 'Cok Satanlar',
+                                    'sale' => 'Indirimli Urunler',
+                                    'featured' => 'One Cikan Urunler',
+                                    'category' => 'Kategoriye Gore',
+                                ]"
+                                :value="$homeSection->settings['type'] ?? ''"
+                            />
+
+                            <x-admin.form-input
+                                name="settings[limit]"
+                                type="number"
+                                label="Limit"
+                                :value="$homeSection->settings['limit'] ?? 12"
+                                min="1"
+                                max="24"
+                            />
+
+                            <x-admin.form-select
+                                name="settings[category_id]"
+                                label="Kategori (opsiyonel)"
+                                :options="$categories->pluck('name', 'id')->toArray()"
+                                :value="$homeSection->settings['category_id'] ?? ''"
+                                placeholder="- Sec -"
+                            />
+                        </div>
+                    </x-admin.card>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Limit</label>
-                    <input type="number" name="settings[limit]" value="{{ $homeSection->settings['limit'] ?? 12 }}" min="1" max="24" class="w-32 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
+
+                <div id="settings-categories" class="settings-group hidden">
+                    <x-admin.card title="Kategori Ayarlari">
+                        <div class="space-y-4">
+                            <x-admin.form-input
+                                name="settings[limit]"
+                                type="number"
+                                label="Limit"
+                                :value="$homeSection->settings['limit'] ?? 6"
+                                min="1"
+                                max="12"
+                            />
+
+                            <x-admin.form-checkbox
+                                name="settings[show_all_link]"
+                                label="Tumu linkini goster"
+                                :checked="$homeSection->settings['show_all_link'] ?? false"
+                            />
+                        </div>
+                    </x-admin.card>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Kategori (opsiyonel)</label>
-                    <select name="settings[category_id]" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="">- Sec -</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ ($homeSection->settings['category_id'] ?? '') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                        @endforeach
-                    </select>
+
+                <div id="settings-banner" class="settings-group hidden">
+                    <x-admin.card title="Banner Ayarlari">
+                        <div class="space-y-4">
+                            <x-admin.form-select
+                                name="settings[position]"
+                                label="Banner Pozisyonu"
+                                :options="[
+                                    'home_top' => 'Ana Sayfa Ust',
+                                    'home_middle' => 'Ana Sayfa Orta',
+                                    'home_bottom' => 'Ana Sayfa Alt',
+                                ]"
+                                :value="$homeSection->settings['position'] ?? ''"
+                            />
+                        </div>
+                    </x-admin.card>
+                </div>
+
+                <div id="settings-features" class="settings-group hidden">
+                    <x-admin.card title="Ozellik Ayarlari">
+                        <div class="space-y-4">
+                            <x-admin.form-select
+                                name="settings[position]"
+                                label="Pozisyon"
+                                :options="[
+                                    'home' => 'Ana Sayfa',
+                                    'footer' => 'Footer',
+                                ]"
+                                :value="$homeSection->settings['position'] ?? ''"
+                            />
+                        </div>
+                    </x-admin.card>
+                </div>
+
+                <div id="settings-newsletter" class="settings-group hidden">
+                    <x-admin.card title="Bulten Ayarlari">
+                        <div class="space-y-4">
+                            <x-admin.form-input
+                                name="settings[background_color]"
+                                label="Arkaplan Rengi"
+                                :value="$homeSection->settings['background_color'] ?? '#f5f5dc'"
+                                placeholder="#f5f5dc"
+                            />
+                        </div>
+                    </x-admin.card>
                 </div>
             </div>
 
-            <div id="settings-categories" class="settings-group hidden space-y-4 p-4 bg-gray-50 rounded-lg">
-                <h4 class="font-medium text-gray-700">Kategori Ayarlari</h4>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Limit</label>
-                    <input type="number" name="settings[limit]" value="{{ $homeSection->settings['limit'] ?? 6 }}" min="1" max="12" class="w-32 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" name="settings[show_all_link]" value="1" {{ ($homeSection->settings['show_all_link'] ?? false) ? 'checked' : '' }} class="rounded text-purple-600">
-                        "Tumu" linkini goster
-                    </label>
-                </div>
-            </div>
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <x-admin.card title="Yayin Ayarlari">
+                    <div class="space-y-4">
+                        <x-admin.form-toggle
+                            name="is_active"
+                            label="Aktif"
+                            description="Bolum ana sayfada gorunur"
+                            :checked="$homeSection->is_active"
+                        />
 
-            <div id="settings-banner" class="settings-group hidden space-y-4 p-4 bg-gray-50 rounded-lg">
-                <h4 class="font-medium text-gray-700">Banner Ayarlari</h4>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Banner Pozisyonu</label>
-                    <select name="settings[position]" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="home_top" {{ ($homeSection->settings['position'] ?? '') === 'home_top' ? 'selected' : '' }}>Ana Sayfa Ust</option>
-                        <option value="home_middle" {{ ($homeSection->settings['position'] ?? '') === 'home_middle' ? 'selected' : '' }}>Ana Sayfa Orta</option>
-                        <option value="home_bottom" {{ ($homeSection->settings['position'] ?? '') === 'home_bottom' ? 'selected' : '' }}>Ana Sayfa Alt</option>
-                    </select>
-                </div>
-            </div>
+                        <x-admin.form-input
+                            name="order"
+                            type="number"
+                            label="Sira"
+                            :value="$homeSection->order"
+                            min="0"
+                        />
+                    </div>
+                </x-admin.card>
 
-            <div id="settings-features" class="settings-group hidden space-y-4 p-4 bg-gray-50 rounded-lg">
-                <h4 class="font-medium text-gray-700">Ozellik Ayarlari</h4>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Pozisyon</label>
-                    <select name="settings[position]" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="home" {{ ($homeSection->settings['position'] ?? '') === 'home' ? 'selected' : '' }}>Ana Sayfa</option>
-                        <option value="footer" {{ ($homeSection->settings['position'] ?? '') === 'footer' ? 'selected' : '' }}>Footer</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="settings-newsletter" class="settings-group hidden space-y-4 p-4 bg-gray-50 rounded-lg">
-                <h4 class="font-medium text-gray-700">Bulten Ayarlari</h4>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Arkaplan Rengi</label>
-                    <input type="text" name="settings[background_color]" value="{{ $homeSection->settings['background_color'] ?? '#f5f5dc' }}" placeholder="#f5f5dc" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sira</label>
-                <input type="number" name="order" value="{{ old('order', $homeSection->order) }}" min="0" class="w-32 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-            </div>
-
-            <div>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', $homeSection->is_active) ? 'checked' : '' }} class="rounded text-purple-600">
-                    Aktif
-                </label>
+                <x-admin.card title="Bilgi">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Olusturulma</span>
+                            <span class="text-slate-900">{{ $homeSection->created_at->format('d.m.Y H:i') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Son Guncelleme</span>
+                            <span class="text-slate-900">{{ $homeSection->updated_at->format('d.m.Y H:i') }}</span>
+                        </div>
+                    </div>
+                </x-admin.card>
             </div>
         </div>
 
-        <div class="mt-6 flex gap-3">
-            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Guncelle</button>
-            <a href="{{ route('admin.home-sections.index') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Iptal</a>
+        <div class="mt-6 flex items-center gap-3">
+            <x-admin.button type="submit" icon="fa-check">
+                Degisiklikleri Kaydet
+            </x-admin.button>
+            <x-admin.button href="{{ route('admin.home-sections.index') }}" variant="ghost">
+                Iptal
+            </x-admin.button>
         </div>
     </form>
-</div>
 
-<script>
-document.getElementById('section-type').addEventListener('change', function() {
-    document.querySelectorAll('.settings-group').forEach(el => el.classList.add('hidden'));
-    const selected = document.getElementById('settings-' + this.value);
-    if (selected) selected.classList.remove('hidden');
-});
-document.getElementById('section-type').dispatchEvent(new Event('change'));
-</script>
+    <script>
+    document.getElementById('section-type').addEventListener('change', function() {
+        document.querySelectorAll('.settings-group').forEach(el => el.classList.add('hidden'));
+        const selected = document.getElementById('settings-' + this.value);
+        if (selected) selected.classList.remove('hidden');
+    });
+    document.getElementById('section-type').dispatchEvent(new Event('change'));
+    </script>
 @endsection

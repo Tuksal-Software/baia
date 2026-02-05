@@ -1,54 +1,206 @@
 @extends('layouts.admin')
+
 @section('title', 'Dashboard')
+
 @section('content')
-<!-- Stats -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white rounded-lg p-4"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center"><i class="fas fa-box text-purple-600"></i></div><div><p class="text-2xl font-bold">{{ $stats['total_products'] }}</p><p class="text-sm text-gray-500">Toplam Urun</p></div></div></div>
-    <div class="bg-white rounded-lg p-4"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"><i class="fas fa-shopping-bag text-blue-600"></i></div><div><p class="text-2xl font-bold">{{ $stats['total_orders'] }}</p><p class="text-sm text-gray-500">Toplam Siparis</p></div></div></div>
-    <div class="bg-white rounded-lg p-4"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center"><i class="fas fa-clock text-yellow-600"></i></div><div><p class="text-2xl font-bold">{{ $stats['pending_orders'] }}</p><p class="text-sm text-gray-500">Bekleyen Siparis</p></div></div></div>
-    <div class="bg-white rounded-lg p-4"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center"><i class="fas fa-star text-green-600"></i></div><div><p class="text-2xl font-bold">{{ $stats['pending_reviews'] }}</p><p class="text-sm text-gray-500">Bekleyen Yorum</p></div></div></div>
-</div>
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-slate-900">Dashboard</h1>
+        <p class="text-sm text-slate-500 mt-1">BAIA e-ticaret yonetim paneline hos geldiniz</p>
+    </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Recent Orders -->
-    <div class="bg-white rounded-lg p-6">
-        <div class="flex justify-between items-center mb-4"><h2 class="font-semibold">Son Siparisler</h2><a href="{{ route('admin.orders.index') }}" class="text-purple-600 text-sm hover:underline">Tumu</a></div>
-        <div class="space-y-3">
-            @forelse($recentOrders->take(5) as $order)
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                    <div><p class="font-medium">{{ $order->order_number }}</p><p class="text-sm text-gray-500">{{ $order->customer_name }}</p></div>
-                    <div class="text-right"><p class="font-semibold">{{ number_format($order->total, 2) }} TL</p><span class="text-xs px-2 py-1 rounded {{ $order->status_badge_class }}">{{ $order->status_label }}</span></div>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <x-admin.stats-card
+            title="Toplam Urun"
+            :value="$stats['total_products']"
+            icon="fa-box"
+            color="primary"
+            :href="route('admin.products.index')"
+        />
+
+        <x-admin.stats-card
+            title="Toplam Siparis"
+            :value="$stats['total_orders']"
+            icon="fa-shopping-bag"
+            color="info"
+            :href="route('admin.orders.index')"
+        />
+
+        <x-admin.stats-card
+            title="Bekleyen Siparis"
+            :value="$stats['pending_orders']"
+            icon="fa-clock"
+            color="warning"
+            :href="route('admin.orders.index') . '?status=pending'"
+        />
+
+        <x-admin.stats-card
+            title="Bekleyen Yorum"
+            :value="$stats['pending_reviews']"
+            icon="fa-star"
+            color="success"
+            :href="route('admin.reviews.index') . '?status=pending'"
+        />
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Recent Orders -->
+        <x-admin.card title="Son Siparisler" subtitle="Son 10 siparis">
+            <x-slot:actions>
+                <x-admin.button href="{{ route('admin.orders.index') }}" variant="ghost" size="sm">
+                    Tumunu Gor
+                </x-admin.button>
+            </x-slot:actions>
+
+            @if($recentOrders->count() > 0)
+                <div class="space-y-3">
+                    @foreach($recentOrders->take(5) as $order)
+                        <a href="{{ route('admin.orders.show', $order) }}"
+                           class="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shopping-bag text-slate-500"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900">{{ $order->order_number }}</p>
+                                    <p class="text-xs text-slate-500">{{ $order->customer_name }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-slate-900">{{ number_format($order->total, 2) }} TL</p>
+                                @php
+                                    $statusColors = [
+                                        'pending' => 'warning',
+                                        'confirmed' => 'info',
+                                        'preparing' => 'info',
+                                        'shipped' => 'primary',
+                                        'delivered' => 'success',
+                                        'cancelled' => 'danger',
+                                    ];
+                                @endphp
+                                <x-admin.badge :variant="$statusColors[$order->status] ?? 'default'" size="sm" dot>
+                                    {{ $order->status_label }}
+                                </x-admin.badge>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
-            @empty
-                <p class="text-gray-500 text-center py-4">Henuz siparis yok</p>
-            @endforelse
-        </div>
-    </div>
+            @else
+                <x-admin.empty-state
+                    icon="fa-shopping-bag"
+                    title="Henuz siparis yok"
+                    description="Siparisler burada gorunecek"
+                />
+            @endif
+        </x-admin.card>
 
-    <!-- Low Stock Products -->
-    <div class="bg-white rounded-lg p-6">
-        <div class="flex justify-between items-center mb-4"><h2 class="font-semibold">Dusuk Stoklu Urunler</h2><a href="{{ route('admin.products.index', ['status' => 'low_stock']) }}" class="text-purple-600 text-sm hover:underline">Tumu</a></div>
-        <div class="space-y-3">
-            @forelse($lowStockProducts as $product)
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                    <div><p class="font-medium">{{ $product->name }}</p><p class="text-sm text-gray-500">SKU: {{ $product->sku ?? '-' }}</p></div>
-                    <span class="px-3 py-1 rounded text-sm {{ $product->stock == 0 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700' }}">{{ $product->stock }} adet</span>
+        <!-- Low Stock Products -->
+        <x-admin.card title="Dusuk Stoklu Urunler" subtitle="Stok miktari 5 ve alti">
+            <x-slot:actions>
+                <x-admin.button href="{{ route('admin.products.index') }}?stock=low" variant="ghost" size="sm">
+                    Tumunu Gor
+                </x-admin.button>
+            </x-slot:actions>
+
+            @if($lowStockProducts->count() > 0)
+                <div class="space-y-3">
+                    @foreach($lowStockProducts as $product)
+                        <a href="{{ route('admin.products.edit', $product) }}"
+                           class="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-3">
+                                @if($product->image)
+                                    <img src="{{ asset('storage/' . $product->image) }}"
+                                         alt="{{ $product->name }}"
+                                         class="w-10 h-10 rounded-lg object-cover">
+                                @else
+                                    <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-image text-slate-400"></i>
+                                    </div>
+                                @endif
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900 line-clamp-1">{{ $product->name }}</p>
+                                    <p class="text-xs text-slate-500">SKU: {{ $product->sku ?? '-' }}</p>
+                                </div>
+                            </div>
+                            <x-admin.badge :variant="$product->stock == 0 ? 'danger' : 'warning'" size="sm">
+                                {{ $product->stock }} adet
+                            </x-admin.badge>
+                        </a>
+                    @endforeach
                 </div>
-            @empty
-                <p class="text-gray-500 text-center py-4">Dusuk stoklu urun yok</p>
-            @endforelse
-        </div>
+            @else
+                <x-admin.empty-state
+                    icon="fa-box"
+                    title="Tum urunler stokta"
+                    description="Dusuk stoklu urun bulunmuyor"
+                />
+            @endif
+        </x-admin.card>
     </div>
-</div>
 
-<!-- Quick Actions -->
-<div class="mt-6 bg-white rounded-lg p-6">
-    <h2 class="font-semibold mb-4">Hizli Islemler</h2>
-    <div class="flex flex-wrap gap-3">
-        <a href="{{ route('admin.products.create') }}" class="inline-flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"><i class="fas fa-plus"></i> Yeni Urun</a>
-        <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-folder-plus"></i> Yeni Kategori</a>
-        <a href="{{ route('admin.discount-codes.create') }}" class="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"><i class="fas fa-tags"></i> Yeni Indirim Kodu</a>
-        <a href="{{ route('admin.orders.export') }}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><i class="fas fa-download"></i> Siparisleri Indir</a>
-    </div>
-</div>
+    <!-- Quick Actions -->
+    <x-admin.card title="Hizli Islemler" subtitle="Sik kullanilan islemler">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <a href="{{ route('admin.products.create') }}"
+               class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50 transition-colors group">
+                <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                    <i class="fas fa-plus text-lg"></i>
+                </div>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-primary-700">Yeni Urun</span>
+            </a>
+
+            <a href="{{ route('admin.categories.create') }}"
+               class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-colors group">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                    <i class="fas fa-folder-plus text-lg"></i>
+                </div>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-emerald-700">Yeni Kategori</span>
+            </a>
+
+            <a href="{{ route('admin.discount-codes.create') }}"
+               class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50 transition-colors group">
+                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+                    <i class="fas fa-tags text-lg"></i>
+                </div>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-amber-700">Indirim Kodu</span>
+            </a>
+
+            <a href="{{ route('admin.orders.export') }}"
+               class="flex flex-col items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-sky-300 hover:bg-sky-50 transition-colors group">
+                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center group-hover:bg-sky-200 transition-colors">
+                    <i class="fas fa-download text-lg"></i>
+                </div>
+                <span class="text-sm font-medium text-slate-700 group-hover:text-sky-700">Siparis Raporu</span>
+            </a>
+        </div>
+    </x-admin.card>
+
+    <!-- Order Status Overview -->
+    @if($ordersByStatus->count() > 0)
+        <x-admin.card title="Siparis Durumu Ozeti" class="mt-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                @php
+                    $statusConfig = [
+                        'pending' => ['label' => 'Beklemede', 'color' => 'bg-amber-100 text-amber-700', 'icon' => 'fa-clock'],
+                        'confirmed' => ['label' => 'Onaylandi', 'color' => 'bg-sky-100 text-sky-700', 'icon' => 'fa-check'],
+                        'preparing' => ['label' => 'Hazirlaniyor', 'color' => 'bg-indigo-100 text-indigo-700', 'icon' => 'fa-box'],
+                        'shipped' => ['label' => 'Kargoda', 'color' => 'bg-purple-100 text-purple-700', 'icon' => 'fa-truck'],
+                        'delivered' => ['label' => 'Teslim Edildi', 'color' => 'bg-emerald-100 text-emerald-700', 'icon' => 'fa-check-circle'],
+                        'cancelled' => ['label' => 'Iptal', 'color' => 'bg-rose-100 text-rose-700', 'icon' => 'fa-times-circle'],
+                    ];
+                @endphp
+                @foreach($statusConfig as $status => $config)
+                    <div class="p-4 rounded-xl {{ $config['color'] }}">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas {{ $config['icon'] }} text-sm"></i>
+                            <span class="text-xs font-medium uppercase tracking-wider">{{ $config['label'] }}</span>
+                        </div>
+                        <p class="text-2xl font-semibold">{{ $ordersByStatus[$status] ?? 0 }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </x-admin.card>
+    @endif
 @endsection

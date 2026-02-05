@@ -61,4 +61,20 @@ class ProductImage extends Model
     {
         return $query->orderBy('order');
     }
+
+    /**
+     * Get image URL with proper path handling
+     */
+    public function getImageUrlAttribute(): string
+    {
+        if (!$this->image_path) {
+            return '';
+        }
+        if (str_starts_with($this->image_path, 'http')) {
+            return $this->image_path;
+        }
+        // Handle both old (products/...) and new (uploads/products/...) path formats
+        $path = str_starts_with($this->image_path, 'uploads/') ? $this->image_path : 'uploads/' . $this->image_path;
+        return asset($path);
+    }
 }

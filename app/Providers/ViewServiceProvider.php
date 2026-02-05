@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
 use App\Models\Feature;
 use App\Models\Menu;
 use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +33,9 @@ class ViewServiceProvider extends ServiceProvider
             View::share('footerMenu', Schema::hasTable('menus') ? Menu::getByLocation('footer') : null);
             View::share('footerSecondaryMenu', Schema::hasTable('menus') ? Menu::getByLocation('footer_secondary') : null);
             View::share('footerFeatures', Schema::hasTable('features') ? Feature::active()->position('footer')->ordered()->get() : collect());
+
+            // Navigation categories for mega menu
+            View::share('navCategories', Schema::hasTable('categories') ? $this->getNavCategories() : collect());
         } catch (\Exception $e) {
             // Fallback to empty values if database is not available
             View::share('siteSettings', []);
@@ -38,6 +43,28 @@ class ViewServiceProvider extends ServiceProvider
             View::share('footerMenu', null);
             View::share('footerSecondaryMenu', null);
             View::share('footerFeatures', collect());
+            View::share('navCategories', collect());
         }
+    }
+
+    /**
+     * Get navigation categories with caching
+     */
+    private function getNavCategories()
+    {
+        return Cache::remember('nav_categories', 3600, function () {
+            return Category::query()
+                ->root()
+                ->active()
+                ->ordered()
+                ->with(['children' => function ($query) {
+                    $query->active()
+                        ->ordered()
+                        ->with(['children' => function ($q) {
+                            $q->active()->ordered();
+                        }]);
+                }])
+                ->get();
+        });
     }
 }

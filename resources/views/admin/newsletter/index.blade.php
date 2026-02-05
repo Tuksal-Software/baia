@@ -1,144 +1,197 @@
 @extends('layouts.admin')
+
 @section('title', 'Bulten Aboneleri')
+
+@section('breadcrumb')
+    <span class="text-slate-700 font-medium">Bulten Aboneleri</span>
+@endsection
+
 @section('content')
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold">Bulten Aboneleri</h2>
-    <a href="{{ route('admin.newsletter.export', request()->all()) }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-        <i class="fas fa-download mr-2"></i>CSV Indir
-    </a>
-</div>
-
-<!-- Stats -->
-<div class="grid grid-cols-3 gap-4 mb-6">
-    <div class="bg-white rounded-lg p-4">
-        <p class="text-sm text-gray-500">Toplam</p>
-        <p class="text-2xl font-bold text-gray-800">{{ $stats['total'] }}</p>
-    </div>
-    <div class="bg-white rounded-lg p-4">
-        <p class="text-sm text-gray-500">Aktif</p>
-        <p class="text-2xl font-bold text-green-600">{{ $stats['active'] }}</p>
-    </div>
-    <div class="bg-white rounded-lg p-4">
-        <p class="text-sm text-gray-500">Iptal</p>
-        <p class="text-2xl font-bold text-red-600">{{ $stats['inactive'] }}</p>
-    </div>
-</div>
-
-<!-- Filters -->
-<div class="bg-white rounded-lg p-4 mb-6">
-    <form action="{{ route('admin.newsletter.index') }}" method="GET" class="flex gap-4 items-end">
-        <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Ara</label>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="E-posta ara..." class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-        </div>
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Durum</label>
-            <select name="status" class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500">
-                <option value="">Tumu</option>
-                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
-                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Iptal</option>
-            </select>
+            <h1 class="text-2xl font-semibold text-slate-900">Bulten Aboneleri</h1>
+            <p class="text-sm text-slate-500 mt-1">E-posta aboneliklerini yonetin</p>
         </div>
-        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">Filtrele</button>
-        <a href="{{ route('admin.newsletter.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Temizle</a>
-    </form>
-</div>
-
-<div class="bg-white rounded-lg overflow-hidden">
-    <table class="w-full">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">
-                    <input type="checkbox" id="select-all" class="rounded text-purple-600">
-                </th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">E-posta</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Durum</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Abone Tarihi</th>
-                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Iptal Tarihi</th>
-                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">Islemler</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y">
-            @forelse($subscribers as $subscriber)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3">
-                        <input type="checkbox" name="selected[]" value="{{ $subscriber->id }}" class="subscriber-checkbox rounded text-purple-600">
-                    </td>
-                    <td class="px-4 py-3 font-medium">{{ $subscriber->email }}</td>
-                    <td class="px-4 py-3 text-center">
-                        <form action="{{ route('admin.newsletter.toggle-status', $subscriber) }}" method="POST" class="inline">
-                            @csrf @method('PATCH')
-                            <button type="submit" class="px-2 py-1 rounded text-xs {{ $subscriber->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                {{ $subscriber->is_active ? 'Aktif' : 'Iptal' }}
-                            </button>
-                        </form>
-                    </td>
-                    <td class="px-4 py-3 text-center text-sm text-gray-600">{{ $subscriber->subscribed_at?->format('d.m.Y H:i') ?? '-' }}</td>
-                    <td class="px-4 py-3 text-center text-sm text-gray-600">{{ $subscriber->unsubscribed_at?->format('d.m.Y H:i') ?? '-' }}</td>
-                    <td class="px-4 py-3 text-right">
-                        <form action="{{ route('admin.newsletter.destroy', $subscriber) }}" method="POST" class="inline" onsubmit="return confirm('Silmek istediginize emin misiniz?')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">Henuz abone yok.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-
-@if($subscribers->hasPages())
-    <div class="mt-6">
-        {{ $subscribers->links() }}
+        <x-admin.button href="{{ route('admin.newsletter.export', request()->all()) }}" variant="success" icon="fa-download">
+            CSV Indir
+        </x-admin.button>
     </div>
-@endif
 
-<!-- Bulk Actions -->
-<form action="{{ route('admin.newsletter.bulk-delete') }}" method="POST" id="bulk-form" class="hidden">
-    @csrf
-    <input type="hidden" name="ids" id="bulk-ids">
-</form>
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <x-admin.stats-card
+            title="Toplam Abone"
+            :value="$stats['total']"
+            icon="fa-users"
+            color="primary"
+        />
+        <x-admin.stats-card
+            title="Aktif Aboneler"
+            :value="$stats['active']"
+            icon="fa-user-check"
+            color="success"
+        />
+        <x-admin.stats-card
+            title="Iptal Edenler"
+            :value="$stats['inactive']"
+            icon="fa-user-times"
+            color="danger"
+        />
+    </div>
 
-<div id="bulk-actions" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg px-6 py-3 hidden">
-    <span id="selected-count" class="mr-4 text-gray-600">0 secili</span>
-    <button type="button" onclick="bulkDelete()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-        <i class="fas fa-trash mr-2"></i>Sil
-    </button>
-</div>
+    <!-- Filters -->
+    <x-admin.card class="mb-6" :padding="false">
+        <form action="{{ route('admin.newsletter.index') }}" method="GET" class="p-4">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <x-admin.form-input
+                        name="search"
+                        placeholder="E-posta adresi ile ara..."
+                        :value="request('search')"
+                        icon="fa-search"
+                    />
+                </div>
+                <div class="w-full sm:w-48">
+                    <x-admin.form-select
+                        name="status"
+                        :value="request('status')"
+                        :options="['' => 'Tum Durumlar', 'active' => 'Aktif', 'inactive' => 'Iptal']"
+                        placeholder="Durum Sec"
+                    />
+                </div>
+                <div class="flex gap-2">
+                    <x-admin.button type="submit" variant="secondary" icon="fa-filter">
+                        Filtrele
+                    </x-admin.button>
+                    @if(request()->hasAny(['search', 'status']))
+                        <x-admin.button href="{{ route('admin.newsletter.index') }}" variant="ghost">
+                            Temizle
+                        </x-admin.button>
+                    @endif
+                </div>
+            </div>
+        </form>
+    </x-admin.card>
 
-<script>
-document.getElementById('select-all').addEventListener('change', function() {
-    document.querySelectorAll('.subscriber-checkbox').forEach(cb => cb.checked = this.checked);
-    updateBulkActions();
-});
+    <!-- Subscribers Table -->
+    <x-admin.data-table
+        :selectable="true"
+        :headers="[
+            'E-posta',
+            ['label' => 'Durum', 'class' => 'text-center', 'width' => '120px'],
+            ['label' => 'Abone Tarihi', 'class' => 'text-center', 'width' => '160px'],
+            ['label' => 'Iptal Tarihi', 'class' => 'text-center', 'width' => '160px'],
+            ['label' => 'Islemler', 'class' => 'text-right', 'width' => '100px']
+        ]"
+        x-data="{
+            selectedIds: [],
+            selectAll: false,
+            toggleAll(checked) {
+                this.selectAll = checked;
+                this.selectedIds = checked
+                    ? Array.from(document.querySelectorAll('.subscriber-checkbox')).map(cb => cb.value)
+                    : [];
+            },
+            toggleOne(id, checked) {
+                if (checked && !this.selectedIds.includes(id)) {
+                    this.selectedIds.push(id);
+                } else if (!checked) {
+                    this.selectedIds = this.selectedIds.filter(i => i !== id);
+                }
+            }
+        }"
+        @select-all.window="toggleAll($event.detail)"
+    >
+        @forelse($subscribers as $subscriber)
+            <tr class="hover:bg-slate-50">
+                <td class="px-4 py-3">
+                    <input type="checkbox"
+                           class="subscriber-checkbox w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                           value="{{ $subscriber->id }}"
+                           @change="toggleOne('{{ $subscriber->id }}', $event.target.checked)"
+                           :checked="selectedIds.includes('{{ $subscriber->id }}')">
+                </td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-envelope text-slate-400"></i>
+                        </div>
+                        <span class="text-sm font-medium text-slate-900">{{ $subscriber->email }}</span>
+                    </div>
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <form action="{{ route('admin.newsletter.toggle-status', $subscriber) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="inline-flex">
+                            @if($subscriber->is_active)
+                                <x-admin.badge variant="success" size="sm" dot>Aktif</x-admin.badge>
+                            @else
+                                <x-admin.badge variant="danger" size="sm" dot>Iptal</x-admin.badge>
+                            @endif
+                        </button>
+                    </form>
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <span class="text-sm text-slate-500">
+                        {{ $subscriber->subscribed_at?->format('d.m.Y H:i') ?? '-' }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                    <span class="text-sm text-slate-500">
+                        {{ $subscriber->unsubscribed_at?->format('d.m.Y H:i') ?? '-' }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <form action="{{ route('admin.newsletter.destroy', $subscriber) }}"
+                          method="POST"
+                          class="inline"
+                          onsubmit="return confirm('Bu aboneyi silmek istediginize emin misiniz?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Sil">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="6" class="px-4 py-12">
+                    <x-admin.empty-state
+                        icon="fa-envelope"
+                        title="Abone bulunamadi"
+                        description="Henuz bulten abonesi yok veya arama kriterlerinize uygun sonuc bulunamadi."
+                    />
+                </td>
+            </tr>
+        @endforelse
 
-document.querySelectorAll('.subscriber-checkbox').forEach(cb => {
-    cb.addEventListener('change', updateBulkActions);
-});
-
-function updateBulkActions() {
-    const checked = document.querySelectorAll('.subscriber-checkbox:checked');
-    const bulkActions = document.getElementById('bulk-actions');
-    const count = document.getElementById('selected-count');
-
-    if (checked.length > 0) {
-        bulkActions.classList.remove('hidden');
-        count.textContent = checked.length + ' secili';
-    } else {
-        bulkActions.classList.add('hidden');
-    }
-}
-
-function bulkDelete() {
-    if (!confirm('Secili aboneleri silmek istediginize emin misiniz?')) return;
-
-    const ids = Array.from(document.querySelectorAll('.subscriber-checkbox:checked')).map(cb => cb.value);
-    document.getElementById('bulk-ids').value = JSON.stringify(ids);
-    document.getElementById('bulk-form').submit();
-}
-</script>
+        <x-slot:footer>
+            <div class="flex items-center justify-between">
+                <div x-show="selectedIds.length > 0" x-cloak class="flex items-center gap-3">
+                    <span class="text-sm text-slate-600">
+                        <span x-text="selectedIds.length"></span> abone secildi
+                    </span>
+                    <form action="{{ route('admin.newsletter.bulk-delete') }}" method="POST" class="inline"
+                          onsubmit="return confirm('Secili aboneleri silmek istediginize emin misiniz?')">
+                        @csrf
+                        <input type="hidden" name="ids" :value="JSON.stringify(selectedIds)">
+                        <x-admin.button type="submit" variant="danger" size="sm" icon="fa-trash">
+                            Secilenleri Sil
+                        </x-admin.button>
+                    </form>
+                </div>
+                <div x-show="selectedIds.length === 0" class="text-sm text-slate-500">
+                    {{ $subscribers->total() }} abone
+                </div>
+                <div>
+                    {{ $subscribers->links() }}
+                </div>
+            </div>
+        </x-slot:footer>
+    </x-admin.data-table>
 @endsection

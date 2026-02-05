@@ -1,96 +1,309 @@
 @extends('layouts.admin')
+
 @section('title', 'Yeni Urun')
+
+@section('breadcrumb')
+    <a href="{{ route('admin.products.index') }}" class="text-slate-500 hover:text-slate-700">Urunler</a>
+    <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+    <span class="text-slate-700 font-medium">Yeni Urun</span>
+@endsection
+
 @section('content')
-<div class="flex items-center gap-2 mb-6"><a href="{{ route('admin.products.index') }}" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a><h2 class="text-xl font-semibold">Yeni Urun</h2></div>
-<form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
-    @csrf
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Basic Info -->
-            <div class="bg-white rounded-lg p-6">
-                <h3 class="font-semibold mb-4">Temel Bilgiler</h3>
-                <div class="space-y-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Urun Adi *</label><input type="text" name="name" value="{{ old('name') }}" required class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Slug</label><input type="text" name="slug" value="{{ old('slug') }}" placeholder="Otomatik olusturulur" class="w-full border rounded-lg px-4 py-2"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Kategori *</label><select name="category_id" required class="w-full border rounded-lg px-4 py-2"><option value="">Secin</option>@foreach($categories as $cat)<optgroup label="{{ $cat->name }}">@foreach($cat->children as $child)<option value="{{ $child->id }}" {{ old('category_id') == $child->id ? 'selected' : '' }}>{{ $child->name }}</option>@endforeach @if($cat->children->isEmpty())<option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>@endif</optgroup>@endforeach</select></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Kisa Aciklama</label><textarea name="short_description" rows="2" class="w-full border rounded-lg px-4 py-2">{{ old('short_description') }}</textarea></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Aciklama</label><textarea name="description" rows="5" class="w-full border rounded-lg px-4 py-2">{{ old('description') }}</textarea></div>
-                </div>
-            </div>
-
-            <!-- Images -->
-            <div class="bg-white rounded-lg p-6">
-                <h3 class="font-semibold mb-4">Gorseller</h3>
-                <input type="file" name="images[]" multiple accept="image/*" class="w-full border rounded-lg px-4 py-2">
-                <p class="text-xs text-gray-500 mt-1">Birden fazla gorsel secebilirsiniz. Ilk gorsel ana gorsel olacaktir.</p>
-            </div>
-
-            <!-- Specifications -->
-            <div class="bg-white rounded-lg p-6" x-data="{ specs: [{ key: '', value: '', unit: '' }] }">
-                <h3 class="font-semibold mb-4">Ozellikler (Boyut, Malzeme vb.)</h3>
-                <template x-for="(spec, index) in specs" :key="index">
-                    <div class="grid grid-cols-4 gap-2 mb-2">
-                        <input type="text" :name="'specifications['+index+'][key]'" x-model="spec.key" placeholder="Ozellik" class="border rounded px-3 py-2">
-                        <input type="text" :name="'specifications['+index+'][value]'" x-model="spec.value" placeholder="Deger" class="border rounded px-3 py-2">
-                        <input type="text" :name="'specifications['+index+'][unit]'" x-model="spec.unit" placeholder="Birim" class="border rounded px-3 py-2">
-                        <button type="button" @click="specs.splice(index, 1)" class="text-red-500"><i class="fas fa-trash"></i></button>
-                    </div>
-                </template>
-                <button type="button" @click="specs.push({ key: '', value: '', unit: '' })" class="text-purple-600 text-sm"><i class="fas fa-plus mr-1"></i>Ozellik Ekle</button>
-            </div>
-
-            <!-- Features -->
-            <div class="bg-white rounded-lg p-6" x-data="{ features: [''] }">
-                <h3 class="font-semibold mb-4">Ozellikler (Checkmark Listesi)</h3>
-                <template x-for="(feature, index) in features" :key="index">
-                    <div class="flex gap-2 mb-2">
-                        <input type="text" :name="'features['+index+']'" x-model="features[index]" placeholder="Ozellik" class="flex-1 border rounded px-3 py-2">
-                        <button type="button" @click="features.splice(index, 1)" class="text-red-500"><i class="fas fa-trash"></i></button>
-                    </div>
-                </template>
-                <button type="button" @click="features.push('')" class="text-purple-600 text-sm"><i class="fas fa-plus mr-1"></i>Ozellik Ekle</button>
-            </div>
-
-            <!-- Variants -->
-            <div class="bg-white rounded-lg p-6" x-data="{ variants: [] }">
-                <h3 class="font-semibold mb-4">Varyantlar (Renk, Boyut vb.)</h3>
-                <template x-for="(variant, index) in variants" :key="index">
-                    <div class="grid grid-cols-5 gap-2 mb-2">
-                        <input type="text" :name="'variants['+index+'][name]'" x-model="variant.name" placeholder="Varyant Adi" class="border rounded px-3 py-2">
-                        <input type="text" :name="'variants['+index+'][sku]'" x-model="variant.sku" placeholder="SKU" class="border rounded px-3 py-2">
-                        <input type="number" :name="'variants['+index+'][price_difference]'" x-model="variant.price_difference" placeholder="Fiyat Farki" step="0.01" class="border rounded px-3 py-2">
-                        <input type="number" :name="'variants['+index+'][stock]'" x-model="variant.stock" placeholder="Stok" min="0" class="border rounded px-3 py-2">
-                        <button type="button" @click="variants.splice(index, 1)" class="text-red-500"><i class="fas fa-trash"></i></button>
-                    </div>
-                </template>
-                <button type="button" @click="variants.push({ name: '', sku: '', price_difference: 0, stock: 0 })" class="text-purple-600 text-sm"><i class="fas fa-plus mr-1"></i>Varyant Ekle</button>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="space-y-6">
-            <div class="bg-white rounded-lg p-6">
-                <h3 class="font-semibold mb-4">Fiyat & Stok</h3>
-                <div class="space-y-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Fiyat (TL) *</label><input type="number" name="price" value="{{ old('price') }}" step="0.01" min="0" required class="w-full border rounded-lg px-4 py-2"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Indirimli Fiyat (TL)</label><input type="number" name="sale_price" value="{{ old('sale_price') }}" step="0.01" min="0" class="w-full border rounded-lg px-4 py-2"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">SKU</label><input type="text" name="sku" value="{{ old('sku') }}" class="w-full border rounded-lg px-4 py-2"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Stok</label><input type="number" name="stock" value="{{ old('stock', 0) }}" min="0" class="w-full border rounded-lg px-4 py-2"></div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg p-6">
-                <h3 class="font-semibold mb-4">Durum</h3>
-                <div class="space-y-3">
-                    <label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }} class="rounded text-purple-600">Aktif</label>
-                    <label class="flex items-center gap-2"><input type="checkbox" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }} class="rounded text-purple-600">One Cikan</label>
-                    <label class="flex items-center gap-2"><input type="checkbox" name="is_new" value="1" {{ old('is_new') ? 'checked' : '' }} class="rounded text-purple-600">Yeni Urun</label>
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <button type="submit" class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700">Kaydet</button>
-                <a href="{{ route('admin.products.index') }}" class="px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300">Iptal</a>
-            </div>
-        </div>
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-slate-900">Yeni Urun</h1>
+        <p class="text-sm text-slate-500 mt-1">Yeni bir urun ekleyin</p>
     </div>
-</form>
+
+    <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic Info -->
+                <x-admin.card title="Temel Bilgiler">
+                    <div class="space-y-4">
+                        <x-admin.form-input
+                            name="name"
+                            label="Urun Adi"
+                            placeholder="Urun adini girin"
+                            required
+                        />
+
+                        <x-admin.form-input
+                            name="slug"
+                            label="Slug"
+                            placeholder="Otomatik olusturulur"
+                            hint="Bos birakırsaniz urun adindan otomatik olusturulur"
+                        />
+
+                        <x-admin.form-select
+                            name="category_id"
+                            label="Kategori"
+                            required
+                            :options="$categories->flatMap(function($cat) {
+                                $options = [];
+                                if ($cat->children->isEmpty()) {
+                                    $options[$cat->id] = $cat->name;
+                                } else {
+                                    foreach ($cat->children as $child) {
+                                        $options[$child->id] = $cat->name . ' > ' . $child->name;
+                                    }
+                                }
+                                return $options;
+                            })->toArray()"
+                            placeholder="Kategori secin"
+                        />
+
+                        <x-admin.form-textarea
+                            name="short_description"
+                            label="Kisa Aciklama"
+                            :rows="2"
+                            placeholder="Urun hakkinda kisa bir aciklama"
+                            hint="Maksimum 500 karakter"
+                        />
+
+                        <x-admin.form-textarea
+                            name="description"
+                            label="Detayli Aciklama"
+                            :rows="5"
+                            placeholder="Urunun detayli aciklamasi"
+                        />
+                    </div>
+                </x-admin.card>
+
+                <!-- Images -->
+                <x-admin.card title="Gorseller">
+                    <x-admin.form-image
+                        name="images"
+                        label="Urun Gorselleri"
+                        multiple
+                        hint="Birden fazla gorsel secebilirsiniz. Ilk gorsel ana gorsel olacaktir."
+                    />
+                </x-admin.card>
+
+                <!-- Specifications -->
+                <x-admin.card title="Teknik Ozellikler">
+                    <p class="text-sm text-slate-500 mb-4">Boyut, malzeme, agirlik gibi teknik ozellikleri ekleyin</p>
+
+                    <div x-data="{ specs: [{ key: '', value: '', unit: '' }] }">
+                        <template x-for="(spec, index) in specs" :key="index">
+                            <div class="grid grid-cols-12 gap-3 mb-3">
+                                <div class="col-span-4">
+                                    <input type="text"
+                                           :name="'specifications['+index+'][key]'"
+                                           x-model="spec.key"
+                                           placeholder="Ozellik (ör: Boyut)"
+                                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                </div>
+                                <div class="col-span-4">
+                                    <input type="text"
+                                           :name="'specifications['+index+'][value]'"
+                                           x-model="spec.value"
+                                           placeholder="Deger (ör: 120x80)"
+                                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                </div>
+                                <div class="col-span-3">
+                                    <input type="text"
+                                           :name="'specifications['+index+'][unit]'"
+                                           x-model="spec.unit"
+                                           placeholder="Birim (ör: cm)"
+                                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                </div>
+                                <div class="col-span-1 flex items-center justify-center">
+                                    <button type="button"
+                                            @click="specs.splice(index, 1)"
+                                            class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <x-admin.button type="button"
+                                        @click="specs.push({ key: '', value: '', unit: '' })"
+                                        variant="ghost"
+                                        size="sm"
+                                        icon="fa-plus">
+                            Ozellik Ekle
+                        </x-admin.button>
+                    </div>
+                </x-admin.card>
+
+                <!-- Features -->
+                <x-admin.card title="Urun Ozellikleri">
+                    <p class="text-sm text-slate-500 mb-4">Urunun one cikan ozelliklerini listeleyin (checkmark listesi olarak gorunur)</p>
+
+                    <div x-data="{ features: [''] }">
+                        <template x-for="(feature, index) in features" :key="index">
+                            <div class="flex gap-3 mb-3">
+                                <div class="flex-1">
+                                    <input type="text"
+                                           :name="'features['+index+']'"
+                                           x-model="features[index]"
+                                           placeholder="Ozellik (ör: Kolay temizlenebilir yuzey)"
+                                           class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                </div>
+                                <button type="button"
+                                        @click="features.splice(index, 1)"
+                                        class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </template>
+
+                        <x-admin.button type="button"
+                                        @click="features.push('')"
+                                        variant="ghost"
+                                        size="sm"
+                                        icon="fa-plus">
+                            Ozellik Ekle
+                        </x-admin.button>
+                    </div>
+                </x-admin.card>
+
+                <!-- Variants -->
+                <x-admin.card title="Varyantlar">
+                    <p class="text-sm text-slate-500 mb-4">Renk, boyut gibi urun varyantlarini ekleyin</p>
+
+                    <div x-data="{ variants: [] }">
+                        <template x-for="(variant, index) in variants" :key="index">
+                            <div class="p-4 bg-slate-50 rounded-lg mb-3">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">Varyant Adi</label>
+                                        <input type="text"
+                                               :name="'variants['+index+'][name]'"
+                                               x-model="variant.name"
+                                               placeholder="ör: Kirmizi"
+                                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">SKU</label>
+                                        <input type="text"
+                                               :name="'variants['+index+'][sku]'"
+                                               x-model="variant.sku"
+                                               placeholder="Opsiyonel"
+                                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">Fiyat Farki (TL)</label>
+                                        <input type="number"
+                                               :name="'variants['+index+'][price_difference]'"
+                                               x-model="variant.price_difference"
+                                               step="0.01"
+                                               placeholder="0.00"
+                                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-500 mb-1">Stok</label>
+                                        <input type="number"
+                                               :name="'variants['+index+'][stock]'"
+                                               x-model="variant.stock"
+                                               min="0"
+                                               placeholder="0"
+                                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200">
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-right">
+                                    <button type="button"
+                                            @click="variants.splice(index, 1)"
+                                            class="text-sm text-rose-600 hover:text-rose-700">
+                                        <i class="fas fa-trash mr-1"></i> Varyanti Kaldir
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <x-admin.button type="button"
+                                        @click="variants.push({ name: '', sku: '', price_difference: 0, stock: 0 })"
+                                        variant="ghost"
+                                        size="sm"
+                                        icon="fa-plus">
+                            Varyant Ekle
+                        </x-admin.button>
+                    </div>
+                </x-admin.card>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Price & Stock -->
+                <x-admin.card title="Fiyat & Stok">
+                    <div class="space-y-4">
+                        <x-admin.form-input
+                            name="price"
+                            type="number"
+                            label="Fiyat"
+                            step="0.01"
+                            min="0"
+                            required
+                            suffix="TL"
+                        />
+
+                        <x-admin.form-input
+                            name="sale_price"
+                            type="number"
+                            label="Indirimli Fiyat"
+                            step="0.01"
+                            min="0"
+                            suffix="TL"
+                            hint="Indirim yoksa bos birakin"
+                        />
+
+                        <x-admin.form-input
+                            name="sku"
+                            label="SKU"
+                            placeholder="Stok Kodu"
+                        />
+
+                        <x-admin.form-input
+                            name="stock"
+                            type="number"
+                            label="Stok Miktari"
+                            min="0"
+                            :value="0"
+                        />
+                    </div>
+                </x-admin.card>
+
+                <!-- Status -->
+                <x-admin.card title="Durum">
+                    <div class="space-y-4">
+                        <x-admin.form-toggle
+                            name="is_active"
+                            label="Aktif"
+                            description="Urun sitede gorunur"
+                            :checked="true"
+                        />
+
+                        <x-admin.form-toggle
+                            name="is_featured"
+                            label="One Cikan"
+                            description="Ana sayfada one cikan urunlerde gosterilir"
+                        />
+
+                        <x-admin.form-toggle
+                            name="is_new"
+                            label="Yeni Urun"
+                            description="Yeni urun etiketi gosterilir"
+                        />
+                    </div>
+                </x-admin.card>
+
+                <!-- Actions -->
+                <x-admin.card>
+                    <div class="space-y-3">
+                        <x-admin.button type="submit" class="w-full" icon="fa-check">
+                            Urunu Kaydet
+                        </x-admin.button>
+                        <x-admin.button href="{{ route('admin.products.index') }}" variant="ghost" class="w-full">
+                            Iptal
+                        </x-admin.button>
+                    </div>
+                </x-admin.card>
+            </div>
+        </div>
+    </form>
 @endsection

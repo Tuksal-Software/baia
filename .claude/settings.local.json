@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.tikamoon.de)",
+      "Bash(php artisan:*)",
+      "Bash(mklink:*)",
+      "Bash(cmd.exe /c \"cd /d D:\\\\Projects\\\\baia\\\\public && mklink /D storage ..\\\\storage\\\\app\\\\public\")",
+      "Bash(composer dump-autoload:*)",
+      "Bash(php -l:*)",
+      "Bash(cd:*)"
+    ]
+  }
+}

@@ -10,7 +10,7 @@
                     @foreach($cart->items as $item)
                         <div class="flex gap-4 p-4 border-b">
                             @if($item->product->primaryImage)
-                                <img src="{{ asset('storage/' . $item->product->primaryImage->image_path) }}" alt="{{ $item->product->name }}" class="w-24 h-24 object-cover rounded">
+                                <img src="{{ $item->product->primaryImage->image_url }}" alt="{{ $item->product->name }}" class="w-24 h-24 object-cover rounded">
                             @else
                                 <div class="w-24 h-24 bg-gray-200 rounded flex items-center justify-center"><i class="fas fa-image text-gray-400"></i></div>
                             @endif

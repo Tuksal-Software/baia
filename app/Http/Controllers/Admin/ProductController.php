@@ -9,29 +9,25 @@ use App\Models\ProductFeature;
 use App\Models\ProductImage;
 use App\Models\ProductSpecification;
 use App\Models\ProductVariant;
+use App\Traits\HandlesFileUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    /**
-     * Display product list
-     */
+    use HandlesFileUploads;
+
     public function index(Request $request): View
     {
-        $query = Product::with(['category', 'primaryImage'])
-            ->withCount('variants');
+        $query = Product::with(['category', 'primaryImage'])->withCount('variants');
 
-        // Filter by category
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Filter by status
         if ($request->filled('status')) {
             match ($request->status) {
                 'active' => $query->active(),
@@ -43,7 +39,6 @@ class ProductController extends Controller
             };
         }
 
-        // Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -58,22 +53,12 @@ class ProductController extends Controller
         return view('admin.products.index', compact('products', 'categories'));
     }
 
-    /**
-     * Show create form
-     */
     public function create(): View
     {
-        $categories = Category::with('children')
-            ->active()
-            ->ordered()
-            ->get();
-
+        $categories = Category::with('children')->active()->ordered()->get();
         return view('admin.products.create', compact('categories'));
     }
 
-    /**
-     * Store new product
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -89,18 +74,14 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'is_new' => 'boolean',
-            // Images
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:4096',
-            // Specifications
             'specifications' => 'nullable|array',
             'specifications.*.key' => 'required_with:specifications|string|max:100',
             'specifications.*.value' => 'required_with:specifications|string|max:255',
             'specifications.*.unit' => 'nullable|string|max:50',
-            // Features
             'features' => 'nullable|array',
             'features.*' => 'string|max:255',
-            // Variants
             'variants' => 'nullable|array',
             'variants.*.name' => 'required_with:variants|string|max:255',
             'variants.*.sku' => 'nullable|string|max:100',
@@ -108,7 +89,6 @@ class ProductController extends Controller
             'variants.*.stock' => 'nullable|integer|min:0',
         ]);
 
-        // Generate slug if not provided
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
         }
@@ -116,7 +96,6 @@ class ProductController extends Controller
         DB::beginTransaction();
 
         try {
-            // Create product
             $product = Product::create([
                 'name' => $validated['name'],
                 'slug' => $validated['slug'],
@@ -135,7 +114,7 @@ class ProductController extends Controller
             // Handle images
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('products', 'public');
+                    $path = $this->uploadFile($image, 'products');
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => $path,
@@ -202,9 +181,6 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Show product details
-     */
     public function show(Product $product): View
     {
         $product->load([
@@ -219,24 +195,14 @@ class ProductController extends Controller
         return view('admin.products.show', compact('product'));
     }
 
-    /**
-     * Show edit form
-     */
     public function edit(Product $product): View
     {
         $product->load(['images', 'specifications', 'features', 'variants']);
-
-        $categories = Category::with('children')
-            ->active()
-            ->ordered()
-            ->get();
+        $categories = Category::with('children')->active()->ordered()->get();
 
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    /**
-     * Update product
-     */
     public function update(Request $request, Product $product): RedirectResponse
     {
         $validated = $request->validate([
@@ -252,18 +218,14 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'is_new' => 'boolean',
-            // New images
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:4096',
-            // Specifications
             'specifications' => 'nullable|array',
             'specifications.*.key' => 'required_with:specifications|string|max:100',
             'specifications.*.value' => 'required_with:specifications|string|max:255',
             'specifications.*.unit' => 'nullable|string|max:50',
-            // Features
             'features' => 'nullable|array',
             'features.*' => 'string|max:255',
-            // Variants
             'variants' => 'nullable|array',
             'variants.*.id' => 'nullable|exists:product_variants,id',
             'variants.*.name' => 'required_with:variants|string|max:255',
@@ -273,7 +235,6 @@ class ProductController extends Controller
             'variants.*.is_active' => 'boolean',
         ]);
 
-        // Generate slug if not provided
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
         }
@@ -281,7 +242,6 @@ class ProductController extends Controller
         DB::beginTransaction();
 
         try {
-            // Update product
             $product->update([
                 'name' => $validated['name'],
                 'slug' => $validated['slug'],
@@ -301,7 +261,7 @@ class ProductController extends Controller
             if ($request->hasFile('images')) {
                 $maxOrder = $product->images()->max('order') ?? -1;
                 foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('products', 'public');
+                    $path = $this->uploadFile($image, 'products');
                     ProductImage::create([
                         'product_id' => $product->id,
                         'image_path' => $path,
@@ -311,7 +271,7 @@ class ProductController extends Controller
                 }
             }
 
-            // Update specifications (delete and recreate)
+            // Update specifications
             $product->specifications()->delete();
             if (!empty($validated['specifications'])) {
                 foreach ($validated['specifications'] as $index => $spec) {
@@ -327,7 +287,7 @@ class ProductController extends Controller
                 }
             }
 
-            // Update features (delete and recreate)
+            // Update features
             $product->features()->delete();
             if (!empty($validated['features'])) {
                 foreach ($validated['features'] as $index => $feature) {
@@ -347,7 +307,6 @@ class ProductController extends Controller
                 foreach ($validated['variants'] as $variantData) {
                     if (!empty($variantData['name'])) {
                         if (!empty($variantData['id'])) {
-                            // Update existing
                             $variant = ProductVariant::find($variantData['id']);
                             if ($variant && $variant->product_id === $product->id) {
                                 $variant->update([
@@ -360,7 +319,6 @@ class ProductController extends Controller
                                 $existingVariantIds[] = $variant->id;
                             }
                         } else {
-                            // Create new
                             $variant = ProductVariant::create([
                                 'product_id' => $product->id,
                                 'name' => $variantData['name'],
@@ -374,7 +332,6 @@ class ProductController extends Controller
                     }
                 }
             }
-            // Delete removed variants
             $product->variants()->whereNotIn('id', $existingVariantIds)->delete();
 
             DB::commit();
@@ -390,33 +347,25 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Delete product
-     */
     public function destroy(Product $product): RedirectResponse
     {
-        // Delete images from storage
         foreach ($product->images as $image) {
-            Storage::disk('public')->delete($image->image_path);
+            $this->deleteFile($image->image_path);
         }
 
-        $product->delete(); // Soft delete
+        $product->delete();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Ürün başarıyla silindi.');
     }
 
-    /**
-     * Delete product image
-     */
     public function deleteImage(ProductImage $image): RedirectResponse
     {
         $product = $image->product;
 
-        Storage::disk('public')->delete($image->image_path);
+        $this->deleteFile($image->image_path);
         $image->delete();
 
-        // If deleted image was primary, set first remaining as primary
         if ($image->is_primary) {
             $firstImage = $product->images()->first();
             if ($firstImage) {
@@ -424,52 +373,31 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->back()
-            ->with('success', 'Resim silindi.');
+        return redirect()->back()->with('success', 'Resim silindi.');
     }
 
-    /**
-     * Set image as primary
-     */
     public function setPrimaryImage(ProductImage $image): RedirectResponse
     {
         $image->setAsPrimary();
-
-        return redirect()->back()
-            ->with('success', 'Ana resim değiştirildi.');
+        return redirect()->back()->with('success', 'Ana resim değiştirildi.');
     }
 
-    /**
-     * Toggle product status
-     */
     public function toggleStatus(Product $product): RedirectResponse
     {
-        $product->is_active = !$product->is_active;
-        $product->save();
-
+        $product->update(['is_active' => !$product->is_active]);
         $status = $product->is_active ? 'aktif' : 'pasif';
 
-        return redirect()->back()
-            ->with('success', "Ürün {$status} yapıldı.");
+        return redirect()->back()->with('success', "Ürün {$status} yapıldı.");
     }
 
-    /**
-     * Toggle featured status
-     */
     public function toggleFeatured(Product $product): RedirectResponse
     {
-        $product->is_featured = !$product->is_featured;
-        $product->save();
-
+        $product->update(['is_featured' => !$product->is_featured]);
         $status = $product->is_featured ? 'öne çıkarıldı' : 'öne çıkarılmaktan kaldırıldı';
 
-        return redirect()->back()
-            ->with('success', "Ürün {$status}.");
+        return redirect()->back()->with('success', "Ürün {$status}.");
     }
 
-    /**
-     * Bulk actions
-     */
     public function bulkAction(Request $request): RedirectResponse
     {
         $request->validate([
@@ -488,7 +416,6 @@ class ProductController extends Controller
             'delete' => $products->delete(),
         };
 
-        return redirect()->back()
-            ->with('success', 'Toplu işlem başarıyla uygulandı.');
+        return redirect()->back()->with('success', 'Toplu işlem başarıyla uygulandı.');
     }
 }

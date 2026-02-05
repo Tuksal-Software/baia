@@ -19,7 +19,7 @@
             <div class="bg-white rounded-lg overflow-hidden mb-4">
                 @if($product->images->count() > 0)
                     @foreach($product->images as $index => $image)
-                        <img x-show="activeImage === {{ $index }}" src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $product->name }}" class="w-full h-96 object-contain">
+                        <img x-show="activeImage === {{ $index }}" src="{{ $image->image_url }}" alt="{{ $product->name }}" class="w-full h-96 object-contain">
                     @endforeach
                 @else
                     <div class="w-full h-96 bg-gray-200 flex items-center justify-center"><i class="fas fa-image text-6xl text-gray-400"></i></div>
@@ -29,7 +29,7 @@
                 <div class="grid grid-cols-5 gap-2">
                     @foreach($product->images as $index => $image)
                         <button @click="activeImage = {{ $index }}" :class="activeImage === {{ $index }} ? 'ring-2 ring-purple-600' : ''" class="rounded-lg overflow-hidden">
-                            <img src="{{ asset('storage/' . $image->image_path) }}" alt="" class="w-full h-20 object-cover">
+                            <img src="{{ $image->image_url }}" alt="" class="w-full h-20 object-cover">
                         </button>
                     @endforeach
                 </div>

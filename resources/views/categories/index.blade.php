@@ -7,7 +7,7 @@
         @foreach($categories as $category)
             <a href="{{ route('categories.show', $category) }}" class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden group">
                 @if($category->image)
-                    <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                    <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
                 @else
                     <div class="w-full h-40 bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center"><i class="fas fa-couch text-4xl text-white/50"></i></div>
                 @endif

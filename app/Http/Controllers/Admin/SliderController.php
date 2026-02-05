@@ -4,35 +4,27 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Slider;
+use App\Traits\HandlesFileUploads;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SliderController extends Controller
 {
-    /**
-     * Display slider list
-     */
+    use HandlesFileUploads;
+
     public function index(): View
     {
         $sliders = Slider::ordered()->get();
-
         return view('admin.sliders.index', compact('sliders'));
     }
 
-    /**
-     * Show create form
-     */
     public function create(): View
     {
         return view('admin.sliders.create');
     }
 
-    /**
-     * Store new slider
-     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -53,11 +45,10 @@ class SliderController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
-        // Handle image upload
-        $validated['image'] = $request->file('image')->store('sliders', 'public');
+        $validated['image'] = $this->uploadFile($request->file('image'), 'sliders');
 
         if ($request->hasFile('image_mobile')) {
-            $validated['image_mobile'] = $request->file('image_mobile')->store('sliders', 'public');
+            $validated['image_mobile'] = $this->uploadFile($request->file('image_mobile'), 'sliders');
         }
 
         $validated['is_active'] = $request->boolean('is_active', true);
@@ -69,17 +60,11 @@ class SliderController extends Controller
             ->with('success', 'Slider başarıyla oluşturuldu.');
     }
 
-    /**
-     * Show edit form
-     */
     public function edit(Slider $slider): View
     {
         return view('admin.sliders.edit', compact('slider'));
     }
 
-    /**
-     * Update slider
-     */
     public function update(Request $request, Slider $slider): RedirectResponse
     {
         $validated = $request->validate([
@@ -100,53 +85,38 @@ class SliderController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
-            Storage::disk('public')->delete($slider->image);
-            $validated['image'] = $request->file('image')->store('sliders', 'public');
+            $this->deleteFile($slider->image);
+            $validated['image'] = $this->uploadFile($request->file('image'), 'sliders');
         }
 
         if ($request->hasFile('image_mobile')) {
-            if ($slider->image_mobile) {
-                Storage::disk('public')->delete($slider->image_mobile);
-            }
-            $validated['image_mobile'] = $request->file('image_mobile')->store('sliders', 'public');
+            $this->deleteFile($slider->image_mobile);
+            $validated['image_mobile'] = $this->uploadFile($request->file('image_mobile'), 'sliders');
         }
 
-        // Handle image removal
         if ($request->boolean('remove_image_mobile') && $slider->image_mobile) {
-            Storage::disk('public')->delete($slider->image_mobile);
+            $this->deleteFile($slider->image_mobile);
             $validated['image_mobile'] = null;
         }
 
         $validated['is_active'] = $request->boolean('is_active');
-
         $slider->update($validated);
 
         return redirect()->route('admin.sliders.index')
             ->with('success', 'Slider başarıyla güncellendi.');
     }
 
-    /**
-     * Delete slider
-     */
     public function destroy(Slider $slider): RedirectResponse
     {
-        Storage::disk('public')->delete($slider->image);
-
-        if ($slider->image_mobile) {
-            Storage::disk('public')->delete($slider->image_mobile);
-        }
-
+        $this->deleteFile($slider->image);
+        $this->deleteFile($slider->image_mobile);
         $slider->delete();
 
         return redirect()->route('admin.sliders.index')
             ->with('success', 'Slider başarıyla silindi.');
     }
 
-    /**
-     * Update slider order (AJAX)
-     */
     public function updateOrder(Request $request): JsonResponse
     {
         $request->validate([
@@ -162,17 +132,11 @@ class SliderController extends Controller
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Toggle slider status
-     */
     public function toggleStatus(Slider $slider): RedirectResponse
     {
-        $slider->is_active = !$slider->is_active;
-        $slider->save();
-
+        $slider->update(['is_active' => !$slider->is_active]);
         $status = $slider->is_active ? 'aktif' : 'pasif';
 
-        return redirect()->back()
-            ->with('success', "Slider {$status} yapıldı.");
+        return redirect()->back()->with('success', "Slider {$status} yapıldı.");
     }
 }

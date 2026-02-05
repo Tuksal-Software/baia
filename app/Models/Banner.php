@@ -30,17 +30,11 @@ class Banner extends Model
         ];
     }
 
-    /**
-     * Scope for active banners
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope for published banners
-     */
     public function scopePublished($query)
     {
         return $query->active()
@@ -54,36 +48,29 @@ class Banner extends Model
             });
     }
 
-    /**
-     * Scope for position
-     */
     public function scopePosition($query, string $position)
     {
         return $query->where('position', $position);
     }
 
-    /**
-     * Scope ordered by order field
-     */
     public function scopeOrdered($query)
     {
         return $query->orderBy('order');
     }
 
-    /**
-     * Get the image URL
-     */
     public function getImageUrlAttribute(): string
     {
+        if (!$this->image) {
+            return '';
+        }
         if (str_starts_with($this->image, 'http')) {
             return $this->image;
         }
-        return asset('storage/' . $this->image);
+        // Handle both old (banners/...) and new (uploads/banners/...) path formats
+        $path = str_starts_with($this->image, 'uploads/') ? $this->image : 'uploads/' . $this->image;
+        return asset($path);
     }
 
-    /**
-     * Get the mobile image URL
-     */
     public function getMobileImageUrlAttribute(): ?string
     {
         if (!$this->image_mobile) {
@@ -92,6 +79,8 @@ class Banner extends Model
         if (str_starts_with($this->image_mobile, 'http')) {
             return $this->image_mobile;
         }
-        return asset('storage/' . $this->image_mobile);
+        // Handle both old and new path formats
+        $path = str_starts_with($this->image_mobile, 'uploads/') ? $this->image_mobile : 'uploads/' . $this->image_mobile;
+        return asset($path);
     }
 }
