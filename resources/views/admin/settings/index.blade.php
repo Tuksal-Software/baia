@@ -63,7 +63,7 @@
                             @case('textarea')
                                 <x-admin.form-textarea
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :hint="$setting->description"
                                     rows="3"
@@ -73,7 +73,7 @@
                             @case('boolean')
                                 <x-admin.form-toggle
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :description="$setting->description"
                                     :checked="old('settings.' . $setting->key, $setting->value)"
                                     value="1"
@@ -83,7 +83,7 @@
                             @case('image')
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                                        {{ $setting->label }}
+                                        {{ __($setting->label) }}
                                     </label>
                                     @if($setting->description)
                                         <p class="text-sm text-slate-500 mb-3">{{ $setting->description }}</p>
@@ -94,7 +94,7 @@
                                             <div class="relative" x-data="{ removed: false }" x-show="!removed">
                                                 <img src="{{ image_url($setting->value, 'settings') }}"
                                                      class="w-24 h-24 object-cover rounded-lg border border-slate-200"
-                                                     alt="{{ $setting->label }}">
+                                                     alt="{{ __($setting->label) }}">
                                                 <button type="button"
                                                         @click="removed = true; $refs.removeInput.checked = true"
                                                         class="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition-colors">
@@ -137,7 +137,7 @@
                                 @endphp
                                 <x-admin.form-select
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :options="$options"
                                     :placeholder="__('Choose...')"
@@ -147,7 +147,7 @@
                             @case('color')
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                                        {{ $setting->label }}
+                                        {{ __($setting->label) }}
                                     </label>
                                     @if($setting->description)
                                         <p class="text-sm text-slate-500 mb-3">{{ $setting->description }}</p>
@@ -173,7 +173,7 @@
                                 <x-admin.form-input
                                     type="number"
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :hint="$setting->description"
                                 />
@@ -183,7 +183,7 @@
                                 <x-admin.form-input
                                     type="email"
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :hint="$setting->description"
                                     icon="fa-envelope"
@@ -194,7 +194,7 @@
                                 <x-admin.form-input
                                     type="url"
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :hint="$setting->description"
                                     icon="fa-link"
@@ -205,7 +205,7 @@
                                 <x-admin.form-input
                                     type="tel"
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :hint="$setting->description"
                                     icon="fa-phone"
@@ -215,7 +215,7 @@
                             @default
                                 <x-admin.form-input
                                     name="settings[{{ $setting->key }}]"
-                                    :label="$setting->label"
+                                    :label="__($setting->label)"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :hint="$setting->description"
                                 />

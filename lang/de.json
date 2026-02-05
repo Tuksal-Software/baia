@@ -692,5 +692,30 @@
     "No description entered": "Keine Beschreibung eingegeben",
     "No reviews for this product yet": "Noch keine Bewertungen für dieses Produkt",
     "review": "Bewertung",
-    "variant": "Variante"
+    "variant": "Variante",
+
+    "General Settings": "Allgemeine Einstellungen",
+    "Header Settings": "Header-Einstellungen",
+    "Footer Settings": "Footer-Einstellungen",
+    "Contact Information": "Kontaktinformationen",
+    "Social Media": "Soziale Medien",
+    "SEO Settings": "SEO-Einstellungen",
+    "Settings updated successfully.": "Einstellungen erfolgreich aktualisiert.",
+
+    "Site Name": "Website-Name",
+    "Site Description": "Website-Beschreibung",
+    "Site Logo": "Website-Logo",
+    "Site Logo (Light)": "Website-Logo (Hell)",
+    "Announcement Bar": "Ankündigungsleiste",
+    "Announcement Link": "Ankündigungslink",
+    "Announcement Bar Active": "Ankündigungsleiste aktiv",
+    "Header Style": "Header-Stil",
+    "About Text": "Über uns Text",
+    "Copyright Text": "Copyright-Text",
+    "Show Payment Icons": "Zahlungssymbole anzeigen",
+    "Working Hours": "Arbeitszeiten",
+    "Meta Title": "Meta-Titel",
+    "Meta Description": "Meta-Beschreibung",
+    "Meta Keywords": "Meta-Schlüsselwörter",
+    "Google Analytics Code": "Google Analytics Code"
 }

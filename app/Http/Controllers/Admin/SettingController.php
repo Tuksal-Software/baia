@@ -16,12 +16,12 @@ class SettingController extends Controller
     public function index(Request $request): View
     {
         $groups = [
-            'general' => 'Genel Ayarlar',
-            'header' => 'Header Ayarları',
-            'footer' => 'Footer Ayarları',
-            'contact' => 'İletişim Bilgileri',
-            'social' => 'Sosyal Medya',
-            'seo' => 'SEO Ayarları',
+            'general' => __('General Settings'),
+            'header' => __('Header Settings'),
+            'footer' => __('Footer Settings'),
+            'contact' => __('Contact Information'),
+            'social' => __('Social Media'),
+            'seo' => __('SEO Settings'),
         ];
 
         $activeGroup = $request->get('group', 'general');
@@ -71,6 +71,6 @@ class SettingController extends Controller
         SiteSetting::clearCache();
 
         return redirect()->route('admin.settings.index', ['group' => $group])
-            ->with('success', 'Ayarlar başarıyla güncellendi.');
+            ->with('success', __('Settings updated successfully.'));
     }
 }

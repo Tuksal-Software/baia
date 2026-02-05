@@ -691,5 +691,30 @@
     "No description entered": "No description entered",
     "No reviews for this product yet": "No reviews for this product yet",
     "review": "review",
-    "variant": "variant"
+    "variant": "variant",
+
+    "General Settings": "General Settings",
+    "Header Settings": "Header Settings",
+    "Footer Settings": "Footer Settings",
+    "Contact Information": "Contact Information",
+    "Social Media": "Social Media",
+    "SEO Settings": "SEO Settings",
+    "Settings updated successfully.": "Settings updated successfully.",
+
+    "Site Name": "Site Name",
+    "Site Description": "Site Description",
+    "Site Logo": "Site Logo",
+    "Site Logo (Light)": "Site Logo (Light)",
+    "Announcement Bar": "Announcement Bar",
+    "Announcement Link": "Announcement Link",
+    "Announcement Bar Active": "Announcement Bar Active",
+    "Header Style": "Header Style",
+    "About Text": "About Text",
+    "Copyright Text": "Copyright Text",
+    "Show Payment Icons": "Show Payment Icons",
+    "Working Hours": "Working Hours",
+    "Meta Title": "Meta Title",
+    "Meta Description": "Meta Description",
+    "Meta Keywords": "Meta Keywords",
+    "Google Analytics Code": "Google Analytics Code"
 }

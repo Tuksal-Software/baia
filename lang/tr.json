@@ -692,5 +692,30 @@
     "No description entered": "Açıklama girilmemiş",
     "No reviews for this product yet": "Bu ürüne henüz yorum yapılmamış",
     "review": "yorum",
-    "variant": "varyant"
+    "variant": "varyant",
+
+    "General Settings": "Genel Ayarlar",
+    "Header Settings": "Header Ayarları",
+    "Footer Settings": "Footer Ayarları",
+    "Contact Information": "İletişim Bilgileri",
+    "Social Media": "Sosyal Medya",
+    "SEO Settings": "SEO Ayarları",
+    "Settings updated successfully.": "Ayarlar başarıyla güncellendi.",
+
+    "Site Name": "Site Adı",
+    "Site Description": "Site Açıklaması",
+    "Site Logo": "Site Logosu",
+    "Site Logo (Light)": "Site Logosu (Açık)",
+    "Announcement Bar": "Duyuru Bandı",
+    "Announcement Link": "Duyuru Linki",
+    "Announcement Bar Active": "Duyuru Bandı Aktif",
+    "Header Style": "Header Stili",
+    "About Text": "Hakkımızda Metni",
+    "Copyright Text": "Copyright Metni",
+    "Show Payment Icons": "Ödeme İkonlarını Göster",
+    "Working Hours": "Çalışma Saatleri",
+    "Meta Title": "Meta Başlık",
+    "Meta Description": "Meta Açıklama",
+    "Meta Keywords": "Meta Anahtar Kelimeler",
+    "Google Analytics Code": "Google Analytics Kodu"
 }
