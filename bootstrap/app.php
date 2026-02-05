@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         // Add SetLocale to web middleware group
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
