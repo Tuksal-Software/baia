@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Kullanicilar')
+@section('title', __('Users'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Kullanicilar</span>
+    <span class="text-slate-700 font-medium">{{ __('Users') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Kullanicilar</h1>
-            <p class="text-sm text-slate-500 mt-1">Tum kullanicilari yonetin</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Users') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ __('Manage all users') }}</p>
         </div>
         <x-admin.button href="{{ route('admin.users.create') }}" icon="fa-plus">
-            Yeni Kullanici
+            {{ __('New User') }}
         </x-admin.button>
     </div>
 
@@ -25,7 +25,7 @@
                 <div class="flex-1">
                     <x-admin.form-input
                         name="search"
-                        placeholder="Isim veya e-posta ile ara..."
+                        :placeholder="__('Search by name or email...')"
                         :value="request('search')"
                         icon="fa-search"
                     />
@@ -34,17 +34,17 @@
                     <x-admin.form-select
                         name="role"
                         :value="request('role')"
-                        :options="['' => 'Tum Roller', 'admin' => 'Admin', 'user' => 'Kullanici']"
-                        placeholder="Rol Sec"
+                        :options="['' => __('All Roles'), 'admin' => __('Admin'), 'user' => __('User')]"
+                        :placeholder="__('Select Role')"
                     />
                 </div>
                 <div class="flex gap-2">
                     <x-admin.button type="submit" variant="secondary" icon="fa-filter">
-                        Filtrele
+                        {{ __('Filter') }}
                     </x-admin.button>
                     @if(request()->hasAny(['search', 'role']))
                         <x-admin.button href="{{ route('admin.users.index') }}" variant="ghost">
-                            Temizle
+                            {{ __('Clear') }}
                         </x-admin.button>
                     @endif
                 </div>
@@ -54,11 +54,11 @@
 
     <!-- Users Table -->
     <x-admin.data-table :headers="[
-        'Kullanici',
-        'E-posta',
-        'Rol',
-        'Kayit Tarihi',
-        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '120px']
+        __('User'),
+        __('Email'),
+        __('Role'),
+        __('Registration Date'),
+        ['label' => __('Actions'), 'class' => 'text-right', 'width' => '120px']
     ]">
         @forelse($users as $user)
             <tr class="hover:bg-slate-50">
@@ -70,7 +70,7 @@
                         <div>
                             <p class="text-sm font-medium text-slate-900">{{ $user->name }}</p>
                             @if($user->id === auth()->id())
-                                <span class="text-xs text-primary-600">(Siz)</span>
+                                <span class="text-xs text-primary-600">{{ __('(You)') }}</span>
                             @endif
                         </div>
                     </div>
@@ -80,9 +80,9 @@
                 </td>
                 <td class="px-4 py-3">
                     @if($user->is_admin)
-                        <x-admin.badge variant="primary" size="sm" dot>Admin</x-admin.badge>
+                        <x-admin.badge variant="primary" size="sm" dot>{{ __('Admin') }}</x-admin.badge>
                     @else
-                        <x-admin.badge variant="default" size="sm">Kullanici</x-admin.badge>
+                        <x-admin.badge variant="default" size="sm">{{ __('User') }}</x-admin.badge>
                     @endif
                 </td>
                 <td class="px-4 py-3">
@@ -92,12 +92,12 @@
                     <div class="flex items-center justify-end gap-1">
                         <a href="{{ route('admin.users.show', $user) }}"
                            class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                           title="Goruntule">
+                           title="{{ __('View') }}">
                             <i class="fas fa-eye text-sm"></i>
                         </a>
                         <a href="{{ route('admin.users.edit', $user) }}"
                            class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                           title="Duzenle">
+                           title="{{ __('Edit') }}">
                             <i class="fas fa-edit text-sm"></i>
                         </a>
                         @if($user->id !== auth()->id())
@@ -106,19 +106,19 @@
                                 @method('PATCH')
                                 <button type="submit"
                                         class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                                        title="{{ $user->is_admin ? 'Admin yetkisini kaldir' : 'Admin yetkisi ver' }}">
+                                        title="{{ $user->is_admin ? __('Remove admin permission') : __('Grant admin permission') }}">
                                     <i class="fas {{ $user->is_admin ? 'fa-user-minus' : 'fa-user-shield' }} text-sm"></i>
                                 </button>
                             </form>
                             <form action="{{ route('admin.users.destroy', $user) }}"
                                   method="POST"
                                   class="inline"
-                                  onsubmit="return confirm('Bu kullaniciyi silmek istediginizden emin misiniz?')">
+                                  onsubmit="return confirm('{{ __('Are you sure you want to delete this user?') }}')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
                                         class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                        title="Sil">
+                                        title="{{ __('Delete') }}">
                                     <i class="fas fa-trash text-sm"></i>
                                 </button>
                             </form>
@@ -131,8 +131,8 @@
                 <td colspan="5" class="px-4 py-12">
                     <x-admin.empty-state
                         icon="fa-users"
-                        title="Kullanici bulunamadi"
-                        description="Arama kriterlerinize uygun kullanici yok"
+                        :title="__('No users found')"
+                        :description="__('No users matching your search criteria')"
                     />
                 </td>
             </tr>

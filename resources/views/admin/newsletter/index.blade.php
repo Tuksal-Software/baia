@@ -1,39 +1,39 @@
 @extends('layouts.admin')
 
-@section('title', 'Bulten Aboneleri')
+@section('title', __('Newsletter Subscribers'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Bulten Aboneleri</span>
+    <span class="text-slate-700 font-medium">{{ __('Newsletter Subscribers') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Bulten Aboneleri</h1>
-            <p class="text-sm text-slate-500 mt-1">E-posta aboneliklerini yonetin</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Newsletter Subscribers') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ __('Manage email subscriptions') }}</p>
         </div>
         <x-admin.button href="{{ route('admin.newsletter.export', request()->all()) }}" variant="success" icon="fa-download">
-            CSV Indir
+            {{ __('Download CSV') }}
         </x-admin.button>
     </div>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <x-admin.stats-card
-            title="Toplam Abone"
+            :title="__('Total Subscribers')"
             :value="$stats['total']"
             icon="fa-users"
             color="primary"
         />
         <x-admin.stats-card
-            title="Aktif Aboneler"
+            :title="__('Active Subscribers')"
             :value="$stats['active']"
             icon="fa-user-check"
             color="success"
         />
         <x-admin.stats-card
-            title="Iptal Edenler"
+            :title="__('Unsubscribed')"
             :value="$stats['inactive']"
             icon="fa-user-times"
             color="danger"
@@ -47,7 +47,7 @@
                 <div class="flex-1">
                     <x-admin.form-input
                         name="search"
-                        placeholder="E-posta adresi ile ara..."
+                        :placeholder="__('Search by email address...')"
                         :value="request('search')"
                         icon="fa-search"
                     />
@@ -56,17 +56,17 @@
                     <x-admin.form-select
                         name="status"
                         :value="request('status')"
-                        :options="['' => 'Tum Durumlar', 'active' => 'Aktif', 'inactive' => 'Iptal']"
-                        placeholder="Durum Sec"
+                        :options="['' => __('All Statuses'), 'active' => __('Active'), 'inactive' => __('Cancelled')]"
+                        :placeholder="__('Select Status')"
                     />
                 </div>
                 <div class="flex gap-2">
                     <x-admin.button type="submit" variant="secondary" icon="fa-filter">
-                        Filtrele
+                        {{ __('Filter') }}
                     </x-admin.button>
                     @if(request()->hasAny(['search', 'status']))
                         <x-admin.button href="{{ route('admin.newsletter.index') }}" variant="ghost">
-                            Temizle
+                            {{ __('Clear') }}
                         </x-admin.button>
                     @endif
                 </div>
@@ -78,11 +78,11 @@
     <x-admin.data-table
         :selectable="true"
         :headers="[
-            'E-posta',
-            ['label' => 'Durum', 'class' => 'text-center', 'width' => '120px'],
-            ['label' => 'Abone Tarihi', 'class' => 'text-center', 'width' => '160px'],
-            ['label' => 'Iptal Tarihi', 'class' => 'text-center', 'width' => '160px'],
-            ['label' => 'Islemler', 'class' => 'text-right', 'width' => '100px']
+            __('Email'),
+            ['label' => __('Status'), 'class' => 'text-center', 'width' => '120px'],
+            ['label' => __('Subscribe Date'), 'class' => 'text-center', 'width' => '160px'],
+            ['label' => __('Unsubscribe Date'), 'class' => 'text-center', 'width' => '160px'],
+            ['label' => __('Actions'), 'class' => 'text-right', 'width' => '100px']
         ]"
         x-data="{
             selectedIds: [],
@@ -126,9 +126,9 @@
                         @method('PATCH')
                         <button type="submit" class="inline-flex">
                             @if($subscriber->is_active)
-                                <x-admin.badge variant="success" size="sm" dot>Aktif</x-admin.badge>
+                                <x-admin.badge variant="success" size="sm" dot>{{ __('Active') }}</x-admin.badge>
                             @else
-                                <x-admin.badge variant="danger" size="sm" dot>Iptal</x-admin.badge>
+                                <x-admin.badge variant="danger" size="sm" dot>{{ __('Cancelled') }}</x-admin.badge>
                             @endif
                         </button>
                     </form>
@@ -147,12 +147,12 @@
                     <form action="{{ route('admin.newsletter.destroy', $subscriber) }}"
                           method="POST"
                           class="inline"
-                          onsubmit="return confirm('Bu aboneyi silmek istediginize emin misiniz?')">
+                          onsubmit="return confirm('{{ __('Are you sure you want to delete this subscriber?') }}')">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
                                 class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                title="Sil">
+                                title="{{ __('Delete') }}">
                             <i class="fas fa-trash text-sm"></i>
                         </button>
                     </form>
@@ -163,8 +163,8 @@
                 <td colspan="6" class="px-4 py-12">
                     <x-admin.empty-state
                         icon="fa-envelope"
-                        title="Abone bulunamadi"
-                        description="Henuz bulten abonesi yok veya arama kriterlerinize uygun sonuc bulunamadi."
+                        :title="__('No subscribers found')"
+                        :description="__('No newsletter subscribers yet or no results matching your search.')"
                     />
                 </td>
             </tr>
@@ -174,19 +174,19 @@
             <div class="flex items-center justify-between">
                 <div x-show="selectedIds.length > 0" x-cloak class="flex items-center gap-3">
                     <span class="text-sm text-slate-600">
-                        <span x-text="selectedIds.length"></span> abone secildi
+                        <span x-text="selectedIds.length"></span> {{ __('subscribers selected') }}
                     </span>
                     <form action="{{ route('admin.newsletter.bulk-delete') }}" method="POST" class="inline"
-                          onsubmit="return confirm('Secili aboneleri silmek istediginize emin misiniz?')">
+                          onsubmit="return confirm('{{ __('Are you sure you want to delete selected subscribers?') }}')">
                         @csrf
                         <input type="hidden" name="ids" :value="JSON.stringify(selectedIds)">
                         <x-admin.button type="submit" variant="danger" size="sm" icon="fa-trash">
-                            Secilenleri Sil
+                            {{ __('Delete Selected') }}
                         </x-admin.button>
                     </form>
                 </div>
                 <div x-show="selectedIds.length === 0" class="text-sm text-slate-500">
-                    {{ $subscribers->total() }} abone
+                    {{ __(':count subscribers', ['count' => $subscribers->total()]) }}
                 </div>
                 <div>
                     {{ $subscribers->links() }}

@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Urun Detay')
+@section('title', __('Product Detail'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.products.index') }}" class="text-slate-500 hover:text-slate-700">Urunler</a>
+    <a href="{{ route('admin.products.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Products') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
     <span class="text-slate-700 font-medium">{{ Str::limit($product->name, 30) }}</span>
 @endsection
@@ -17,10 +17,10 @@
         </div>
         <div class="flex items-center gap-2">
             <x-admin.button href="{{ route('admin.products.edit', $product) }}" icon="fa-edit">
-                Duzenle
+                {{ __('Edit') }}
             </x-admin.button>
             <x-admin.button href="{{ route('products.show', $product) }}" variant="ghost" icon="fa-external-link-alt" target="_blank">
-                Sitede Gor
+                {{ __('View on Site') }}
             </x-admin.button>
         </div>
     </div>
@@ -29,7 +29,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Images -->
-            <x-admin.card title="Gorseller">
+            <x-admin.card :title="__('Images')">
                 @if($product->images->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         @foreach($product->images as $image)
@@ -39,7 +39,7 @@
                                      class="w-full aspect-square object-cover rounded-lg border {{ $image->is_primary ? 'border-primary-500 ring-2 ring-primary-200' : 'border-slate-200' }}">
                                 @if($image->is_primary)
                                     <span class="absolute top-2 left-2 px-2 py-0.5 bg-primary-600 text-white text-xs rounded">
-                                        Ana
+                                        {{ __('Main') }}
                                     </span>
                                 @endif
                             </div>
@@ -48,14 +48,14 @@
                 @else
                     <x-admin.empty-state
                         icon="fa-image"
-                        title="Gorsel yok"
-                        description="Bu urune henuz gorsel eklenmemis"
+                        :title="__('No images')"
+                        :description="__('No images have been added to this product yet')"
                     />
                 @endif
             </x-admin.card>
 
             <!-- Description -->
-            <x-admin.card title="Aciklama">
+            <x-admin.card :title="__('Description')">
                 @if($product->short_description)
                     <p class="text-slate-600 mb-4 font-medium">{{ $product->short_description }}</p>
                 @endif
@@ -65,13 +65,13 @@
                         {!! nl2br(e($product->description)) !!}
                     </div>
                 @else
-                    <p class="text-slate-500 text-sm">Aciklama girilmemis</p>
+                    <p class="text-slate-500 text-sm">{{ __('No description entered') }}</p>
                 @endif
             </x-admin.card>
 
             <!-- Specifications -->
             @if($product->specifications->count() > 0)
-                <x-admin.card title="Teknik Ozellikler">
+                <x-admin.card :title="__('Technical Specifications')">
                     <div class="divide-y divide-slate-100">
                         @foreach($product->specifications as $spec)
                             <div class="py-3 flex justify-between text-sm">
@@ -85,7 +85,7 @@
 
             <!-- Features -->
             @if($product->features->count() > 0)
-                <x-admin.card title="Urun Ozellikleri">
+                <x-admin.card :title="__('Product Features')">
                     <ul class="space-y-2">
                         @foreach($product->features as $feature)
                             <li class="flex items-center gap-3 text-sm">
@@ -100,7 +100,7 @@
             @endif
 
             <!-- Reviews -->
-            <x-admin.card title="Yorumlar" :subtitle="$product->reviews_count . ' yorum'">
+            <x-admin.card :title="__('Reviews')" :subtitle="$product->reviews_count . ' ' . __('review')">
                 @if($product->reviews->count() > 0)
                     <div class="space-y-4">
                         @foreach($product->reviews as $review)
@@ -120,7 +120,7 @@
                                         @endif
                                     </div>
                                     <x-admin.badge :variant="$review->is_approved ? 'success' : 'warning'" size="sm">
-                                        {{ $review->is_approved ? 'Onaylandi' : 'Bekliyor' }}
+                                        {{ $review->is_approved ? __('Approved') : __('Pending') }}
                                     </x-admin.badge>
                                 </div>
                             </div>
@@ -129,8 +129,8 @@
                 @else
                     <x-admin.empty-state
                         icon="fa-star"
-                        title="Henuz yorum yok"
-                        description="Bu urune henuz yorum yapilmamis"
+                        :title="__('No reviews yet')"
+                        :description="__('No reviews for this product yet')"
                     />
                 @endif
             </x-admin.card>
@@ -139,10 +139,10 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Info -->
-            <x-admin.card title="Bilgiler">
+            <x-admin.card :title="__('Information')">
                 <dl class="space-y-4">
                     <div class="flex justify-between text-sm">
-                        <dt class="text-slate-500">Kategori</dt>
+                        <dt class="text-slate-500">{{ __('Category') }}</dt>
                         <dd class="font-medium text-slate-900">{{ $product->category->name }}</dd>
                     </div>
                     <div class="flex justify-between text-sm">
@@ -150,17 +150,17 @@
                         <dd class="font-medium text-slate-900">{{ $product->sku ?? '-' }}</dd>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <dt class="text-slate-500">Fiyat</dt>
-                        <dd class="font-semibold text-slate-900">{{ number_format($product->price, 2) }} TL</dd>
+                        <dt class="text-slate-500">{{ __('Price') }}</dt>
+                        <dd class="font-semibold text-slate-900">{{ number_format($product->price, 2) }} {{ __('TL') }}</dd>
                     </div>
                     @if($product->sale_price)
                         <div class="flex justify-between text-sm">
-                            <dt class="text-slate-500">Indirimli Fiyat</dt>
-                            <dd class="font-semibold text-rose-600">{{ number_format($product->sale_price, 2) }} TL</dd>
+                            <dt class="text-slate-500">{{ __('Discounted Price') }}</dt>
+                            <dd class="font-semibold text-rose-600">{{ number_format($product->sale_price, 2) }} {{ __('TL') }}</dd>
                         </div>
                     @endif
                     <div class="flex justify-between text-sm">
-                        <dt class="text-slate-500">Stok</dt>
+                        <dt class="text-slate-500">{{ __('Stock') }}</dt>
                         <dd>
                             @php
                                 $stockVariant = match(true) {
@@ -170,12 +170,12 @@
                                 };
                             @endphp
                             <x-admin.badge :variant="$stockVariant" size="sm">
-                                {{ $product->stock }} adet
+                                {{ $product->stock }} {{ __('pieces') }}
                             </x-admin.badge>
                         </dd>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <dt class="text-slate-500">Puan</dt>
+                        <dt class="text-slate-500">{{ __('Rating') }}</dt>
                         <dd class="flex items-center gap-1">
                             <i class="fas fa-star text-amber-400 text-xs"></i>
                             <span class="font-medium text-slate-900">{{ number_format($product->rating, 1) }}/5</span>
@@ -186,19 +186,19 @@
             </x-admin.card>
 
             <!-- Status -->
-            <x-admin.card title="Durum">
+            <x-admin.card :title="__('Status')">
                 <div class="space-y-3">
                     <div class="flex items-center gap-3">
                         @if($product->is_active)
                             <span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-check"></i>
                             </span>
-                            <span class="text-sm font-medium text-slate-900">Aktif</span>
+                            <span class="text-sm font-medium text-slate-900">{{ __('Active') }}</span>
                         @else
                             <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-times"></i>
                             </span>
-                            <span class="text-sm font-medium text-slate-900">Pasif</span>
+                            <span class="text-sm font-medium text-slate-900">{{ __('Inactive') }}</span>
                         @endif
                     </div>
 
@@ -207,7 +207,7 @@
                             <span class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-star"></i>
                             </span>
-                            <span class="text-sm font-medium text-slate-900">One Cikan</span>
+                            <span class="text-sm font-medium text-slate-900">{{ __('Featured') }}</span>
                         </div>
                     @endif
 
@@ -216,7 +216,7 @@
                             <span class="w-8 h-8 bg-sky-100 text-sky-600 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-sparkles"></i>
                             </span>
-                            <span class="text-sm font-medium text-slate-900">Yeni Urun</span>
+                            <span class="text-sm font-medium text-slate-900">{{ __('New Product') }}</span>
                         </div>
                     @endif
 
@@ -225,7 +225,7 @@
                             <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-tags"></i>
                             </span>
-                            <span class="text-sm font-medium text-slate-900">Indirimde (%{{ $product->discount_percentage }})</span>
+                            <span class="text-sm font-medium text-slate-900">{{ __('On Sale') }} (%{{ $product->discount_percentage }})</span>
                         </div>
                     @endif
                 </div>
@@ -233,14 +233,14 @@
 
             <!-- Variants -->
             @if($product->variants->count() > 0)
-                <x-admin.card title="Varyantlar" :subtitle="$product->variants->count() . ' varyant'">
+                <x-admin.card :title="__('Variants')" :subtitle="$product->variants->count() . ' ' . __('variant')">
                     <div class="space-y-3">
                         @foreach($product->variants as $variant)
                             <div class="p-3 bg-slate-50 rounded-lg">
                                 <p class="text-sm font-medium text-slate-900">{{ $variant->name }}</p>
                                 <div class="flex items-center gap-3 mt-1 text-xs text-slate-500">
-                                    <span>Stok: {{ $variant->stock }}</span>
-                                    <span>Fiyat: {{ $variant->price_difference >= 0 ? '+' : '' }}{{ number_format($variant->price_difference, 2) }} TL</span>
+                                    <span>{{ __('Stock') }}: {{ $variant->stock }}</span>
+                                    <span>{{ __('Price') }}: {{ $variant->price_difference >= 0 ? '+' : '' }}{{ number_format($variant->price_difference, 2) }} {{ __('TL') }}</span>
                                 </div>
                             </div>
                         @endforeach
@@ -249,14 +249,14 @@
             @endif
 
             <!-- Dates -->
-            <x-admin.card title="Tarihler">
+            <x-admin.card :title="__('Dates')">
                 <dl class="space-y-3 text-sm">
                     <div class="flex justify-between">
-                        <dt class="text-slate-500">Olusturulma</dt>
+                        <dt class="text-slate-500">{{ __('Created') }}</dt>
                         <dd class="text-slate-900">{{ $product->created_at->format('d.m.Y H:i') }}</dd>
                     </div>
                     <div class="flex justify-between">
-                        <dt class="text-slate-500">Son Guncelleme</dt>
+                        <dt class="text-slate-500">{{ __('Last Update') }}</dt>
                         <dd class="text-slate-900">{{ $product->updated_at->format('d.m.Y H:i') }}</dd>
                     </div>
                 </dl>

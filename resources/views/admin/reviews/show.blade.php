@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Yorum Detay')
+@section('title', __('Review Detail'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.reviews.index') }}" class="text-slate-500 hover:text-slate-700">Yorumlar</a>
+    <a href="{{ route('admin.reviews.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Reviews') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
-    <span class="text-slate-700 font-medium">Yorum #{{ $review->id }}</span>
+    <span class="text-slate-700 font-medium">{{ __('Review') }} #{{ $review->id }}</span>
 @endsection
 
 @section('content')
@@ -13,11 +13,11 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div class="flex items-center gap-3">
             <div>
-                <h1 class="text-2xl font-semibold text-slate-900">Yorum Detay</h1>
+                <h1 class="text-2xl font-semibold text-slate-900">{{ __('Review Detail') }}</h1>
                 <p class="text-sm text-slate-500 mt-1">{{ $review->created_at->format('d.m.Y H:i') }}</p>
             </div>
             <x-admin.badge :variant="$review->is_approved ? 'success' : 'warning'" size="lg" dot>
-                {{ $review->is_approved ? 'Onaylandi' : 'Bekliyor' }}
+                {{ $review->is_approved ? __('Approved') : __('Pending') }}
             </x-admin.badge>
         </div>
         <div class="flex items-center gap-2">
@@ -25,7 +25,7 @@
                 <form action="{{ route('admin.reviews.approve', $review) }}" method="POST">
                     @csrf
                     <x-admin.button type="submit" variant="secondary" icon="fa-check">
-                        Onayla
+                        {{ __('Approve') }}
                     </x-admin.button>
                 </form>
             @endunless
@@ -34,18 +34,18 @@
                 <form action="{{ route('admin.reviews.reject', $review) }}" method="POST">
                     @csrf
                     <x-admin.button type="submit" variant="ghost" icon="fa-times">
-                        Reddet
+                        {{ __('Reject') }}
                     </x-admin.button>
                 </form>
             @endif
 
             <form action="{{ route('admin.reviews.destroy', $review) }}"
                   method="POST"
-                  onsubmit="return confirm('Bu yorumu silmek istediginizden emin misiniz?')">
+                  onsubmit="return confirm('{{ __('Are you sure you want to delete this review?') }}')">
                 @csrf
                 @method('DELETE')
                 <x-admin.button type="submit" variant="danger" icon="fa-trash">
-                    Sil
+                    {{ __('Delete') }}
                 </x-admin.button>
             </form>
         </div>
@@ -55,7 +55,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Review Content -->
             <div class="md:col-span-2">
-                <x-admin.card title="Yorum Icerigi">
+                <x-admin.card :title="__('Review Content')">
                     <!-- Rating -->
                     <div class="flex items-center gap-3 mb-4">
                         <div class="flex items-center gap-1 text-amber-400">
@@ -72,27 +72,27 @@
                             <p class="text-slate-700 leading-relaxed">{{ $review->comment }}</p>
                         </div>
                     @else
-                        <p class="text-sm text-slate-500 italic">Yorum metni girilmemis</p>
+                        <p class="text-sm text-slate-500 italic">{{ __('No review text entered') }}</p>
                     @endif
                 </x-admin.card>
             </div>
 
             <!-- Customer Info -->
-            <x-admin.card title="Musteri Bilgileri">
+            <x-admin.card :title="__('Customer Information')">
                 <dl class="space-y-4">
                     <div>
-                        <dt class="text-xs text-slate-500 uppercase tracking-wide">Ad Soyad</dt>
+                        <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Full Name') }}</dt>
                         <dd class="text-sm font-medium text-slate-900 mt-1">{{ $review->customer_name }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs text-slate-500 uppercase tracking-wide">E-posta</dt>
+                        <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Email') }}</dt>
                         <dd class="text-sm text-slate-900 mt-1">{{ $review->customer_email }}</dd>
                     </div>
                 </dl>
             </x-admin.card>
 
             <!-- Product Info -->
-            <x-admin.card title="Urun Bilgileri">
+            <x-admin.card :title="__('Product Information')">
                 <div class="flex items-start gap-4">
                     @if($review->product->primaryImage)
                         <img src="{{ $review->product->primaryImage->image_url }}"
@@ -113,7 +113,7 @@
                            target="_blank"
                            class="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 mt-2">
                             <i class="fas fa-external-link-alt"></i>
-                            Sitede Gor
+                            {{ __('View on Site') }}
                         </a>
                     </div>
                 </div>
@@ -121,25 +121,25 @@
 
             <!-- Metadata -->
             <div class="md:col-span-2">
-                <x-admin.card title="Ek Bilgiler">
+                <x-admin.card :title="__('Additional Information')">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                            <dt class="text-xs text-slate-500 uppercase tracking-wide">Yorum ID</dt>
+                            <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Review ID') }}</dt>
                             <dd class="text-sm font-medium text-slate-900 mt-1">#{{ $review->id }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs text-slate-500 uppercase tracking-wide">Olusturulma</dt>
+                            <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Created') }}</dt>
                             <dd class="text-sm text-slate-900 mt-1">{{ $review->created_at->format('d.m.Y H:i') }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs text-slate-500 uppercase tracking-wide">Son Guncelleme</dt>
+                            <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Last Updated') }}</dt>
                             <dd class="text-sm text-slate-900 mt-1">{{ $review->updated_at->format('d.m.Y H:i') }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs text-slate-500 uppercase tracking-wide">Durum</dt>
+                            <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Status') }}</dt>
                             <dd class="mt-1">
                                 <x-admin.badge :variant="$review->is_approved ? 'success' : 'warning'" size="sm">
-                                    {{ $review->is_approved ? 'Onaylandi' : 'Bekliyor' }}
+                                    {{ $review->is_approved ? __('Approved') : __('Pending') }}
                                 </x-admin.badge>
                             </dd>
                         </div>

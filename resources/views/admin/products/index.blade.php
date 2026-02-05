@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Urunler')
+@section('title', __('Products'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Urunler</span>
+    <span class="text-slate-700 font-medium">{{ __('Products') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Urunler</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ $products->total() }} urun listeleniyor</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Products') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ __(':count products listed', ['count' => $products->total()]) }}</p>
         </div>
         <x-admin.button href="{{ route('admin.products.create') }}" icon="fa-plus">
-            Yeni Urun
+            {{ __('New Product') }}
         </x-admin.button>
     </div>
 
@@ -24,7 +24,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <x-admin.form-input
                     name="search"
-                    placeholder="Urun adi veya SKU..."
+                    :placeholder="__('Product name or SKU...')"
                     :value="request('search')"
                     icon="fa-search"
                 />
@@ -33,29 +33,29 @@
                     name="category_id"
                     :value="request('category_id')"
                     :options="$categories->pluck('name', 'id')->toArray()"
-                    placeholder="Tum Kategoriler"
+                    :placeholder="__('All Categories')"
                 />
 
                 <x-admin.form-select
                     name="status"
                     :value="request('status')"
                     :options="[
-                        'active' => 'Aktif',
-                        'inactive' => 'Pasif',
-                        'featured' => 'One Cikan',
-                        'on_sale' => 'Indirimde',
-                        'low_stock' => 'Dusuk Stok',
+                        'active' => __('Active'),
+                        'inactive' => __('Inactive'),
+                        'featured' => __('Featured'),
+                        'on_sale' => __('On Sale'),
+                        'low_stock' => __('Low Stock'),
                     ]"
-                    placeholder="Tum Durumlar"
+                    :placeholder="__('All Statuses')"
                 />
 
                 <div class="flex gap-2 lg:col-span-2">
                     <x-admin.button type="submit" variant="secondary" icon="fa-filter" class="flex-1 sm:flex-none">
-                        Filtrele
+                        {{ __('Filter') }}
                     </x-admin.button>
                     @if(request()->hasAny(['search', 'category_id', 'status']))
                         <x-admin.button href="{{ route('admin.products.index') }}" variant="ghost">
-                            Temizle
+                            {{ __('Clear') }}
                         </x-admin.button>
                     @endif
                 </div>
@@ -65,12 +65,12 @@
 
     <!-- Products Table -->
     <x-admin.data-table :headers="[
-        ['label' => 'Urun', 'width' => '35%'],
-        'Kategori',
-        ['label' => 'Fiyat', 'class' => 'text-right'],
-        ['label' => 'Stok', 'class' => 'text-center'],
-        ['label' => 'Durum', 'class' => 'text-center'],
-        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '140px'],
+        ['label' => __('Product'), 'width' => '35%'],
+        __('Category'),
+        ['label' => __('Price'), 'class' => 'text-right'],
+        ['label' => __('Stock'), 'class' => 'text-center'],
+        ['label' => __('Status'), 'class' => 'text-center'],
+        ['label' => __('Actions'), 'class' => 'text-right', 'width' => '140px'],
     ]">
         @forelse($products as $product)
             <tr class="hover:bg-slate-50 transition-colors">
@@ -124,12 +124,12 @@
                             @method('PATCH')
                             <button type="submit">
                                 <x-admin.badge :variant="$product->is_active ? 'success' : 'danger'" size="sm" dot>
-                                    {{ $product->is_active ? 'Aktif' : 'Pasif' }}
+                                    {{ $product->is_active ? __('Active') : __('Inactive') }}
                                 </x-admin.badge>
                             </button>
                         </form>
                         @if($product->is_featured)
-                            <span class="text-amber-500" title="One Cikan">
+                            <span class="text-amber-500" title="{{ __('Featured') }}">
                                 <i class="fas fa-star text-xs"></i>
                             </span>
                         @endif
@@ -139,29 +139,29 @@
                     <div class="flex items-center justify-end gap-1">
                         <a href="{{ route('admin.products.show', $product) }}"
                            class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                           title="Detay">
+                           title="{{ __('Details') }}">
                             <i class="fas fa-eye text-sm"></i>
                         </a>
                         <a href="{{ route('admin.products.edit', $product) }}"
                            class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                           title="Duzenle">
+                           title="{{ __('Edit') }}">
                             <i class="fas fa-edit text-sm"></i>
                         </a>
                         <a href="{{ route('products.show', $product) }}"
                            target="_blank"
                            class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                           title="Sitede Gor">
+                           title="{{ __('View on Site') }}">
                             <i class="fas fa-external-link-alt text-sm"></i>
                         </a>
                         <form action="{{ route('admin.products.destroy', $product) }}"
                               method="POST"
                               class="inline"
-                              onsubmit="return confirm('Bu urunu silmek istediginizden emin misiniz?')">
+                              onsubmit="return confirm('{{ __('Are you sure you want to delete this product?') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                    title="Sil">
+                                    title="{{ __('Delete') }}">
                                 <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
@@ -173,9 +173,9 @@
                 <td colspan="6" class="px-4 py-12">
                     <x-admin.empty-state
                         icon="fa-box"
-                        title="Urun bulunamadi"
-                        description="Arama kriterlerinize uygun urun yok veya henuz urun eklenmemis"
-                        action="Yeni Urun Ekle"
+                        :title="__('Product not found')"
+                        :description="__('No products match your search criteria or no products have been added yet')"
+                        :action="__('Add New Product')"
                         :actionUrl="route('admin.products.create')"
                     />
                 </td>

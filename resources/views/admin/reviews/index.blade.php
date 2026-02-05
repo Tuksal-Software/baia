@@ -1,17 +1,17 @@
 @extends('layouts.admin')
 
-@section('title', 'Yorumlar')
+@section('title', __('Reviews'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Yorumlar</span>
+    <span class="text-slate-700 font-medium">{{ __('Reviews') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Yorumlar</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ $reviews->total() }} yorum listeleniyor</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Reviews') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ __(':count reviews listed', ['count' => $reviews->total()]) }}</p>
         </div>
     </div>
 
@@ -19,26 +19,26 @@
     <div class="flex flex-wrap gap-2 mb-6">
         <a href="{{ route('admin.reviews.index') }}"
            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ !request('status') ? 'bg-primary-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200' }}">
-            Tumu
+            {{ __('All') }}
         </a>
         <a href="{{ route('admin.reviews.index', ['status' => 'pending']) }}"
            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ request('status') == 'pending' ? 'bg-amber-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200' }}">
-            Bekleyen ({{ $pendingCount }})
+            {{ __('Pending') }} ({{ $pendingCount }})
         </a>
         <a href="{{ route('admin.reviews.index', ['status' => 'approved']) }}"
            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ request('status') == 'approved' ? 'bg-emerald-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200' }}">
-            Onaylanan ({{ $approvedCount }})
+            {{ __('Approved') }} ({{ $approvedCount }})
         </a>
     </div>
 
     <!-- Reviews Table -->
     <x-admin.data-table :headers="[
-        ['label' => 'Urun', 'width' => '20%'],
-        ['label' => 'Musteri', 'width' => '20%'],
-        ['label' => 'Puan', 'class' => 'text-center', 'width' => '100px'],
-        ['label' => 'Yorum', 'width' => '30%'],
-        ['label' => 'Durum', 'class' => 'text-center', 'width' => '100px'],
-        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '140px'],
+        ['label' => __('Product'), 'width' => '20%'],
+        ['label' => __('Customer'), 'width' => '20%'],
+        ['label' => __('Rating'), 'class' => 'text-center', 'width' => '100px'],
+        ['label' => __('Review'), 'width' => '30%'],
+        ['label' => __('Status'), 'class' => 'text-center', 'width' => '100px'],
+        ['label' => __('Actions'), 'class' => 'text-right', 'width' => '140px'],
     ]">
         @forelse($reviews as $review)
             <tr class="hover:bg-slate-50 transition-colors">
@@ -65,7 +65,7 @@
                 </td>
                 <td class="px-4 py-3 text-center">
                     <x-admin.badge :variant="$review->is_approved ? 'success' : 'warning'" size="sm" dot>
-                        {{ $review->is_approved ? 'Onaylandi' : 'Bekliyor' }}
+                        {{ $review->is_approved ? __('Approved') : __('Pending') }}
                     </x-admin.badge>
                 </td>
                 <td class="px-4 py-3 text-right">
@@ -75,7 +75,7 @@
                                 @csrf
                                 <button type="submit"
                                         class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                                        title="Onayla">
+                                        title="{{ __('Approve') }}">
                                     <i class="fas fa-check text-sm"></i>
                                 </button>
                             </form>
@@ -86,7 +86,7 @@
                                 @csrf
                                 <button type="submit"
                                         class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                                        title="Reddet">
+                                        title="{{ __('Reject') }}">
                                     <i class="fas fa-times text-sm"></i>
                                 </button>
                             </form>
@@ -95,12 +95,12 @@
                         <form action="{{ route('admin.reviews.destroy', $review) }}"
                               method="POST"
                               class="inline"
-                              onsubmit="return confirm('Bu yorumu silmek istediginizden emin misiniz?')">
+                              onsubmit="return confirm('{{ __('Are you sure you want to delete this review?') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                    title="Sil">
+                                    title="{{ __('Delete') }}">
                                 <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
@@ -112,8 +112,8 @@
                 <td colspan="6" class="px-4 py-12">
                     <x-admin.empty-state
                         icon="fa-star"
-                        title="Yorum bulunamadi"
-                        description="Henuz yorum yapilmamis veya arama kriterlerinize uygun yorum yok"
+                        :title="__('No reviews found')"
+                        :description="__('No reviews yet or no reviews matching your search')"
                     />
                 </td>
             </tr>

@@ -21,7 +21,7 @@
         <button @click="toggleSidebar()"
                 class="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
             <i class="fas" :class="sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
-            <span x-show="sidebarOpen" x-cloak>Daralt</span>
+            <span x-show="sidebarOpen" x-cloak>{{ __('Collapse') }}</span>
         </button>
     </div>
 </aside>

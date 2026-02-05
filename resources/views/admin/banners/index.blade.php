@@ -11,7 +11,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('Banners') }}</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ $banners->count() }} banner</p>
+            <p class="text-sm text-slate-500 mt-1">{{ $banners->count() }} {{ __('banner') }}</p>
         </div>
         <x-admin.button href="{{ route('admin.banners.create') }}" icon="fa-plus">
             {{ __('New Banner') }}

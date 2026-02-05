@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Indirim Kodu Detay')
+@section('title', __('Discount Code Detail'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.discount-codes.index') }}" class="text-slate-500 hover:text-slate-700">Indirim Kodlari</a>
+    <a href="{{ route('admin.discount-codes.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Discount Codes') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
     <span class="text-slate-700 font-medium">{{ $discountCode->code }}</span>
 @endsection
@@ -15,17 +15,17 @@
             <h1 class="text-2xl font-semibold text-slate-900">
                 <span class="font-mono bg-slate-100 px-3 py-1 rounded-lg">{{ $discountCode->code }}</span>
             </h1>
-            <p class="text-sm text-slate-500 mt-2">Indirim kodu detaylari</p>
+            <p class="text-sm text-slate-500 mt-2">{{ __('Discount code details') }}</p>
         </div>
         <div class="flex items-center gap-2">
             <x-admin.button href="{{ route('admin.discount-codes.edit', $discountCode) }}" icon="fa-edit">
-                Duzenle
+                {{ __('Edit') }}
             </x-admin.button>
             <form action="{{ route('admin.discount-codes.toggle-status', $discountCode) }}" method="POST">
                 @csrf
                 @method('PATCH')
                 <x-admin.button type="submit" variant="secondary" icon="{{ $discountCode->is_active ? 'fa-pause' : 'fa-play' }}">
-                    {{ $discountCode->is_active ? 'Pasif Yap' : 'Aktif Yap' }}
+                    {{ $discountCode->is_active ? __('Deactivate') : __('Activate') }}
                 </x-admin.button>
             </form>
         </div>
@@ -35,28 +35,28 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Code Details -->
-            <x-admin.card title="Kod Detaylari">
+            <x-admin.card :title="__('Code Details')">
                 <div class="grid grid-cols-2 gap-6">
                     <div>
-                        <span class="text-sm text-slate-500">Indirim Kodu</span>
+                        <span class="text-sm text-slate-500">{{ __('Discount Code') }}</span>
                         <p class="mt-1 font-mono text-lg font-bold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg inline-block">
                             {{ $discountCode->code }}
                         </p>
                     </div>
                     <div>
-                        <span class="text-sm text-slate-500">Durum</span>
+                        <span class="text-sm text-slate-500">{{ __('Status') }}</span>
                         <p class="mt-1">
                             <x-admin.badge :variant="$discountCode->is_active ? 'success' : 'danger'" size="md" dot>
-                                {{ $discountCode->is_active ? 'Aktif' : 'Pasif' }}
+                                {{ $discountCode->is_active ? __('Active') : __('Inactive') }}
                             </x-admin.badge>
                         </p>
                     </div>
                     <div>
-                        <span class="text-sm text-slate-500">Indirim</span>
+                        <span class="text-sm text-slate-500">{{ __('Discount') }}</span>
                         <p class="mt-1 text-lg font-semibold text-slate-900">{{ $discountCode->formatted_value }}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-slate-500">Minimum Siparis Tutari</span>
+                        <span class="text-sm text-slate-500">{{ __('Minimum Order Amount') }}</span>
                         <p class="mt-1 text-lg font-medium text-slate-900">
                             {{ $discountCode->min_order_amount > 0 ? number_format($discountCode->min_order_amount, 2) . ' TL' : '-' }}
                         </p>
@@ -65,15 +65,15 @@
             </x-admin.card>
 
             <!-- Usage Stats -->
-            <x-admin.card title="Kullanim Istatistikleri">
+            <x-admin.card :title="__('Usage Statistics')">
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
                     <div class="text-center p-4 bg-slate-50 rounded-lg">
                         <div class="text-3xl font-bold text-slate-900">{{ $discountCode->used_count }}</div>
-                        <div class="text-sm text-slate-500 mt-1">Kullanildi</div>
+                        <div class="text-sm text-slate-500 mt-1">{{ __('Used') }}</div>
                     </div>
                     <div class="text-center p-4 bg-slate-50 rounded-lg">
                         <div class="text-3xl font-bold text-slate-900">{{ $discountCode->usage_limit ?? '∞' }}</div>
-                        <div class="text-sm text-slate-500 mt-1">Limit</div>
+                        <div class="text-sm text-slate-500 mt-1">{{ __('Limit') }}</div>
                     </div>
                     <div class="text-center p-4 bg-slate-50 rounded-lg">
                         @php
@@ -82,14 +82,14 @@
                         <div class="text-3xl font-bold {{ $remaining !== null && $remaining <= 0 ? 'text-rose-600' : 'text-emerald-600' }}">
                             {{ $remaining ?? '∞' }}
                         </div>
-                        <div class="text-sm text-slate-500 mt-1">Kalan</div>
+                        <div class="text-sm text-slate-500 mt-1">{{ __('Remaining') }}</div>
                     </div>
                 </div>
 
                 @if($discountCode->usage_limit)
                     <div class="mt-4">
                         <div class="flex justify-between text-sm mb-1">
-                            <span class="text-slate-500">Kullanim Orani</span>
+                            <span class="text-slate-500">{{ __('Usage Rate') }}</span>
                             <span class="text-slate-700 font-medium">
                                 {{ round(($discountCode->used_count / $discountCode->usage_limit) * 100) }}%
                             </span>
@@ -106,18 +106,18 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Validity Period -->
-            <x-admin.card title="Gecerlilik Suresi">
+            <x-admin.card :title="__('Validity Period')">
                 <dl class="space-y-4">
                     <div class="flex justify-between text-sm">
-                        <dt class="text-slate-500">Baslangic</dt>
+                        <dt class="text-slate-500">{{ __('Start') }}</dt>
                         <dd class="font-medium text-slate-900">
-                            {{ $discountCode->starts_at?->format('d.m.Y') ?? 'Hemen gecerli' }}
+                            {{ $discountCode->starts_at?->format('d.m.Y') ?? __('Valid immediately') }}
                         </dd>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <dt class="text-slate-500">Bitis</dt>
+                        <dt class="text-slate-500">{{ __('End') }}</dt>
                         <dd class="font-medium text-slate-900">
-                            {{ $discountCode->expires_at?->format('d.m.Y') ?? 'Suresiz' }}
+                            {{ $discountCode->expires_at?->format('d.m.Y') ?? __('Indefinite') }}
                         </dd>
                     </div>
                     <div class="pt-3 border-t border-slate-100">
@@ -133,12 +133,12 @@
                                 <span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-check"></i>
                                 </span>
-                                <span class="text-sm font-medium text-slate-900">Gecerli</span>
+                                <span class="text-sm font-medium text-slate-900">{{ __('Valid') }}</span>
                             @else
                                 <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-times"></i>
                                 </span>
-                                <span class="text-sm font-medium text-slate-900">Gecersiz</span>
+                                <span class="text-sm font-medium text-slate-900">{{ __('Invalid') }}</span>
                             @endif
                         </div>
                     </div>
@@ -146,39 +146,39 @@
             </x-admin.card>
 
             <!-- Dates -->
-            <x-admin.card title="Tarihler">
+            <x-admin.card :title="__('Dates')">
                 <dl class="space-y-3 text-sm">
                     <div class="flex justify-between">
-                        <dt class="text-slate-500">Olusturulma</dt>
+                        <dt class="text-slate-500">{{ __('Created') }}</dt>
                         <dd class="text-slate-900">{{ $discountCode->created_at->format('d.m.Y H:i') }}</dd>
                     </div>
                     <div class="flex justify-between">
-                        <dt class="text-slate-500">Son Guncelleme</dt>
+                        <dt class="text-slate-500">{{ __('Last Updated') }}</dt>
                         <dd class="text-slate-900">{{ $discountCode->updated_at->format('d.m.Y H:i') }}</dd>
                     </div>
                 </dl>
             </x-admin.card>
 
             <!-- Actions -->
-            <x-admin.card title="Hizli Islemler">
+            <x-admin.card :title="__('Quick Actions')">
                 <div class="space-y-2">
                     <x-admin.button href="{{ route('admin.discount-codes.edit', $discountCode) }}" variant="secondary" class="w-full justify-start" icon="fa-edit">
-                        Duzenle
+                        {{ __('Edit') }}
                     </x-admin.button>
                     <form action="{{ route('admin.discount-codes.toggle-status', $discountCode) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <x-admin.button type="submit" variant="secondary" class="w-full justify-start" icon="{{ $discountCode->is_active ? 'fa-pause' : 'fa-play' }}">
-                            {{ $discountCode->is_active ? 'Pasif Yap' : 'Aktif Yap' }}
+                            {{ $discountCode->is_active ? __('Deactivate') : __('Activate') }}
                         </x-admin.button>
                     </form>
                     <form action="{{ route('admin.discount-codes.destroy', $discountCode) }}"
                           method="POST"
-                          onsubmit="return confirm('Bu indirim kodunu silmek istediginizden emin misiniz?')">
+                          onsubmit="return confirm('{{ __('Are you sure you want to delete this discount code?') }}')">
                         @csrf
                         @method('DELETE')
                         <x-admin.button type="submit" variant="outline-danger" class="w-full justify-start" icon="fa-trash">
-                            Sil
+                            {{ __('Delete') }}
                         </x-admin.button>
                     </form>
                 </div>

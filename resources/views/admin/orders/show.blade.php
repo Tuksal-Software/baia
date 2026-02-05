@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Siparis Detay')
+@section('title', __('Order Detail'))
 
 @section('breadcrumb')
-    <a href="{{ route('admin.orders.index') }}" class="text-slate-500 hover:text-slate-700">Siparisler</a>
+    <a href="{{ route('admin.orders.index') }}" class="text-slate-500 hover:text-slate-700">{{ __('Orders') }}</a>
     <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
     <span class="text-slate-700 font-medium">{{ $order->order_number }}</span>
 @endsection
@@ -44,7 +44,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Order Items -->
-            <x-admin.card title="Urunler" :subtitle="$order->items->count() . ' urun'">
+            <x-admin.card :title="__('Products')" :subtitle="__(':count products', ['count' => $order->items->count()])">
                 <div class="space-y-3">
                     @foreach($order->items as $item)
                         <div class="flex justify-between items-center p-4 bg-slate-50 rounded-lg">
@@ -62,24 +62,24 @@
                 <!-- Order Summary -->
                 <div class="border-t border-slate-200 mt-4 pt-4 space-y-2">
                     <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Ara Toplam</span>
+                        <span class="text-slate-500">{{ __('Subtotal') }}</span>
                         <span class="text-slate-900">{{ number_format($order->subtotal, 2) }} TL</span>
                     </div>
                     @if($order->discount > 0)
                         <div class="flex justify-between text-sm">
-                            <span class="text-emerald-600">Indirim ({{ $order->discount_code }})</span>
+                            <span class="text-emerald-600">{{ __('Discount') }} ({{ $order->discount_code }})</span>
                             <span class="text-emerald-600">-{{ number_format($order->discount, 2) }} TL</span>
                         </div>
                     @endif
                     <div class="flex justify-between text-base font-semibold pt-2 border-t border-slate-100">
-                        <span class="text-slate-900">Toplam</span>
+                        <span class="text-slate-900">{{ __('Total') }}</span>
                         <span class="text-slate-900">{{ number_format($order->total, 2) }} TL</span>
                     </div>
                 </div>
             </x-admin.card>
 
             <!-- Notes -->
-            <x-admin.card title="Notlar">
+            <x-admin.card :title="__('Notes')">
                 @if($order->notes)
                     <div class="bg-slate-50 rounded-lg p-4 text-sm text-slate-700 whitespace-pre-line mb-4">
                         {{ $order->notes }}
@@ -90,12 +90,12 @@
                     @csrf
                     <x-admin.form-textarea
                         name="notes"
-                        placeholder="Not ekle..."
+                        :placeholder="__('Add note...')"
                         rows="2"
                     />
                     <div class="mt-3">
                         <x-admin.button type="submit" icon="fa-plus">
-                            Not Ekle
+                            {{ __('Add Note') }}
                         </x-admin.button>
                     </div>
                 </form>
@@ -105,18 +105,18 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Customer Info -->
-            <x-admin.card title="Musteri Bilgileri">
+            <x-admin.card :title="__('Customer Information')">
                 <dl class="space-y-4">
                     <div>
-                        <dt class="text-xs text-slate-500 uppercase tracking-wide">Ad Soyad</dt>
+                        <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Full Name') }}</dt>
                         <dd class="text-sm font-medium text-slate-900 mt-1">{{ $order->customer_name }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs text-slate-500 uppercase tracking-wide">E-posta</dt>
+                        <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Email') }}</dt>
                         <dd class="text-sm text-slate-900 mt-1">{{ $order->customer_email }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs text-slate-500 uppercase tracking-wide">Telefon</dt>
+                        <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Phone') }}</dt>
                         <dd class="text-sm mt-1">
                             <a href="tel:{{ $order->customer_phone }}" class="text-primary-600 hover:text-primary-700">
                                 {{ $order->customer_phone }}
@@ -125,7 +125,7 @@
                     </div>
                     @if($order->customer_address)
                         <div>
-                            <dt class="text-xs text-slate-500 uppercase tracking-wide">Adres</dt>
+                            <dt class="text-xs text-slate-500 uppercase tracking-wide">{{ __('Address') }}</dt>
                             <dd class="text-sm text-slate-900 mt-1">{{ $order->customer_address }}</dd>
                         </div>
                     @endif
@@ -133,7 +133,7 @@
             </x-admin.card>
 
             <!-- Update Status -->
-            <x-admin.card title="Durum Guncelle">
+            <x-admin.card :title="__('Update Status')">
                 <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
                     @csrf
                     @method('PATCH')
@@ -141,31 +141,31 @@
                         name="status"
                         :value="$order->status"
                         :options="[
-                            'pending' => 'Bekleyen',
-                            'confirmed' => 'Onaylanan',
-                            'processing' => 'Hazirlanan',
-                            'shipped' => 'Kargoda',
-                            'delivered' => 'Teslim Edildi',
-                            'cancelled' => 'Iptal',
+                            'pending' => __('Pending'),
+                            'confirmed' => __('Confirmed'),
+                            'processing' => __('Preparing'),
+                            'shipped' => __('Shipped'),
+                            'delivered' => __('Delivered'),
+                            'cancelled' => __('Cancelled'),
                         ]"
                     />
                     <div class="mt-3">
                         <x-admin.button type="submit" class="w-full" icon="fa-check">
-                            Guncelle
+                            {{ __('Update') }}
                         </x-admin.button>
                     </div>
                 </form>
             </x-admin.card>
 
             <!-- Timeline -->
-            <x-admin.card title="Zaman Cizelgesi">
+            <x-admin.card :title="__('Timeline')">
                 <div class="space-y-4">
                     <div class="flex gap-3">
                         <div class="flex-shrink-0 w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
                             <i class="fas fa-plus text-xs"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-slate-900">Siparis Olusturuldu</p>
+                            <p class="text-sm font-medium text-slate-900">{{ __('Order Created') }}</p>
                             <p class="text-xs text-slate-500">{{ $order->created_at->format('d.m.Y H:i') }}</p>
                         </div>
                     </div>
@@ -176,7 +176,7 @@
                                 <i class="fas fa-check text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-slate-900">Onaylandi</p>
+                                <p class="text-sm font-medium text-slate-900">{{ __('Confirmed') }}</p>
                                 <p class="text-xs text-slate-500">{{ $order->confirmed_at->format('d.m.Y H:i') }}</p>
                             </div>
                         </div>
@@ -188,7 +188,7 @@
                                 <i class="fas fa-truck text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-slate-900">Kargoya Verildi</p>
+                                <p class="text-sm font-medium text-slate-900">{{ __('Shipped') }}</p>
                                 <p class="text-xs text-slate-500">{{ $order->shipped_at->format('d.m.Y H:i') }}</p>
                             </div>
                         </div>
@@ -200,7 +200,7 @@
                                 <i class="fas fa-box-check text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-slate-900">Teslim Edildi</p>
+                                <p class="text-sm font-medium text-slate-900">{{ __('Delivered') }}</p>
                                 <p class="text-xs text-slate-500">{{ $order->delivered_at->format('d.m.Y H:i') }}</p>
                             </div>
                         </div>
@@ -212,7 +212,7 @@
                                 <i class="fas fa-times text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-slate-900">Iptal Edildi</p>
+                                <p class="text-sm font-medium text-slate-900">{{ __('Cancelled') }}</p>
                                 <p class="text-xs text-slate-500">{{ $order->cancelled_at->format('d.m.Y H:i') }}</p>
                             </div>
                         </div>

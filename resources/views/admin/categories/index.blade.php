@@ -1,30 +1,30 @@
 @extends('layouts.admin')
 
-@section('title', 'Kategoriler')
+@section('title', __('Categories'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Kategoriler</span>
+    <span class="text-slate-700 font-medium">{{ __('Categories') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Kategoriler</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ $categories->count() }} kategori</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Categories') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ __(':count categories', ['count' => $categories->count()]) }}</p>
         </div>
         <x-admin.button href="{{ route('admin.categories.create') }}" icon="fa-plus">
-            Yeni Kategori
+            {{ __('New Category') }}
         </x-admin.button>
     </div>
 
     <!-- Categories Table -->
     <x-admin.data-table :headers="[
-        ['label' => 'Kategori', 'width' => '35%'],
-        'Ust Kategori',
-        ['label' => 'Urun Sayisi', 'class' => 'text-center'],
-        ['label' => 'Durum', 'class' => 'text-center'],
-        ['label' => 'Islemler', 'class' => 'text-right', 'width' => '120px'],
+        ['label' => __('Category'), 'width' => '35%'],
+        __('Parent Category'),
+        ['label' => __('Product Count'), 'class' => 'text-center'],
+        ['label' => __('Status'), 'class' => 'text-center'],
+        ['label' => __('Actions'), 'class' => 'text-right', 'width' => '120px'],
     ]">
         @forelse($categories as $category)
             <tr class="hover:bg-slate-50 transition-colors">
@@ -63,7 +63,7 @@
                         @method('PATCH')
                         <button type="submit">
                             <x-admin.badge :variant="$category->is_active ? 'success' : 'danger'" size="sm" dot>
-                                {{ $category->is_active ? 'Aktif' : 'Pasif' }}
+                                {{ $category->is_active ? __('Active') : __('Inactive') }}
                             </x-admin.badge>
                         </button>
                     </form>
@@ -72,18 +72,18 @@
                     <div class="flex items-center justify-end gap-1">
                         <a href="{{ route('admin.categories.edit', $category) }}"
                            class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                           title="Duzenle">
+                           title="{{ __('Edit') }}">
                             <i class="fas fa-edit text-sm"></i>
                         </a>
                         <form action="{{ route('admin.categories.destroy', $category) }}"
                               method="POST"
                               class="inline"
-                              onsubmit="return confirm('Bu kategoriyi silmek istediginizden emin misiniz? Icerisindeki urunler etkilenebilir.')">
+                              onsubmit="return confirm('{{ __('Are you sure you want to delete this category? Products inside may be affected.') }}')">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                    title="Sil">
+                                    title="{{ __('Delete') }}">
                                 <i class="fas fa-trash text-sm"></i>
                             </button>
                         </form>
@@ -95,9 +95,9 @@
                 <td colspan="5" class="px-4 py-12">
                     <x-admin.empty-state
                         icon="fa-folder"
-                        title="Kategori bulunamadi"
-                        description="Henuz kategori eklenmemis"
-                        action="Yeni Kategori Ekle"
+                        :title="__('Category not found')"
+                        :description="__('No categories have been added yet')"
+                        :action="__('Add New Category')"
                         :actionUrl="route('admin.categories.create')"
                     />
                 </td>

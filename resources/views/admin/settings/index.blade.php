@@ -1,17 +1,17 @@
 @extends('layouts.admin')
 
-@section('title', 'Site Ayarlari')
+@section('title', __('Site Settings'))
 
 @section('breadcrumb')
-    <span class="text-slate-700 font-medium">Ayarlar</span>
+    <span class="text-slate-700 font-medium">{{ __('Settings') }}</span>
 @endsection
 
 @section('content')
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Site Ayarlari</h1>
-            <p class="text-sm text-slate-500 mt-1">Sitenizin genel ayarlarini yonetin</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('Site Settings') }}</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ __("Manage your site's general settings") }}</p>
         </div>
     </div>
 
@@ -114,7 +114,7 @@
                                                     <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
                                                         <i class="fas fa-cloud-upload-alt text-slate-400"></i>
                                                     </div>
-                                                    <p class="text-sm font-medium text-slate-700">Dosya yukle</p>
+                                                    <p class="text-sm font-medium text-slate-700">{{ __('Upload File') }}</p>
                                                     <p class="text-xs text-slate-500 mt-1">PNG, JPG (max. 2MB)</p>
                                                 </div>
                                                 <input type="file"
@@ -140,7 +140,7 @@
                                     :label="$setting->label"
                                     :value="old('settings.' . $setting->key, $setting->value)"
                                     :options="$options"
-                                    placeholder="Secin..."
+                                    :placeholder="__('Choose...')"
                                 />
                                 @break
 
@@ -226,8 +226,8 @@
                 @if($settings->isEmpty())
                     <x-admin.empty-state
                         icon="fa-cog"
-                        title="Ayar bulunamadi"
-                        description="Bu kategori icin henuz ayar tanimlanmamis."
+                        :title="__('Setting not found')"
+                        :description="__('No settings defined for this category yet.')"
                     />
                 @endif
             </div>
@@ -235,10 +235,10 @@
             <x-slot:footerSlot>
                 <div class="flex items-center justify-end gap-3">
                     <x-admin.button href="{{ route('admin.settings.index') }}" variant="ghost">
-                        Iptal
+                        {{ __('Cancel') }}
                     </x-admin.button>
                     <x-admin.button type="submit" icon="fa-save">
-                        Degisiklikleri Kaydet
+                        {{ __('Save Changes') }}
                     </x-admin.button>
                 </div>
             </x-slot:footerSlot>

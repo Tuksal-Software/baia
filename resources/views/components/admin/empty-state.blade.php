@@ -1,6 +1,6 @@
 @props([
     'icon' => 'fa-inbox',
-    'title' => 'Veri bulunamadi',
+    'title' => __('Data not found'),
     'description' => null,
     'action' => null,
     'actionUrl' => null,
