@@ -1,0 +1,49 @@
+{
+  "task_id": "TASK-{YYYYMMDD}-{XXX}",
+  "title": "",
+  "type": "feature|bugfix|refactor|enhancement",
+  "priority": "critical|high|medium|low",
+  "status": "draft|ready|in_progress|review|testing|done",
+  "description": {
+    "summary": "",
+    "background": "",
+    "user_story": "As a [user type], I want [goal] so that [benefit]",
+    "detailed_requirements": []
+  },
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "given": "",
+      "when": "",
+      "then": ""
+    }
+  ],
+  "technical_notes": {
+    "suggested_approach": "",
+    "affected_areas": [],
+    "dependencies": [],
+    "api_changes": "",
+    "database_changes": ""
+  },
+  "ui_specifications": {
+    "screens_affected": [],
+    "user_flow": "",
+    "validation_rules": [],
+    "error_messages": []
+  },
+  "test_requirements": {
+    "unit_tests": [],
+    "feature_tests": [],
+    "ui_tests": [],
+    "edge_cases": []
+  },
+  "out_of_scope": [],
+  "questions_for_stakeholder": [],
+  "metadata": {
+    "created_at": "",
+    "created_by": "product-manager-agent",
+    "assigned_to": "",
+    "estimated_points": null,
+    "sprint": ""
+  }
+}
