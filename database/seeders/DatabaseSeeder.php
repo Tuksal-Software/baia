@@ -15,11 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Admin kullanıcı oluştur
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin',
+            'email' => 'admin@baia.com',
+            'is_admin' => true,
+        ]);
+
+        // Kategorileri, ürünleri ve indirim kodlarını ekle
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+            DiscountCodeSeeder::class,
+            SiteSettingSeeder::class,
+            MenuSeeder::class,
+            HomeSectionSeeder::class,
+            FeatureSeeder::class,
         ]);
     }
 }

@@ -1,255 +1,539 @@
 <!DOCTYPE html>
-<html lang="tr" class="h-full">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Baia Panel' }}</title>
+    <title>@yield('title', $siteSettings['site_name'] ?? 'BAIA') - {{ $siteSettings['site_name'] ?? 'BAIA' }}</title>
+    <meta name="description" content="@yield('description', $siteSettings['meta_description'] ?? '')">
 
-    {{-- Inter Font --}}
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    {{-- Alpine.js --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        beige: {
+                            50: '#fdfbf7',
+                            100: '#f5f5dc',
+                            200: '#e8e4d4',
+                            300: '#d4cfc0',
+                            400: '#b8b29f',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+    </style>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @stack('styles')
 </head>
-<body class="h-full bg-surface-alt font-sans antialiased" x-data="{ sidebarOpen: true, mobileSidebarOpen: false }">
-
-    <div class="flex h-full">
-
-        {{-- Mobile Overlay --}}
-        <div
-            x-show="mobileSidebarOpen"
-            x-transition:enter="transition-opacity ease-out duration-300"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition-opacity ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            @click="mobileSidebarOpen = false"
-            class="fixed inset-0 z-40 bg-black/50 lg:hidden"
-        ></div>
-
-        {{-- Sidebar --}}
-        <aside
-            :class="{
-                'w-64': sidebarOpen,
-                'w-20': !sidebarOpen,
-                'translate-x-0': mobileSidebarOpen,
-                '-translate-x-full': !mobileSidebarOpen
-            }"
-            class="fixed inset-y-0 left-0 z-50 flex flex-col bg-sidebar-bg sidebar-transition
-                   -translate-x-full lg:translate-x-0 lg:static lg:z-auto"
-        >
-            {{-- Logo --}}
-            <div class="flex h-16 items-center justify-between px-4 border-b border-white/10">
-                <a href="/dashboard" class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white font-bold text-lg flex-shrink-0">
-                        B
-                    </div>
-                    <span
-                        x-show="sidebarOpen"
-                        x-transition:enter="transition-opacity duration-200"
-                        x-transition:enter-start="opacity-0"
-                        x-transition:enter-end="opacity-100"
-                        class="text-xl font-bold text-white whitespace-nowrap"
-                    >
-                        Baia
-                    </span>
-                </a>
-                {{-- Collapse button (desktop) --}}
-                <button
-                    @click="sidebarOpen = !sidebarOpen"
-                    class="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-colors"
-                >
-                    <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                    </svg>
-                    <svg x-show="!sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                    </svg>
-                </button>
-                {{-- Close button (mobile) --}}
-                <button
-                    @click="mobileSidebarOpen = false"
-                    class="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-colors"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+<body class="bg-white min-h-screen flex flex-col">
+    <!-- Announcement Bar -->
+    @if(($siteSettings['header_announcement_active'] ?? false) && ($siteSettings['header_announcement'] ?? ''))
+        <div class="bg-black text-white text-sm py-2">
+            <div class="container mx-auto px-4 text-center">
+                @if($siteSettings['header_announcement_link'] ?? false)
+                    <a href="{{ $siteSettings['header_announcement_link'] }}" class="hover:underline">
+                        {{ $siteSettings['header_announcement'] }}
+                    </a>
+                @else
+                    {{ $siteSettings['header_announcement'] }}
+                @endif
             </div>
+        </div>
+    @endif
 
-            {{-- Navigation --}}
-            <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-                {{-- Dashboard --}}
-                <a href="/dashboard"
-                   class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200
-                          {{ request()->is('dashboard') ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30' : 'text-sidebar-text hover:bg-sidebar-hover hover:text-white' }}"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                    <span x-show="sidebarOpen" class="whitespace-nowrap">Dashboard</span>
-                </a>
-
-                {{-- Users --}}
-                <a href="/users"
-                   class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200
-                          {{ request()->is('users*') ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30' : 'text-sidebar-text hover:bg-sidebar-hover hover:text-white' }}"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <span x-show="sidebarOpen" class="whitespace-nowrap">Kullanıcılar</span>
-                </a>
-
-                {{-- Section Label --}}
-                <div x-show="sidebarOpen" class="pt-4 pb-2 px-3">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-sidebar-text/50">Yönetim</p>
-                </div>
-
-                {{-- Settings --}}
-                <a href="#"
-                   class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-all duration-200"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span x-show="sidebarOpen" class="whitespace-nowrap">Ayarlar</span>
-                </a>
-
-                {{-- Reports --}}
-                <a href="#"
-                   class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-all duration-200"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span x-show="sidebarOpen" class="whitespace-nowrap">Raporlar</span>
-                </a>
-            </nav>
-
-            {{-- User Profile (bottom) --}}
-            <div class="border-t border-white/10 p-3">
-                <div class="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-sidebar-hover transition-colors cursor-pointer">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-500 text-white text-sm font-semibold flex-shrink-0">
-                        HT
-                    </div>
-                    <div x-show="sidebarOpen" class="min-w-0">
-                        <p class="text-sm font-medium text-white truncate">Halil Tuksal</p>
-                        <p class="text-xs text-sidebar-text truncate">Admin</p>
-                    </div>
-                    <svg x-show="sidebarOpen" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sidebar-text ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-            </div>
-        </aside>
-
-        {{-- Main Content --}}
-        <div class="flex flex-1 flex-col min-w-0">
-            {{-- Top Header --}}
-            <header class="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-surface-border bg-surface px-4 lg:px-6 shadow-sm">
-                {{-- Mobile menu button --}}
-                <button
-                    @click="mobileSidebarOpen = true"
-                    class="lg:hidden flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-
-                {{-- Page Title --}}
-                <div class="flex-1">
-                    <h1 class="text-lg font-semibold text-gray-900">@yield('page-title', 'Dashboard')</h1>
-                    <p class="text-sm text-gray-500 hidden sm:block">@yield('page-subtitle', '')</p>
-                </div>
-
-                {{-- Header Actions --}}
-                <div class="flex items-center gap-3">
-                    {{-- Search --}}
-                    <div class="hidden md:flex items-center gap-2 rounded-xl bg-gray-100 px-3 py-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    <!-- Header -->
+    <header class="bg-white sticky top-0 z-50 shadow-sm" x-data="{ mobileMenu: false, searchOpen: false, accountOpen: false }">
+        <!-- Main Header -->
+        <div class="border-b border-gray-100">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between h-16 lg:h-20">
+                    <!-- Mobile Menu Button -->
+                    <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 -ml-2 text-gray-700 hover:text-black">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
-                        <input type="text" placeholder="Ara... (⌘K)" class="bg-transparent border-none text-sm text-gray-600 placeholder-gray-400 outline-none w-48">
-                    </div>
-
-                    {{-- Notifications --}}
-                    <button class="relative flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        <span class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                        </span>
                     </button>
 
-                    {{-- User Dropdown --}}
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" class="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-gray-100 transition-colors">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-white text-xs font-semibold">
-                                HT
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    <!-- Logo -->
+                    <a href="{{ route('home') }}" class="flex-shrink-0">
+                        @if($siteSettings['site_logo'] ?? false)
+                            <img src="{{ asset('storage/' . $siteSettings['site_logo']) }}" alt="{{ $siteSettings['site_name'] ?? 'BAIA' }}" class="h-8 lg:h-10">
+                        @else
+                            <span class="text-2xl lg:text-3xl font-serif font-bold text-black tracking-tight">{{ $siteSettings['site_name'] ?? 'BAIA' }}</span>
+                        @endif
+                    </a>
+
+                    <!-- Desktop Navigation -->
+                    <nav class="hidden lg:flex items-center justify-center flex-1 px-8">
+                        <div class="flex items-center gap-8">
+                            @if($headerMenu && $headerMenu->rootItems)
+                                @foreach($headerMenu->rootItems->where('is_active', true)->take(8) as $item)
+                                    @if($item->children && $item->children->where('is_active', true)->count() > 0)
+                                        <div class="relative group">
+                                            <a href="{{ $item->link }}"
+                                               class="flex items-center gap-1 text-sm uppercase tracking-wider text-gray-700 hover:text-black transition-colors py-2">
+                                                {{ $item->title }}
+                                                <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </a>
+                                            <!-- Dropdown -->
+                                            <div class="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                                <div class="bg-white border border-gray-100 shadow-lg min-w-48 py-2">
+                                                    @foreach($item->children->where('is_active', true) as $child)
+                                                        <a href="{{ $child->link }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black">
+                                                            {{ $child->title }}
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <a href="{{ $item->link }}"
+                                           target="{{ $item->target }}"
+                                           class="text-sm uppercase tracking-wider text-gray-700 hover:text-black transition-colors whitespace-nowrap">
+                                            {{ $item->title }}
+                                        </a>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </div>
+                    </nav>
+
+                    <!-- Right Icons -->
+                    <div class="flex items-center gap-1 lg:gap-2">
+                        <!-- Search -->
+                        <button @click="searchOpen = !searchOpen" class="p-2 text-gray-700 hover:text-black transition-colors" title="Ara">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                         </button>
 
-                        {{-- Dropdown Menu --}}
-                        <div
-                            x-show="open"
-                            @click.outside="open = false"
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 scale-95"
-                            x-transition:enter-end="opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-150"
-                            x-transition:leave-start="opacity-100 scale-100"
-                            x-transition:leave-end="opacity-0 scale-95"
-                            class="absolute right-0 mt-2 w-56 rounded-xl bg-white shadow-lg ring-1 ring-black/5 py-1"
-                        >
-                            <div class="px-4 py-3 border-b border-gray-100">
-                                <p class="text-sm font-medium text-gray-900">Halil Tuksal</p>
-                                <p class="text-xs text-gray-500">halil@baia.com</p>
-                            </div>
-                            <a href="#" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <!-- Account -->
+                        <div class="relative" @click.outside="accountOpen = false">
+                            <button @click="accountOpen = !accountOpen" class="p-2 text-gray-700 hover:text-black transition-colors" title="Hesabim">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
-                                Profil
-                            </a>
-                            <a href="#" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                Ayarlar
-                            </a>
-                            <div class="border-t border-gray-100 mt-1 pt-1">
-                                <a href="/login" class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                    </svg>
-                                    Çıkış Yap
-                                </a>
+                            </button>
+                            <!-- Account Dropdown -->
+                            <div x-show="accountOpen" x-cloak
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 translate-y-0"
+                                 x-transition:leave-end="opacity-0 -translate-y-2"
+                                 class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 shadow-lg py-2 z-50">
+                                @auth
+                                    <div class="px-4 py-2 border-b border-gray-100">
+                                        <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
+                                        <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                                    </div>
+                                    @if(auth()->user()->isAdmin())
+                                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            Admin Panel
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('checkout.track') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                        </svg>
+                                        Siparislerim
+                                    </a>
+                                    <div class="border-t border-gray-100 mt-1 pt-1">
+                                        <form action="{{ route('logout') }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                                </svg>
+                                                Cikis Yap
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <div class="px-4 py-3">
+                                        <a href="{{ route('login') }}" class="block w-full py-2.5 px-4 bg-black text-white text-center text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors">
+                                            Giris Yap
+                                        </a>
+                                        <a href="{{ route('register') }}" class="block w-full py-2.5 px-4 mt-2 border border-black text-black text-center text-sm uppercase tracking-wider hover:bg-black hover:text-white transition-colors">
+                                            Kayit Ol
+                                        </a>
+                                    </div>
+                                    <div class="border-t border-gray-100 mt-1 pt-1">
+                                        <a href="{{ route('checkout.track') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                            </svg>
+                                            Siparis Takip
+                                        </a>
+                                    </div>
+                                @endauth
                             </div>
                         </div>
+
+                        <!-- Cart -->
+                        <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-700 hover:text-black transition-colors" title="Sepetim">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                            <span id="cart-count" class="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">0</span>
+                        </a>
                     </div>
                 </div>
-            </header>
-
-            {{-- Page Content --}}
-            <main class="flex-1 overflow-y-auto p-4 lg:p-6">
-                @yield('content')
-            </main>
+            </div>
         </div>
-    </div>
 
+        <!-- Search Overlay -->
+        <div x-show="searchOpen" x-cloak
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="absolute top-full left-0 right-0 bg-white border-b shadow-lg z-40">
+            <div class="container mx-auto px-4 py-6">
+                <form action="{{ route('search') }}" method="GET" class="max-w-2xl mx-auto">
+                    <div class="relative">
+                        <input type="text" name="q" placeholder="Urun ara..." value="{{ request('q') }}"
+                               class="w-full px-4 py-3 border-b-2 border-black focus:outline-none text-lg bg-transparent"
+                               x-ref="searchInput"
+                               @keydown.escape="searchOpen = false">
+                        <button type="submit" class="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-600 hover:text-black">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </button>
+                        <button type="button" @click="searchOpen = false" class="absolute right-12 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-black">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="absolute inset-0 -z-10" @click="searchOpen = false"></div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenu" x-cloak class="lg:hidden fixed inset-0 z-50">
+            <div class="absolute inset-0 bg-black/50" @click="mobileMenu = false"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"></div>
+            <div class="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white overflow-y-auto"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="-translate-x-full"
+                 x-transition:enter-end="translate-x-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="translate-x-0"
+                 x-transition:leave-end="-translate-x-full">
+                <!-- Mobile Header -->
+                <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                    <span class="font-serif text-xl font-bold">{{ $siteSettings['site_name'] ?? 'BAIA' }}</span>
+                    <button @click="mobileMenu = false" class="p-2 text-gray-500 hover:text-black">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Mobile Navigation -->
+                <nav class="py-2">
+                    @if($headerMenu && $headerMenu->rootItems)
+                        @foreach($headerMenu->rootItems->where('is_active', true) as $item)
+                            @if($item->children && $item->children->where('is_active', true)->count() > 0)
+                                <div x-data="{ open: false }">
+                                    <button @click="open = !open" class="flex items-center justify-between w-full px-6 py-3 text-gray-700 hover:bg-gray-50 uppercase text-sm tracking-wider">
+                                        <span>{{ $item->title }}</span>
+                                        <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+                                    <div x-show="open" x-collapse class="bg-gray-50">
+                                        <a href="{{ $item->link }}" class="block px-8 py-2 text-sm text-gray-600 hover:text-black">
+                                            Tumu Gor
+                                        </a>
+                                        @foreach($item->children->where('is_active', true) as $child)
+                                            <a href="{{ $child->link }}" class="block px-8 py-2 text-sm text-gray-600 hover:text-black">
+                                                {{ $child->title }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @else
+                                <a href="{{ $item->link }}"
+                                   class="block px-6 py-3 text-gray-700 hover:bg-gray-50 uppercase text-sm tracking-wider">
+                                    {{ $item->title }}
+                                </a>
+                            @endif
+                        @endforeach
+                    @endif
+                </nav>
+
+                <!-- Mobile Account Section -->
+                <div class="border-t p-4 space-y-2">
+                    @auth
+                        <div class="pb-2 mb-2 border-b">
+                            <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                        </div>
+                        @if(auth()->user()->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 py-2 text-sm text-gray-700 hover:text-black">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                Admin Panel
+                            </a>
+                        @endif
+                        <a href="{{ route('checkout.track') }}" class="flex items-center gap-2 py-2 text-sm text-gray-700 hover:text-black">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            Siparislerim
+                        </a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="flex items-center gap-2 py-2 text-sm text-gray-700 hover:text-black">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                                Cikis Yap
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="block w-full py-2.5 bg-black text-white text-center text-sm uppercase tracking-wider">
+                            Giris Yap
+                        </a>
+                        <a href="{{ route('register') }}" class="block w-full py-2.5 border border-black text-black text-center text-sm uppercase tracking-wider">
+                            Kayit Ol
+                        </a>
+                        <a href="{{ route('checkout.track') }}" class="flex items-center gap-2 py-2 mt-2 text-sm text-gray-700 hover:text-black">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            Siparis Takip
+                        </a>
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    @if(session('success') || session('error') || session('warning'))
+        <div class="container mx-auto px-4 mt-4">
+            @if(session('success'))
+                <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if(session('warning'))
+                <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded" role="alert">
+                    {{ session('warning') }}
+                </div>
+            @endif
+        </div>
+    @endif
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        @yield('content')
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white mt-16">
+        <!-- Footer Features -->
+        @if(isset($footerFeatures) && $footerFeatures->count() > 0)
+            <div class="border-b border-gray-800">
+                <div class="container mx-auto px-4 py-8">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                        @foreach($footerFeatures as $feature)
+                            <div class="flex flex-col items-center">
+                                <span class="text-white/80 text-sm font-medium">{{ $feature->title }}</span>
+                                @if($feature->description)
+                                    <span class="text-white/50 text-xs mt-1">{{ $feature->description }}</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- About -->
+                <div>
+                    <h3 class="font-serif text-xl font-bold mb-4">{{ $siteSettings['site_name'] ?? 'BAIA' }}</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        {{ $siteSettings['footer_about'] ?? 'Kaliteli ve sik mobilyalar ile evinizi guzelleştirin.' }}
+                    </p>
+                    <div class="flex gap-4 mt-6">
+                        @if($siteSettings['social_facebook'] ?? false)
+                            <a href="{{ $siteSettings['social_facebook'] }}" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        @endif
+                        @if($siteSettings['social_instagram'] ?? false)
+                            <a href="{{ $siteSettings['social_instagram'] }}" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        @endif
+                        @if($siteSettings['social_pinterest'] ?? false)
+                            <a href="{{ $siteSettings['social_pinterest'] }}" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-pinterest"></i>
+                            </a>
+                        @endif
+                        @if($siteSettings['social_twitter'] ?? false)
+                            <a href="{{ $siteSettings['social_twitter'] }}" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-x-twitter"></i>
+                            </a>
+                        @endif
+                        @if($siteSettings['social_youtube'] ?? false)
+                            <a href="{{ $siteSettings['social_youtube'] }}" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Footer Menu 1 -->
+                @if($footerMenu && $footerMenu->rootItems)
+                    <div>
+                        <h4 class="font-semibold uppercase text-sm tracking-wider mb-4">{{ $footerMenu->name }}</h4>
+                        <ul class="space-y-3 text-sm">
+                            @foreach($footerMenu->rootItems->where('is_active', true) as $item)
+                                <li>
+                                    <a href="{{ $item->link }}" class="text-gray-400 hover:text-white transition-colors">
+                                        {{ $item->title }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Footer Menu 2 -->
+                @if($footerSecondaryMenu && $footerSecondaryMenu->rootItems)
+                    <div>
+                        <h4 class="font-semibold uppercase text-sm tracking-wider mb-4">{{ $footerSecondaryMenu->name }}</h4>
+                        <ul class="space-y-3 text-sm">
+                            @foreach($footerSecondaryMenu->rootItems->where('is_active', true) as $item)
+                                <li>
+                                    <a href="{{ $item->link }}" class="text-gray-400 hover:text-white transition-colors">
+                                        {{ $item->title }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="font-semibold uppercase text-sm tracking-wider mb-4">Iletisim</h4>
+                    <ul class="space-y-3 text-sm">
+                        @if($siteSettings['contact_address'] ?? false)
+                            <li class="flex items-start gap-3">
+                                <i class="fas fa-map-marker-alt mt-1 text-gray-500"></i>
+                                <span class="text-gray-400">{{ $siteSettings['contact_address'] }}</span>
+                            </li>
+                        @endif
+                        @if($siteSettings['contact_phone'] ?? false)
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-phone text-gray-500"></i>
+                                <a href="tel:{{ $siteSettings['contact_phone'] }}" class="text-gray-400 hover:text-white">
+                                    {{ $siteSettings['contact_phone'] }}
+                                </a>
+                            </li>
+                        @endif
+                        @if($siteSettings['contact_email'] ?? false)
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-envelope text-gray-500"></i>
+                                <a href="mailto:{{ $siteSettings['contact_email'] }}" class="text-gray-400 hover:text-white">
+                                    {{ $siteSettings['contact_email'] }}
+                                </a>
+                            </li>
+                        @endif
+                        @if($siteSettings['contact_working_hours'] ?? false)
+                            <li class="flex items-center gap-3">
+                                <i class="fas fa-clock text-gray-500"></i>
+                                <span class="text-gray-400">{{ $siteSettings['contact_working_hours'] }}</span>
+                            </li>
+                        @endif
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Payment Icons & Copyright -->
+            <div class="border-t border-gray-800 mt-12 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p class="text-sm text-gray-500">
+                        {{ $siteSettings['footer_copyright'] ?? '© ' . date('Y') . ' BAIA. Tum haklari saklidir.' }}
+                    </p>
+                    @if($siteSettings['footer_payment_icons'] ?? true)
+                        <div class="flex gap-3">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/100px-Visa_Inc._logo.svg.png" alt="Visa" class="h-6 opacity-50">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/100px-Mastercard-logo.svg.png" alt="Mastercard" class="h-6 opacity-50">
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Button -->
+    @if($siteSettings['contact_phone'] ?? false)
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $siteSettings['contact_phone']) }}" target="_blank"
+           class="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition z-50">
+            <i class="fab fa-whatsapp text-2xl"></i>
+        </a>
+    @endif
+
+    <script>
+        async function updateCartCount() {
+            try {
+                const response = await fetch('{{ route("cart.data") }}');
+                const data = await response.json();
+                document.getElementById('cart-count').textContent = data.total_items || 0;
+            } catch (e) {}
+        }
+        updateCartCount();
+    </script>
+    @stack('scripts')
 </body>
 </html>

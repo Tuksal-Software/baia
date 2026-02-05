@@ -123,4 +123,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | WhatsApp Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Phone number for WhatsApp orders (with country code, no + sign)
+    |
+    */
+
+    'whatsapp_number' => env('WHATSAPP_NUMBER', '905551234567'),
+
 ];
