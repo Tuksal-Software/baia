@@ -19,8 +19,6 @@ class SiteSettingSeeder extends Seeder
             ['group' => 'general', 'key' => 'site_logo', 'value' => null, 'type' => 'image', 'label' => 'Site Logosu', 'order' => 3],
             ['group' => 'general', 'key' => 'site_logo_light', 'value' => null, 'type' => 'image', 'label' => 'Site Logosu (Açık)', 'order' => 4],
             ['group' => 'general', 'key' => 'site_favicon', 'value' => null, 'type' => 'image', 'label' => 'Favicon', 'order' => 5],
-            ['group' => 'general', 'key' => 'currency_symbol', 'value' => '₺', 'type' => 'text', 'label' => 'Para Birimi Sembolü', 'order' => 6],
-            ['group' => 'general', 'key' => 'currency_code', 'value' => 'TRY', 'type' => 'text', 'label' => 'Para Birimi Kodu', 'order' => 7],
 
             // Header Settings
             ['group' => 'header', 'key' => 'header_announcement', 'value' => 'Ücretsiz Kargo - 2000₺ üzeri siparişlerde', 'type' => 'text', 'label' => 'Duyuru Bandı', 'order' => 1],
